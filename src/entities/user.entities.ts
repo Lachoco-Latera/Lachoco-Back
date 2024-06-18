@@ -32,9 +32,6 @@ export class User {
   @Column({ type: "varchar", length: 100, nullable: false })
   password: string;
 
-  @Column({ type: "date", nullable: false })
-  birthDate: string;
-
   @Column({ type: "enum", default: Role.CLIENT })
   role: Role;
 
