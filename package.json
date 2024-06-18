@@ -1,0 +1,43 @@
+{
+  "name": "lachoco-back",
+  "version": "1.0.0",
+  "description": "ecommerce choco",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon",
+    "build": "tsc --watch",
+    "lint": "eslint . --ext .ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlhuayOscar/Lachoco-Back.git"
+  },
+  "author": "CarlosM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlhuayOscar/Lachoco-Back/issues"
+  },
+  "homepage": "https://github.com/AlhuayOscar/Lachoco-Back#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.5.0",
+    "express": "^4.19.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.12.0",
+    "prettier": "^3.3.2",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^20.14.5",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "nodemon": "^3.1.3",
+    "ts-node": "^10.9.2"
+  }
+}
