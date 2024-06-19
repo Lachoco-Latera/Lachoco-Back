@@ -29,6 +29,8 @@ export declare class UserController {
     }[]>;
     createAdmin(id: string): Promise<string>;
     remove(id: string): Promise<string>;
+    favorite(userId: string, productId: string): Promise<import("./entities/user.entity").User>;
+    RemoveFavorite(userId: string, productId: string): Promise<void>;
     findOne(id: string): Promise<{
         id: string;
         name: string;

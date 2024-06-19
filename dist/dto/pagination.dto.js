@@ -15,11 +15,11 @@ const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 class PaginationQuery {
     constructor() {
-        this.limit = 5;
+        this.limit = 15;
         this.page = 1;
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { limit: { required: false, type: () => Number, default: 5 }, page: { required: false, type: () => Number, default: 1 } };
+        return { limit: { required: false, type: () => Number, default: 15 }, page: { required: false, type: () => Number, default: 1 } };
     }
 }
 exports.PaginationQuery = PaginationQuery;

@@ -40,6 +40,12 @@ let UserController = class UserController {
     remove(id) {
         return this.userService.inactiveUser(id);
     }
+    favorite(userId, productId) {
+        return this.userService.makeFavorite(userId, productId);
+    }
+    RemoveFavorite(userId, productId) {
+        return this.userService.removeFavorite(userId, productId);
+    }
     findOne(id) {
         return this.userService.findOne(id);
     }
@@ -136,6 +142,22 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)('/favorite'),
+    openapi.ApiResponse({ status: 201, type: require("./entities/user.entity").User }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "favorite", null);
+__decorate([
+    (0, common_1.Put)('/RmFavorite'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "RemoveFavorite", null);
 __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,

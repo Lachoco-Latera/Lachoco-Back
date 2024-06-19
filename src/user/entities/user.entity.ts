@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -43,6 +44,7 @@ export class User {
   @JoinColumn({ name: 'orders_id' })
   orders: Order[];
 
-  @ManyToMany(() => Product, (product) => product.user)
+  @ManyToMany(() => Product)
+  @JoinTable()
   favoriteProducts: Product[];
 }

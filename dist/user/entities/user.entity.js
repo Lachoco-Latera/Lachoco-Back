@@ -64,7 +64,8 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "orders", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.user),
+    (0, typeorm_1.ManyToMany)(() => product_entity_1.Product),
+    (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], User.prototype, "favoriteProducts", void 0);
 exports.User = User = __decorate([

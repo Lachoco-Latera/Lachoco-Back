@@ -3,10 +3,12 @@ import { Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Product } from 'src/product/entities/product.entity';
 export declare class UserService {
     private userRepository;
+    private readonly productRepository;
     private readonly jwtService;
-    constructor(userRepository: Repository<User>, jwtService: JwtService);
+    constructor(userRepository: Repository<User>, productRepository: Repository<Product>, jwtService: JwtService);
     create(user: createUserDto): Promise<{
         id: string;
         isActive: boolean;
@@ -27,7 +29,7 @@ export declare class UserService {
         role: Role;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
-        favoriteProducts: import("../product/entities/product.entity").Product[];
+        favoriteProducts: Product[];
     }[]>;
     findOne(id: string): Promise<{
         id: string;
@@ -36,8 +38,10 @@ export declare class UserService {
         email: string;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
-        favoriteProducts: import("../product/entities/product.entity").Product[];
+        favoriteProducts: Product[];
     }>;
     createAdmin(id: any): Promise<string>;
     inactiveUser(id: string): Promise<string>;
+    makeFavorite(idUser: string, idProduct: string): Promise<User>;
+    removeFavorite(userId: string, productId: string): Promise<void>;
 }
