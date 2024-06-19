@@ -12,11 +12,14 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly jwtService: JwtService,
   ) {}
   async create(user: createUserDto) {
@@ -99,7 +102,7 @@ export class UserService {
   async findOne(id: string) {
     const foundUser = await this.userRepository.findOne({
       where: { id: id },
-      relations: { orders: true },
+      relations: ['orders', 'favoriteProducts'],
     });
     if (!foundUser) {
       throw new NotFoundException('User notFound');
@@ -127,5 +130,41 @@ export class UserService {
       isActive: false,
     });
     return `User ${id} change to inactive`;
+  }
+
+  async makeFavorite(idUser: string, idProduct: string) {
+    const user = await this.userRepository.findOne({ where: { id: idUser } });
+    if (!user) throw new NotFoundException('UserNot Found');
+
+    const product = await this.productRepository.findOne({
+      where: { id: idProduct },
+    });
+    if (!product) throw new NotFoundException('Product Not Found');
+
+    if (user && product) {
+      user.favoriteProducts.push(product);
+      const userSelection = await this.userRepository.save(user);
+      return await this.userRepository.findOne({
+        where: { id: userSelection.id },
+        relations: { favoriteProducts: true },
+      });
+    }
+  }
+
+  async removeFavorite(userId: string, productId: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['favorites'],
+    });
+
+    if (!user) throw new NotFoundException('User Not Found');
+
+    const filterFavoritesUser = user.favoriteProducts.filter(
+      (product) => product.id !== productId,
+    );
+    await this.userRepository.update(
+      { id: userId },
+      { favoriteProducts: filterFavoritesUser },
+    );
   }
 }
