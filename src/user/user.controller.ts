@@ -101,6 +101,16 @@ export class UserController {
     return this.userService.inactiveUser(id);
   }
 
+  @Post('/favorite')
+  favorite(@Body() userId: string, productId: string) {
+    return this.userService.makeFavorite(userId, productId);
+  }
+
+  @Put('/RmFavorite')
+  RemoveFavorite(@Body() userId: string, productId: string) {
+    return this.userService.removeFavorite(userId, productId);
+  }
+
   @ApiResponse({
     status: 200,
     description: 'Usuario por ID',
