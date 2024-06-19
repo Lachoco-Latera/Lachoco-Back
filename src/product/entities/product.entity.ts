@@ -3,7 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToOne,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -50,6 +50,6 @@ export class Product {
   @JoinColumn({ name: 'img_id' })
   images: Image[];
 
-  @ManyToOne(() => User, (user) => user.favoriteProducts)
+  @ManyToMany(() => User, (user) => user.favoriteProducts)
   user: User;
 }
