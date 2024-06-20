@@ -34,6 +34,14 @@ export class createUserDto {
   email: string;
 
   /**
+   * @example 'Colombia'
+   * @description Location
+   */
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  /**
    * @example 'P@asw0rd'
    * @description Password of the user
    */
