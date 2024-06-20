@@ -4,6 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -29,6 +31,9 @@ export class User {
   @Column({ type: 'varchar', length: 40, nullable: false, unique: true })
   email: string;
 
+  @Column({ type: 'varchar', length: 40, nullable: false })
+  country: string;
+
   @Column({ type: 'varchar', length: 100, nullable: false })
   password: string;
 
@@ -42,6 +47,7 @@ export class User {
   @JoinColumn({ name: 'orders_id' })
   orders: Order[];
 
-  @OneToMany(() => Product, (product) => product.user)
+  @ManyToMany(() => Product)
+  @JoinTable()
   favoriteProducts: Product[];
 }
