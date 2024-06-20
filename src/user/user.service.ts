@@ -14,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Product } from 'src/product/entities/product.entity';
 import { userFavorites } from './dto/userFavorite.dto';
+import { fnPagination } from '../utils/pagination';
 
 @Injectable()
 export class UserService {
@@ -81,24 +82,19 @@ export class UserService {
 
   async findAll(pagination) {
     const { page, limit } = pagination;
-    const defaultPage = page || 1;
-    const defaultLimit = limit || 15;
-
-    const startIndex = (defaultPage - 1) * defaultLimit;
-    const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
       relations: { orders: true },
     });
 
-    const usersNotPassword = users
-      .map((user) => {
-        const { password, ...userNotPassWord } = user;
-        return userNotPassWord;
-      })
-      .slice(startIndex, endIndex);
+    const usersNotPassword = users.map((user) => {
+      const { password, ...userNotPassWord } = user;
+      return userNotPassWord;
+    });
 
-    return usersNotPassword;
+    const sliceUsers = fnPagination(page, limit, usersNotPassword);
+
+    return sliceUsers;
   }
 
   async findOne(id: string) {

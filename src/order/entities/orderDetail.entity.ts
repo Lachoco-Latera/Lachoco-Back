@@ -2,14 +2,14 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Order } from './order.entity';
-import { Product } from 'src/product/entities/product.entity';
+
+import { OrderDetailProduct } from './orderDetailsProdusct.entity';
 
 @Entity({
   name: 'order_details',
@@ -25,7 +25,10 @@ export class OrderDetail {
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToMany(() => Product, { lazy: false })
-  @JoinTable({ name: 'order_details_products' })
-  products: Product[];
+  @OneToMany(
+    () => OrderDetailProduct,
+    (orderDetailProduct) => orderDetailProduct.orderDetail,
+    { cascade: true },
+  )
+  orderDetailProducts: OrderDetailProduct[];
 }

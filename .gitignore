@@ -1,2 +1,8 @@
 node_modules
 .env
+.dist
+
+# compiled output
+/dist
+/node_modules
+/build
