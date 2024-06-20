@@ -15,6 +15,7 @@ const typeorm_1 = require("typeorm");
 const uuid_1 = require("uuid");
 const image_entity_1 = require("./image.entity");
 const sabor_entity_1 = require("./sabor.entity");
+const orderDetailsProdusct_entity_1 = require("../../order/entities/orderDetailsProdusct.entity");
 var category;
 (function (category) {
     category["BOMBAS"] = "bombas";
@@ -31,7 +32,7 @@ let Product = class Product {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("./sabor.entity").Flavor] } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("./sabor.entity").Flavor] }, orderDetailProducts: { required: true, type: () => [require("../../order/entities/orderDetailsProdusct.entity").OrderDetailProduct] } };
     }
 };
 exports.Product = Product;
@@ -68,15 +69,19 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Product.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => image_entity_1.Image, (image) => image.product),
+    (0, typeorm_1.OneToMany)(() => image_entity_1.Image, (image) => image.product, { cascade: true }),
     (0, typeorm_1.JoinColumn)({ name: 'img_id' }),
     __metadata("design:type", Array)
 ], Product.prototype, "images", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => sabor_entity_1.Flavor),
+    (0, typeorm_1.ManyToMany)(() => sabor_entity_1.Flavor, { cascade: true }),
     (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], Product.prototype, "flavors", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => orderDetailsProdusct_entity_1.OrderDetailProduct, (orderDetailProduct) => orderDetailProduct.product),
+    __metadata("design:type", Array)
+], Product.prototype, "orderDetailProducts", void 0);
 exports.Product = Product = __decorate([
     (0, typeorm_1.Entity)({
         name: 'products',

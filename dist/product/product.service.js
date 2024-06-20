@@ -19,6 +19,7 @@ const product_entity_1 = require("./entities/product.entity");
 const typeorm_2 = require("typeorm");
 const image_entity_1 = require("./entities/image.entity");
 const sabor_entity_1 = require("./entities/sabor.entity");
+const pagination_1 = require("../utils/pagination");
 let ProductService = class ProductService {
     constructor(productRepository, imageRepository, flavorRepository) {
         this.productRepository = productRepository;
@@ -26,25 +27,29 @@ let ProductService = class ProductService {
         this.flavorRepository = flavorRepository;
     }
     async create(createProductDto) {
-        const newProduct = await this.productRepository.save(createProductDto);
-        return newProduct;
+        const imageEntities = createProductDto.images.map((imageUrl) => this.imageRepository.create({ img: imageUrl }));
+        const flavorEntities = createProductDto.flavors.map((flavor) => this.flavorRepository.create({ name: flavor }));
+        const savedImages = await this.imageRepository.save(imageEntities);
+        const savedFlavors = await this.flavorRepository.save(flavorEntities);
+        const newProduct = {
+            ...createProductDto,
+            images: await this.imageRepository.save(savedImages),
+            flavors: await this.imageRepository.save(savedFlavors),
+        };
+        return await this.productRepository.save(newProduct);
     }
     async findAll(pagination) {
         const { page, limit } = pagination;
-        const defaultPage = page || 1;
-        const defaultLimit = limit || 15;
-        const startIndex = (defaultPage - 1) * defaultLimit;
-        const endIndex = startIndex + defaultLimit;
-        const users = await this.productRepository.find({
-            relations: { flavors: true },
+        const products = await this.productRepository.find({
+            relations: ['flavors', 'images'],
         });
-        const sliceUsers = users.slice(startIndex, endIndex);
+        const sliceUsers = (0, pagination_1.fnPagination)(page, limit, products);
         return sliceUsers;
     }
     async findOne(id) {
         const findProdut = await this.productRepository.findOne({
             where: { id: id },
-            relations: { flavors: true },
+            relations: ['flavors', 'images'],
         });
         if (!findProdut)
             throw new common_1.NotFoundException('Product not found');

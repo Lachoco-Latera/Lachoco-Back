@@ -19,6 +19,7 @@ const order_service_1 = require("./order.service");
 const create_order_dto_1 = require("./dto/create-order.dto");
 const update_order_dto_1 = require("./dto/update-order.dto");
 const swagger_1 = require("@nestjs/swagger");
+const pagination_dto_1 = require("../dto/pagination.dto");
 let OrderController = class OrderController {
     constructor(orderService) {
         this.orderService = orderService;
@@ -26,11 +27,11 @@ let OrderController = class OrderController {
     create(createOrderDto) {
         return this.orderService.create(createOrderDto);
     }
-    findAll() {
-        return this.orderService.findAll();
+    findAll(pagination) {
+        return this.orderService.findAll(pagination);
     }
     findOne(id) {
-        return this.orderService.findOne(+id);
+        return this.orderService.findOne(id);
     }
     update(id, updateOrderDto) {
         return this.orderService.update(+id, updateOrderDto);
@@ -42,7 +43,7 @@ let OrderController = class OrderController {
 exports.OrderController = OrderController;
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: String }),
+    openapi.ApiResponse({ status: 201, type: [require("./entities/order.entity").Order] }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_order_dto_1.CreateOrderDto]),
@@ -50,14 +51,14 @@ __decorate([
 ], OrderController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [pagination_dto_1.PaginationQuery]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: require("./entities/order.entity").Order }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

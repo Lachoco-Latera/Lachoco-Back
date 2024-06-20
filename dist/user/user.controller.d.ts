@@ -19,17 +19,7 @@ export declare class UserController {
         success: string;
         token: string;
     }>;
-    findAll(pagination?: PaginationQuery): Promise<{
-        id: string;
-        name: string;
-        lastname: string;
-        email: string;
-        country: string;
-        role: import("./entities/user.entity").Role;
-        isActive: boolean;
-        orders: import("../order/entities/order.entity").Order[];
-        favoriteProducts: import("../product/entities/product.entity").Product[];
-    }[]>;
+    findAll(pagination?: PaginationQuery): Promise<any>;
     createAdmin(id: string): Promise<string>;
     remove(id: string): Promise<string>;
     favorite(favorite: userFavorites): Promise<{

@@ -11,6 +11,7 @@ import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PaginationQuery } from 'src/dto/pagination.dto';
 
 @Controller('order')
 @ApiTags('orders')
@@ -23,13 +24,13 @@ export class OrderController {
   }
 
   @Get()
-  findAll() {
-    return this.orderService.findAll();
+  findAll(pagination?: PaginationQuery) {
+    return this.orderService.findAll(pagination);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.orderService.findOne(+id);
+    return this.orderService.findOne(id);
   }
 
   @Patch(':id')
