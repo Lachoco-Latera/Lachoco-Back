@@ -17,22 +17,23 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const order_entity_1 = require("./entities/order.entity");
 const typeorm_2 = require("typeorm");
-const pagination_1 = require("../utils/pagination");
 const orderDetail_entity_1 = require("./entities/orderDetail.entity");
 const user_entity_1 = require("../user/entities/user.entity");
 const product_entity_1 = require("../product/entities/product.entity");
 const orderDetailsProdusct_entity_1 = require("./entities/orderDetailsProdusct.entity");
 let OrderService = class OrderService {
-    constructor(orderRepository, orderDetailRepository, userRepository, productRepository, OrderDetailProductRepository) {
+    constructor(orderRepository, orderDetailRepository, userRepository, productRepository, OrderDetailProductRepository, entityManager) {
         this.orderRepository = orderRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.OrderDetailProductRepository = OrderDetailProductRepository;
+        this.entityManager = entityManager;
     }
     async create(createOrderDto) {
         const { userId, products } = createOrderDto;
         let total = 0;
+        const errors = [];
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (!user)
             throw new common_1.NotFoundException('User not found');
@@ -42,13 +43,13 @@ let OrderService = class OrderService {
             });
             const productInfo = { product: null, cantidad: 0 };
             if (!findProduct) {
-                return productInfo;
+                errors.push(`Product ${product.id} not found`);
             }
             else if (findProduct.stock === 0) {
-                return productInfo;
+                errors.push(`Product ${product.id} with no enough stock`);
             }
             else if (findProduct.stock < product.cantidad) {
-                return productInfo;
+                errors.push(`Product ${product.id} with no enough stock`);
             }
             else {
                 productInfo.product = findProduct;
@@ -58,6 +59,9 @@ let OrderService = class OrderService {
                 return productInfo;
             }
         }));
+        if (errors.length > 0) {
+            throw new common_1.BadRequestException(errors);
+        }
         const order = {
             date: new Date(),
             user: user,
@@ -87,14 +91,54 @@ let OrderService = class OrderService {
             },
         });
     }
+    async confirmOrder(orderId) {
+        const order = await this.orderRepository.findOne({
+            where: { id: orderId },
+            relations: [
+                'user',
+                'orderDetail',
+                'orderDetail.orderDetailProducts',
+                'orderDetail.orderDetailProducts.product',
+            ],
+        });
+        if (!order)
+            throw new common_1.NotFoundException(`Order ${orderId} not found`);
+        const orderDetailProducts = order.orderDetail.orderDetailProducts;
+        await this.entityManager.transaction(async (transactionalEntityManager) => {
+            for (const orderDetailProduct of orderDetailProducts) {
+                const product = orderDetailProduct.product;
+                const cantidad = orderDetailProduct.cantidad;
+                if (cantidad && product) {
+                    await transactionalEntityManager.update(product_entity_1.Product, { id: product.id }, { stock: product.stock - cantidad });
+                }
+            }
+            await transactionalEntityManager.update(order_entity_1.Order, { id: order.id }, { status: order_entity_1.status.FINISHED });
+            return `order ${order.id} updated`;
+        });
+    }
     async findAll(pagination) {
-        const { page, limit } = pagination;
-        const orders = await this.orderRepository.find();
-        const sliceOrders = (0, pagination_1.fnPagination)(page, limit, orders);
+        const { page, limit } = pagination ?? {};
+        const defaultPage = page ?? 1;
+        const defaultLimit = limit ?? 15;
+        const startIndex = (defaultPage - 1) * defaultLimit;
+        const endIndex = startIndex + defaultLimit;
+        const orders = await this.orderRepository.find({
+            relations: { orderDetail: true },
+        });
+        const sliceOrders = orders.slice(startIndex, endIndex);
         return sliceOrders;
     }
     async findOne(id) {
-        const order = await this.orderRepository.findOne({ where: { id: id } });
+        const order = await this.orderRepository.findOne({
+            where: { id: id },
+            relations: {
+                orderDetail: {
+                    orderDetailProducts: {
+                        product: true,
+                    },
+                },
+            },
+        });
         if (!order)
             throw new common_1.NotFoundException('Order not found');
         return order;
@@ -114,10 +158,12 @@ exports.OrderService = OrderService = __decorate([
     __param(2, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
     __param(3, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(4, (0, typeorm_1.InjectRepository)(orderDetailsProdusct_entity_1.OrderDetailProduct)),
+    __param(5, (0, typeorm_1.InjectEntityManager)()),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository,
-        typeorm_2.Repository])
+        typeorm_2.Repository,
+        typeorm_2.EntityManager])
 ], OrderService);
 //# sourceMappingURL=order.service.js.map

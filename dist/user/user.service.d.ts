@@ -23,7 +23,17 @@ export declare class UserService {
         success: string;
         token: string;
     }>;
-    findAll(pagination: any): Promise<any>;
+    findAll(pagination: any): Promise<{
+        id: string;
+        name: string;
+        lastname: string;
+        email: string;
+        country: string;
+        role: Role;
+        isActive: boolean;
+        orders: import("../order/entities/order.entity").Order[];
+        favoriteProducts: Product[];
+    }[]>;
     findOne(id: string): Promise<{
         id: string;
         name: string;

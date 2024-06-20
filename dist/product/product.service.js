@@ -19,7 +19,6 @@ const product_entity_1 = require("./entities/product.entity");
 const typeorm_2 = require("typeorm");
 const image_entity_1 = require("./entities/image.entity");
 const sabor_entity_1 = require("./entities/sabor.entity");
-const pagination_1 = require("../utils/pagination");
 let ProductService = class ProductService {
     constructor(productRepository, imageRepository, flavorRepository) {
         this.productRepository = productRepository;
@@ -33,17 +32,21 @@ let ProductService = class ProductService {
         const savedFlavors = await this.flavorRepository.save(flavorEntities);
         const newProduct = {
             ...createProductDto,
-            images: await this.imageRepository.save(savedImages),
-            flavors: await this.imageRepository.save(savedFlavors),
+            images: savedImages,
+            flavors: savedFlavors,
         };
         return await this.productRepository.save(newProduct);
     }
     async findAll(pagination) {
-        const { page, limit } = pagination;
+        const { page, limit } = pagination ?? {};
+        const defaultPage = page ?? 1;
+        const defaultLimit = limit ?? 15;
+        const startIndex = (defaultPage - 1) * defaultLimit;
+        const endIndex = startIndex + defaultLimit;
         const products = await this.productRepository.find({
-            relations: ['flavors', 'images'],
+            relations: { flavors: true, images: true },
         });
-        const sliceUsers = (0, pagination_1.fnPagination)(page, limit, products);
+        const sliceUsers = products.slice(startIndex, endIndex);
         return sliceUsers;
     }
     async findOne(id) {

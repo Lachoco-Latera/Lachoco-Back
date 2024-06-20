@@ -28,20 +28,25 @@ export class ProductService {
 
     const newProduct = {
       ...createProductDto,
-      images: await this.imageRepository.save(savedImages),
-      flavors: await this.imageRepository.save(savedFlavors),
+      images: savedImages,
+      flavors: savedFlavors,
     };
 
     return await this.productRepository.save(newProduct);
   }
 
   async findAll(pagination) {
-    const { page, limit } = pagination;
+    const { page, limit } = pagination ?? {};
+    const defaultPage = page ?? 1;
+    const defaultLimit = limit ?? 15;
+
+    const startIndex = (defaultPage - 1) * defaultLimit;
+    const endIndex = startIndex + defaultLimit;
 
     const products = await this.productRepository.find({
-      relations: ['flavors', 'images'],
+      relations: { flavors: true, images: true },
     });
-    const sliceUsers = fnPagination(page, limit, products);
+    const sliceUsers = products.slice(startIndex, endIndex);
     return sliceUsers;
   }
 

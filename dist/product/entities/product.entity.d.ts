@@ -10,12 +10,18 @@ export declare enum label {
     ONLINE = "SoloOnline",
     NEW = "nuevo"
 }
+export declare enum currency {
+    COP = "COP",
+    USD = "USD",
+    EUR = "EUR"
+}
 export declare class Product {
     id: string;
     category: category;
     presentacion: number;
     description: string;
     price: number;
+    currency: currency;
     stock: number;
     label: label;
     isActive: boolean;

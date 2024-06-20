@@ -10,15 +10,16 @@ export declare class ProductService {
     constructor(productRepository: Repository<Product>, imageRepository: Repository<Image>, flavorRepository: Repository<Flavor>);
     create(createProductDto: CreateProductDto): Promise<{
         images: Image[];
-        flavors: (Flavor & Image)[];
+        flavors: Flavor[];
         category: import("./entities/product.entity").category;
         description: string;
         price: number;
+        currency: import("./entities/product.entity").currency;
         stock: number;
         label: import("./entities/product.entity").label;
         presentacion: number;
     } & Product>;
-    findAll(pagination: any): Promise<any>;
+    findAll(pagination: any): Promise<Product[]>;
     findOne(id: string): Promise<Product>;
     updateFlavor(id: string, updateFlavorDto: any): Promise<Product>;
     removeFlavor(id: string, updateFlavorDto: any): Promise<Product>;
