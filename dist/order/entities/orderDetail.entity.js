@@ -14,13 +14,13 @@ const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const uuid_1 = require("uuid");
 const order_entity_1 = require("./order.entity");
-const product_entity_1 = require("../../product/entities/product.entity");
+const orderDetailsProdusct_entity_1 = require("./orderDetailsProdusct.entity");
 let OrderDetail = class OrderDetail {
     constructor() {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, price: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order }, products: { required: true, type: () => [require("../../product/entities/product.entity").Product] } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, price: { required: true, type: () => Number }, order: { required: true, type: () => require("./order.entity").Order }, orderDetailProducts: { required: true, type: () => [require("./orderDetailsProdusct.entity").OrderDetailProduct] } };
     }
 };
 exports.OrderDetail = OrderDetail;
@@ -38,10 +38,9 @@ __decorate([
     __metadata("design:type", order_entity_1.Order)
 ], OrderDetail.prototype, "order", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => product_entity_1.Product, { lazy: false }),
-    (0, typeorm_1.JoinTable)({ name: 'order_details_products' }),
+    (0, typeorm_1.OneToMany)(() => orderDetailsProdusct_entity_1.OrderDetailProduct, (orderDetailProduct) => orderDetailProduct.orderDetail, { cascade: true }),
     __metadata("design:type", Array)
-], OrderDetail.prototype, "products", void 0);
+], OrderDetail.prototype, "orderDetailProducts", void 0);
 exports.OrderDetail = OrderDetail = __decorate([
     (0, typeorm_1.Entity)({
         name: 'order_details',

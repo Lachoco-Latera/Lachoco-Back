@@ -5,8 +5,17 @@ import { PaginationQuery } from 'src/dto/pagination.dto';
 export declare class ProductController {
     private readonly productService;
     constructor(productService: ProductService);
-    create(createProductDto: CreateProductDto): Promise<any>;
-    findAll(pagination?: PaginationQuery): Promise<import("./entities/product.entity").Product[]>;
+    create(createProductDto: CreateProductDto): Promise<{
+        images: import("./entities/image.entity").Image[];
+        flavors: (import("./entities/sabor.entity").Flavor & import("./entities/image.entity").Image)[];
+        category: import("./entities/product.entity").category;
+        description: string;
+        price: number;
+        stock: number;
+        label: import("./entities/product.entity").label;
+        presentacion: number;
+    } & import("./entities/product.entity").Product>;
+    findAll(pagination?: PaginationQuery): Promise<any>;
     findOne(id: string): Promise<import("./entities/product.entity").Product>;
     updateFlavor(id: string, updateFlavorDto: updateFlavorDto): Promise<import("./entities/product.entity").Product>;
     removeFlavor(id: string, updateFlavorDto: updateFlavorDto): Promise<import("./entities/product.entity").Product>;

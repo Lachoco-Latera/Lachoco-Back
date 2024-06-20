@@ -1,5 +1,6 @@
 import { Image } from './image.entity';
 import { Flavor } from './sabor.entity';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 export declare enum category {
     BOMBAS = "bombas",
     TABLETAS = "tabletas",
@@ -20,4 +21,5 @@ export declare class Product {
     isActive: boolean;
     images: Image[];
     flavors: Flavor[];
+    orderDetailProducts: OrderDetailProduct[];
 }

@@ -10,6 +10,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { Image } from './image.entity';
 import { Flavor } from './sabor.entity';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 
 export enum category {
   BOMBAS = 'bombas',
@@ -50,11 +51,17 @@ export class Product {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
-  @OneToMany(() => Image, (image) => image.product)
+  @OneToMany(() => Image, (image) => image.product, { cascade: true })
   @JoinColumn({ name: 'img_id' })
   images: Image[];
 
-  @ManyToMany(() => Flavor)
+  @ManyToMany(() => Flavor, { cascade: true })
   @JoinTable()
   flavors: Flavor[];
+
+  @OneToMany(
+    () => OrderDetailProduct,
+    (orderDetailProduct) => orderDetailProduct.product,
+  )
+  orderDetailProducts: OrderDetailProduct[];
 }
