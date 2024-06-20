@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
+import { Order, status } from './entities/order.entity';
+import { EntityManager, Repository } from 'typeorm';
 import { PaginationQuery } from 'src/dto/pagination.dto';
-import { fnPagination } from 'src/utils/pagination';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Product } from 'src/product/entities/product.entity';
@@ -21,13 +24,14 @@ export class OrderService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(OrderDetailProduct)
     private OrderDetailProductRepository: Repository<OrderDetailProduct>,
+    @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
     const { userId, products } = createOrderDto;
 
     let total = 0;
-
+    const errors = [];
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -40,11 +44,11 @@ export class OrderService {
         const productInfo = { product: null, cantidad: 0 };
 
         if (!findProduct) {
-          return productInfo;
+          errors.push(`Product ${product.id} not found`);
         } else if (findProduct.stock === 0) {
-          return productInfo;
+          errors.push(`Product ${product.id} with no enough stock`);
         } else if (findProduct.stock < product.cantidad) {
-          return productInfo;
+          errors.push(`Product ${product.id} with no enough stock`);
         } else {
           productInfo.product = findProduct;
           productInfo.cantidad = product.cantidad;
@@ -59,6 +63,10 @@ export class OrderService {
         }
       }),
     );
+
+    if (errors.length > 0) {
+      throw new BadRequestException(errors);
+    }
 
     const order = {
       date: new Date(),
@@ -94,18 +102,69 @@ export class OrderService {
       },
     });
   }
+  async confirmOrder(orderId) {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: [
+        'user',
+        'orderDetail',
+        'orderDetail.orderDetailProducts',
+        'orderDetail.orderDetailProducts.product',
+      ],
+    });
+    if (!order) throw new NotFoundException(`Order ${orderId} not found`);
 
-  async findAll(pagination: PaginationQuery) {
-    const { page, limit } = pagination;
+    const orderDetailProducts = order.orderDetail.orderDetailProducts;
+    await this.entityManager.transaction(async (transactionalEntityManager) => {
+      for (const orderDetailProduct of orderDetailProducts) {
+        const product = orderDetailProduct.product;
+        const cantidad = orderDetailProduct.cantidad;
 
-    const orders = await this.orderRepository.find();
+        if (cantidad && product) {
+          await transactionalEntityManager.update(
+            Product,
+            { id: product.id },
+            { stock: product.stock - cantidad },
+          );
+        }
+      }
 
-    const sliceOrders = fnPagination(page, limit, orders);
+      await transactionalEntityManager.update(
+        Order,
+        { id: order.id },
+        { status: status.FINISHED },
+      );
+
+      return `order ${order.id} updated`;
+    });
+  }
+  async findAll(pagination?: PaginationQuery) {
+    const { page, limit } = pagination ?? {};
+    const defaultPage = page ?? 1;
+    const defaultLimit = limit ?? 15;
+
+    const startIndex = (defaultPage - 1) * defaultLimit;
+    const endIndex = startIndex + defaultLimit;
+
+    const orders = await this.orderRepository.find({
+      relations: { orderDetail: true },
+    });
+
+    const sliceOrders = orders.slice(startIndex, endIndex);
     return sliceOrders;
   }
 
   async findOne(id: string) {
-    const order = await this.orderRepository.findOne({ where: { id: id } });
+    const order = await this.orderRepository.findOne({
+      where: { id: id },
+      relations: {
+        orderDetail: {
+          orderDetailProducts: {
+            product: true,
+          },
+        },
+      },
+    });
     if (!order) throw new NotFoundException('Order not found');
 
     return order;

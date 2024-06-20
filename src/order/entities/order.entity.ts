@@ -10,7 +10,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 
-enum status {
+export enum status {
   PENDING = 'PENDING',
   FINISHED = 'FINISHED',
 }
