@@ -26,7 +26,7 @@ let User = class User {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, name: { required: true, type: () => String }, lastname: { required: true, type: () => String }, email: { required: true, type: () => String }, password: { required: true, type: () => String }, role: { required: true, enum: require("./user.entity").Role }, isActive: { required: true, type: () => Boolean }, orders: { required: true, type: () => [require("../../order/entities/order.entity").Order] }, favoriteProducts: { required: true, type: () => [require("../../product/entities/product.entity").Product] } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, name: { required: true, type: () => String }, lastname: { required: true, type: () => String }, email: { required: true, type: () => String }, country: { required: true, type: () => String }, password: { required: true, type: () => String }, role: { required: true, enum: require("./user.entity").Role }, isActive: { required: true, type: () => Boolean }, orders: { required: true, type: () => [require("../../order/entities/order.entity").Order] }, favoriteProducts: { required: true, type: () => [require("../../product/entities/product.entity").Product] } };
     }
 };
 exports.User = User;
@@ -47,6 +47,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 40, nullable: false }),
+    __metadata("design:type", String)
+], User.prototype, "country", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: false }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
@@ -64,7 +68,8 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "orders", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => product_entity_1.Product, (product) => product.user),
+    (0, typeorm_1.ManyToMany)(() => product_entity_1.Product),
+    (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], User.prototype, "favoriteProducts", void 0);
 exports.User = User = __decorate([

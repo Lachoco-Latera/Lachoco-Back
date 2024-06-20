@@ -19,9 +19,11 @@ const user_entity_1 = require("./entities/user.entity");
 const typeorm_2 = require("typeorm");
 const bcrypt = require("bcrypt");
 const jwt_1 = require("@nestjs/jwt");
+const product_entity_1 = require("../product/entities/product.entity");
 let UserService = class UserService {
-    constructor(userRepository, jwtService) {
+    constructor(userRepository, productRepository, jwtService) {
         this.userRepository = userRepository;
+        this.productRepository = productRepository;
         this.jwtService = jwtService;
     }
     async create(user) {
@@ -38,10 +40,11 @@ let UserService = class UserService {
             lastname: user.lastname,
             email: user.email,
             password: hashPassword,
+            country: user.country,
         };
         const userSaved = await this.userRepository.save(newUser);
-        const { id, isActive, role, name, lastname, email } = userSaved;
-        return { id, isActive, role, name, lastname, email };
+        const { id, isActive, role, name, lastname, email, country } = userSaved;
+        return { id, isActive, role, name, lastname, email, country };
     }
     async loginUser(login) {
         if (!login.email || !login.password)
@@ -67,7 +70,7 @@ let UserService = class UserService {
     async findAll(pagination) {
         const { page, limit } = pagination;
         const defaultPage = page || 1;
-        const defaultLimit = limit || 5;
+        const defaultLimit = limit || 15;
         const startIndex = (defaultPage - 1) * defaultLimit;
         const endIndex = startIndex + defaultLimit;
         const users = await this.userRepository.find({
@@ -84,7 +87,7 @@ let UserService = class UserService {
     async findOne(id) {
         const foundUser = await this.userRepository.findOne({
             where: { id: id },
-            relations: { orders: true },
+            relations: ['orders', 'favoriteProducts'],
         });
         if (!foundUser) {
             throw new common_1.NotFoundException('User notFound');
@@ -110,12 +113,51 @@ let UserService = class UserService {
         });
         return `User ${id} change to inactive`;
     }
+    async makeFavorite(favorite) {
+        const { userId, productId } = favorite;
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { favoriteProducts: true },
+        });
+        if (!user)
+            throw new common_1.NotFoundException('UserNot Found');
+        const product = await this.productRepository.findOne({
+            where: { id: productId },
+        });
+        if (!product)
+            throw new common_1.NotFoundException('Product Not Found');
+        if (user && product) {
+            user.favoriteProducts.push(product);
+            await this.userRepository.save(user);
+            const userSelection = await this.userRepository.findOne({
+                where: { id: user.id },
+                relations: { favoriteProducts: true },
+            });
+            const userToReturn = {
+                userId: userSelection.id,
+                favoritesProducts: userSelection.favoriteProducts.map((p) => p.id),
+            };
+            return userToReturn;
+        }
+    }
+    async removeFavorite(userId, productId) {
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: ['favorites'],
+        });
+        if (!user)
+            throw new common_1.NotFoundException('User Not Found');
+        const filterFavoritesUser = user.favoriteProducts.filter((product) => product.id !== productId);
+        await this.userRepository.update({ id: userId }, { favoriteProducts: filterFavoritesUser });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(user_entity_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
+        typeorm_2.Repository,
         jwt_1.JwtService])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

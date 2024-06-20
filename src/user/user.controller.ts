@@ -18,8 +18,9 @@ import {
   userAlreadyExists,
   userValidationsErrors,
 } from './swagger.user';
+import { userFavorites } from './dto/userFavorite.dto';
 
-@Controller('user')
+@Controller('users')
 @ApiTags('Users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -102,8 +103,8 @@ export class UserController {
   }
 
   @Post('/favorite')
-  favorite(@Body() userId: string, productId: string) {
-    return this.userService.makeFavorite(userId, productId);
+  favorite(@Body() favorite: userFavorites) {
+    return this.userService.makeFavorite(favorite);
   }
 
   @Put('/RmFavorite')

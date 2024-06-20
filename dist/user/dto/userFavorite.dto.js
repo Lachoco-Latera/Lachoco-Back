@@ -9,32 +9,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaginationQuery = void 0;
+exports.userFavorites = void 0;
 const openapi = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
-const class_transformer_1 = require("class-transformer");
-class PaginationQuery {
-    constructor() {
-        this.limit = 15;
-        this.page = 1;
-    }
+class userFavorites {
     static _OPENAPI_METADATA_FACTORY() {
-        return { limit: { required: false, type: () => Number, default: 15 }, page: { required: false, type: () => Number, default: 1 } };
+        return { userId: { required: true, type: () => String, example: "427468a5-c56d-4768-9f89-51a1a04c7ffb" }, productId: { required: true, type: () => String, example: "[427468a5-c56d-4768-9f89-51a1a04c7ffb,427468a5-c56d-4768-9f89-51a1a04c7123]" } };
     }
 }
-exports.PaginationQuery = PaginationQuery;
+exports.userFavorites = userFavorites;
 __decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsPositive)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => Number(value)),
-    __metadata("design:type", Number)
-], PaginationQuery.prototype, "limit", void 0);
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], userFavorites.prototype, "userId", void 0);
 __decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsPositive)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_transformer_1.Transform)(({ value }) => Number(value)),
-    __metadata("design:type", Number)
-], PaginationQuery.prototype, "page", void 0);
-//# sourceMappingURL=pagination.dto.js.map
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], userFavorites.prototype, "productId", void 0);
+//# sourceMappingURL=userFavorite.dto.js.map

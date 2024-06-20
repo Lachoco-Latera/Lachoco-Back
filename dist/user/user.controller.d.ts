@@ -2,6 +2,7 @@ import { UserService } from './user.service';
 import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { PaginationQuery } from 'src/dto/pagination.dto';
+import { userFavorites } from './dto/userFavorite.dto';
 export declare class UserController {
     private readonly userService;
     constructor(userService: UserService);
@@ -12,6 +13,7 @@ export declare class UserController {
         name: string;
         lastname: string;
         email: string;
+        country: string;
     }>;
     signin(login: LoginDto): Promise<{
         success: string;
@@ -22,6 +24,7 @@ export declare class UserController {
         name: string;
         lastname: string;
         email: string;
+        country: string;
         role: import("./entities/user.entity").Role;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
@@ -29,11 +32,17 @@ export declare class UserController {
     }[]>;
     createAdmin(id: string): Promise<string>;
     remove(id: string): Promise<string>;
+    favorite(favorite: userFavorites): Promise<{
+        userId: string;
+        favoritesProducts: string[];
+    }>;
+    RemoveFavorite(userId: string, productId: string): Promise<void>;
     findOne(id: string): Promise<{
         id: string;
         name: string;
         lastname: string;
         email: string;
+        country: string;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
         favoriteProducts: import("../product/entities/product.entity").Product[];
