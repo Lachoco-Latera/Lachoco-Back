@@ -23,6 +23,12 @@ export enum label {
   NEW = 'nuevo',
 }
 
+export enum currency {
+  COP = 'COP',
+  USD = 'USD',
+  EUR = 'EUR',
+}
+
 @Entity({
   name: 'products',
 })
@@ -41,6 +47,9 @@ export class Product {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
+
+  @Column({ type: 'enum', enum: currency, nullable: false })
+  currency: currency;
 
   @Column({ type: 'integer', nullable: false })
   stock: number;
