@@ -40,10 +40,11 @@ let UserService = class UserService {
             lastname: user.lastname,
             email: user.email,
             password: hashPassword,
+            country: user.country,
         };
         const userSaved = await this.userRepository.save(newUser);
-        const { id, isActive, role, name, lastname, email } = userSaved;
-        return { id, isActive, role, name, lastname, email };
+        const { id, isActive, role, name, lastname, email, country } = userSaved;
+        return { id, isActive, role, name, lastname, email, country };
     }
     async loginUser(login) {
         if (!login.email || !login.password)
@@ -112,22 +113,31 @@ let UserService = class UserService {
         });
         return `User ${id} change to inactive`;
     }
-    async makeFavorite(idUser, idProduct) {
-        const user = await this.userRepository.findOne({ where: { id: idUser } });
+    async makeFavorite(favorite) {
+        const { userId, productId } = favorite;
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { favoriteProducts: true },
+        });
         if (!user)
             throw new common_1.NotFoundException('UserNot Found');
         const product = await this.productRepository.findOne({
-            where: { id: idProduct },
+            where: { id: productId },
         });
         if (!product)
             throw new common_1.NotFoundException('Product Not Found');
         if (user && product) {
             user.favoriteProducts.push(product);
-            const userSelection = await this.userRepository.save(user);
-            return await this.userRepository.findOne({
-                where: { id: userSelection.id },
+            await this.userRepository.save(user);
+            const userSelection = await this.userRepository.findOne({
+                where: { id: user.id },
                 relations: { favoriteProducts: true },
             });
+            const userToReturn = {
+                userId: userSelection.id,
+                favoritesProducts: userSelection.favoriteProducts.map((p) => p.id),
+            };
+            return userToReturn;
         }
     }
     async removeFavorite(userId, productId) {

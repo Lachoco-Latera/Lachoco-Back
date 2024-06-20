@@ -13,6 +13,7 @@ import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Product } from 'src/product/entities/product.entity';
+import { userFavorites } from './dto/userFavorite.dto';
 
 @Injectable()
 export class UserService {
@@ -38,13 +39,14 @@ export class UserService {
       lastname: user.lastname,
       email: user.email,
       password: hashPassword,
+      country: user.country,
     };
 
     const userSaved = await this.userRepository.save(newUser);
 
-    const { id, isActive, role, name, lastname, email } = userSaved;
+    const { id, isActive, role, name, lastname, email, country } = userSaved;
 
-    return { id, isActive, role, name, lastname, email };
+    return { id, isActive, role, name, lastname, email, country };
   }
 
   async loginUser(login: LoginDto) {
@@ -107,6 +109,7 @@ export class UserService {
     if (!foundUser) {
       throw new NotFoundException('User notFound');
     }
+
     const { password, role, ...userNotPassword } = await foundUser;
     return userNotPassword;
   }
@@ -122,7 +125,6 @@ export class UserService {
     return `User ${id} change to admin`;
   }
   async inactiveUser(id: string) {
-    //const prueba = Object.values(id);
     const user = await this.userRepository.findOneBy({ id: id });
     if (!user) throw new NotFoundException('user not found');
 
@@ -132,22 +134,33 @@ export class UserService {
     return `User ${id} change to inactive`;
   }
 
-  async makeFavorite(idUser: string, idProduct: string) {
-    const user = await this.userRepository.findOne({ where: { id: idUser } });
+  async makeFavorite(favorite: userFavorites) {
+    const { userId, productId } = favorite;
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: { favoriteProducts: true },
+    });
     if (!user) throw new NotFoundException('UserNot Found');
 
     const product = await this.productRepository.findOne({
-      where: { id: idProduct },
+      where: { id: productId },
     });
     if (!product) throw new NotFoundException('Product Not Found');
 
     if (user && product) {
       user.favoriteProducts.push(product);
-      const userSelection = await this.userRepository.save(user);
-      return await this.userRepository.findOne({
-        where: { id: userSelection.id },
+      await this.userRepository.save(user);
+
+      const userSelection = await this.userRepository.findOne({
+        where: { id: user.id },
         relations: { favoriteProducts: true },
       });
+
+      const userToReturn = {
+        userId: userSelection.id,
+        favoritesProducts: userSelection.favoriteProducts.map((p) => p.id),
+      };
+      return userToReturn;
     }
   }
 
@@ -158,7 +171,6 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User Not Found');
-
     const filterFavoritesUser = user.favoriteProducts.filter(
       (product) => product.id !== productId,
     );

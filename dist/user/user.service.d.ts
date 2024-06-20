@@ -4,6 +4,7 @@ import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Product } from 'src/product/entities/product.entity';
+import { userFavorites } from './dto/userFavorite.dto';
 export declare class UserService {
     private userRepository;
     private readonly productRepository;
@@ -16,6 +17,7 @@ export declare class UserService {
         name: string;
         lastname: string;
         email: string;
+        country: string;
     }>;
     loginUser(login: LoginDto): Promise<{
         success: string;
@@ -26,6 +28,7 @@ export declare class UserService {
         name: string;
         lastname: string;
         email: string;
+        country: string;
         role: Role;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
@@ -36,12 +39,16 @@ export declare class UserService {
         name: string;
         lastname: string;
         email: string;
+        country: string;
         isActive: boolean;
         orders: import("../order/entities/order.entity").Order[];
         favoriteProducts: Product[];
     }>;
     createAdmin(id: any): Promise<string>;
     inactiveUser(id: string): Promise<string>;
-    makeFavorite(idUser: string, idProduct: string): Promise<User>;
+    makeFavorite(favorite: userFavorites): Promise<{
+        userId: string;
+        favoritesProducts: string[];
+    }>;
     removeFavorite(userId: string, productId: string): Promise<void>;
 }

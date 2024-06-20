@@ -10,6 +10,7 @@ export declare class User {
     name: string;
     lastname: string;
     email: string;
+    country: string;
     password: string;
     role: Role;
     isActive: boolean;

@@ -21,6 +21,7 @@ const login_dto_1 = require("./dto/login.dto");
 const pagination_dto_1 = require("../dto/pagination.dto");
 const swagger_1 = require("@nestjs/swagger");
 const swagger_user_1 = require("./swagger.user");
+const userFavorite_dto_1 = require("./dto/userFavorite.dto");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -40,8 +41,8 @@ let UserController = class UserController {
     remove(id) {
         return this.userService.inactiveUser(id);
     }
-    favorite(userId, productId) {
-        return this.userService.makeFavorite(userId, productId);
+    favorite(favorite) {
+        return this.userService.makeFavorite(favorite);
     }
     RemoveFavorite(userId, productId) {
         return this.userService.removeFavorite(userId, productId);
@@ -144,10 +145,10 @@ __decorate([
 ], UserController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)('/favorite'),
-    openapi.ApiResponse({ status: 201, type: require("./entities/user.entity").User }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [userFavorite_dto_1.userFavorites]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "favorite", null);
 __decorate([
@@ -178,7 +179,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "findOne", null);
 exports.UserController = UserController = __decorate([
-    (0, common_1.Controller)('user'),
+    (0, common_1.Controller)('users'),
     (0, swagger_1.ApiTags)('Users'),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);
