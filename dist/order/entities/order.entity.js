@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Order = void 0;
+exports.Order = exports.status = void 0;
 const openapi = require("@nestjs/swagger");
 const user_entity_1 = require("../../user/entities/user.entity");
 const typeorm_1 = require("typeorm");
@@ -19,13 +19,13 @@ var status;
 (function (status) {
     status["PENDING"] = "PENDING";
     status["FINISHED"] = "FINISHED";
-})(status || (status = {}));
+})(status || (exports.status = status = {}));
 let Order = class Order {
     constructor() {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, date: { required: true, type: () => Date }, status: { required: true, enum: status }, orderDetail: { required: true, type: () => require("./orderDetail.entity").OrderDetail }, user: { required: true, type: () => require("../../user/entities/user.entity").User } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, date: { required: true, type: () => Date }, status: { required: true, enum: require("./order.entity").status }, orderDetail: { required: true, type: () => require("./orderDetail.entity").OrderDetail }, user: { required: true, type: () => require("../../user/entities/user.entity").User } };
     }
 };
 exports.Order = Order;

@@ -28,7 +28,11 @@ let OrderController = class OrderController {
         return this.orderService.create(createOrderDto);
     }
     findAll(pagination) {
+        console.log(pagination, ',*****');
         return this.orderService.findAll(pagination);
+    }
+    confirmOrder(id) {
+        return this.orderService.confirmOrder(id);
     }
     findOne(id) {
         return this.orderService.findOne(id);
@@ -51,11 +55,19 @@ __decorate([
 ], OrderController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: Object }),
+    openapi.ApiResponse({ status: 200, type: [require("./entities/order.entity").Order] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pagination_dto_1.PaginationQuery]),
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Put)('/confirm/:id'),
+    openapi.ApiResponse({ status: 200 }),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrderController.prototype, "confirmOrder", null);
 __decorate([
     (0, common_1.Get)(':id'),
     openapi.ApiResponse({ status: 200, type: require("./entities/order.entity").Order }),
@@ -82,7 +94,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], OrderController.prototype, "remove", null);
 exports.OrderController = OrderController = __decorate([
-    (0, common_1.Controller)('order'),
+    (0, common_1.Controller)('orders'),
     (0, swagger_1.ApiTags)('orders'),
     __metadata("design:paramtypes", [order_service_1.OrderService])
 ], OrderController);

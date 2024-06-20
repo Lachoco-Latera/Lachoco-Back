@@ -1,7 +1,7 @@
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './entities/order.entity';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetail } from './entities/orderDetail.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -13,9 +13,11 @@ export declare class OrderService {
     private userRepository;
     private productRepository;
     private OrderDetailProductRepository;
-    constructor(orderRepository: Repository<Order>, orderDetailRepository: Repository<OrderDetail>, userRepository: Repository<User>, productRepository: Repository<Product>, OrderDetailProductRepository: Repository<OrderDetailProduct>);
+    private readonly entityManager;
+    constructor(orderRepository: Repository<Order>, orderDetailRepository: Repository<OrderDetail>, userRepository: Repository<User>, productRepository: Repository<Product>, OrderDetailProductRepository: Repository<OrderDetailProduct>, entityManager: EntityManager);
     create(createOrderDto: CreateOrderDto): Promise<Order[]>;
-    findAll(pagination: PaginationQuery): Promise<any>;
+    confirmOrder(orderId: any): Promise<void>;
+    findAll(pagination?: PaginationQuery): Promise<Order[]>;
     findOne(id: string): Promise<Order>;
     update(id: number, updateOrderDto: UpdateOrderDto): string;
     remove(id: number): string;

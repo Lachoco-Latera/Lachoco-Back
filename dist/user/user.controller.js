@@ -121,7 +121,7 @@ __decorate([
         description: 'Lista todos los usuarios en la base de datos',
     }),
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: Object }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [pagination_dto_1.PaginationQuery]),

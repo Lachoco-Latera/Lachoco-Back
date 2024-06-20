@@ -15,7 +15,7 @@ const class_validator_1 = require("class-validator");
 const product_entity_1 = require("../entities/product.entity");
 class CreateProductDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { category: { required: true, enum: require("../entities/product.entity").category }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("../entities/product.entity").label }, presentacion: { required: true, type: () => Number }, images: { required: true, type: () => [String] }, flavors: { required: true, type: () => [String] } };
+        return { category: { required: true, enum: require("../entities/product.entity").category }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, currency: { required: true, enum: require("../entities/product.entity").currency }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("../entities/product.entity").label }, presentacion: { required: true, type: () => Number }, images: { required: true, type: () => [String] }, flavors: { required: true, type: () => [String] } };
     }
 }
 exports.CreateProductDto = CreateProductDto;
@@ -32,6 +32,10 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "price", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(product_entity_1.currency),
+    __metadata("design:type", String)
+], CreateProductDto.prototype, "currency", void 0);
 __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)

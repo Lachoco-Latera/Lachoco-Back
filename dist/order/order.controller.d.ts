@@ -6,7 +6,8 @@ export declare class OrderController {
     private readonly orderService;
     constructor(orderService: OrderService);
     create(createOrderDto: CreateOrderDto): Promise<import("./entities/order.entity").Order[]>;
-    findAll(pagination?: PaginationQuery): Promise<any>;
+    findAll(pagination?: PaginationQuery): Promise<import("./entities/order.entity").Order[]>;
+    confirmOrder(id: string): Promise<void>;
     findOne(id: string): Promise<import("./entities/order.entity").Order>;
     update(id: string, updateOrderDto: UpdateOrderDto): string;
     remove(id: string): string;

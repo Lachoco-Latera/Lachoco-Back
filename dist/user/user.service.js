@@ -20,7 +20,6 @@ const typeorm_2 = require("typeorm");
 const bcrypt = require("bcrypt");
 const jwt_1 = require("@nestjs/jwt");
 const product_entity_1 = require("../product/entities/product.entity");
-const pagination_1 = require("../utils/pagination");
 let UserService = class UserService {
     constructor(userRepository, productRepository, jwtService) {
         this.userRepository = userRepository;
@@ -69,7 +68,11 @@ let UserService = class UserService {
         return { success: 'Login Success', token };
     }
     async findAll(pagination) {
-        const { page, limit } = pagination;
+        const { page, limit } = pagination ?? {};
+        const defaultPage = page ?? 1;
+        const defaultLimit = limit ?? 15;
+        const startIndex = (defaultPage - 1) * defaultLimit;
+        const endIndex = startIndex + defaultLimit;
         const users = await this.userRepository.find({
             relations: { orders: true },
         });
@@ -77,7 +80,7 @@ let UserService = class UserService {
             const { password, ...userNotPassWord } = user;
             return userNotPassWord;
         });
-        const sliceUsers = (0, pagination_1.fnPagination)(page, limit, usersNotPassword);
+        const sliceUsers = usersNotPassword.slice(startIndex, endIndex);
         return sliceUsers;
     }
     async findOne(id) {

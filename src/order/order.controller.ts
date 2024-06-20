@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
+  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -13,7 +15,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 
-@Controller('order')
+@Controller('orders')
 @ApiTags('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
@@ -25,7 +27,13 @@ export class OrderController {
 
   @Get()
   findAll(pagination?: PaginationQuery) {
+    console.log(pagination, ',*****');
     return this.orderService.findAll(pagination);
+  }
+
+  @Put('/confirm/:id')
+  confirmOrder(@Param('id', ParseUUIDPipe) id: string) {
+    return this.orderService.confirmOrder(id);
   }
 
   @Get(':id')
