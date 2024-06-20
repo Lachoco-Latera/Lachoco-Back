@@ -15,7 +15,7 @@ const class_validator_1 = require("class-validator");
 const confirmPassword_decorator_1 = require("../../decorators/confirmPassword.decorator");
 class createUserDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { name: { required: true, type: () => String, example: "Maria" }, lastname: { required: true, type: () => String, example: "Perez" }, email: { required: true, type: () => String, example: "MariaEpa@gmail.com" }, password: { required: true, type: () => String, example: "P@asw0rd" }, confirmPassword: { required: true, type: () => String, example: "P@asw0rd" } };
+        return { name: { required: true, type: () => String, example: "Maria" }, lastname: { required: true, type: () => String, example: "Perez" }, email: { required: true, type: () => String, example: "MariaEpa@gmail.com" }, country: { required: true, type: () => String, example: "Colombia" }, password: { required: true, type: () => String, example: "P@asw0rd" }, confirmPassword: { required: true, type: () => String, example: "P@asw0rd" } };
     }
 }
 exports.createUserDto = createUserDto;
@@ -34,6 +34,11 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], createUserDto.prototype, "email", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], createUserDto.prototype, "country", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),

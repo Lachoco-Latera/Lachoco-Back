@@ -12,11 +12,16 @@ import * as bcrypt from 'bcrypt';
 import { createUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Product } from 'src/product/entities/product.entity';
+import { userFavorites } from './dto/userFavorite.dto';
+import { fnPagination } from '../utils/pagination';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly jwtService: JwtService,
   ) {}
   async create(user: createUserDto) {
@@ -35,13 +40,14 @@ export class UserService {
       lastname: user.lastname,
       email: user.email,
       password: hashPassword,
+      country: user.country,
     };
 
     const userSaved = await this.userRepository.save(newUser);
 
-    const { id, isActive, role, name, lastname, email } = userSaved;
+    const { id, isActive, role, name, lastname, email, country } = userSaved;
 
-    return { id, isActive, role, name, lastname, email };
+    return { id, isActive, role, name, lastname, email, country };
   }
 
   async loginUser(login: LoginDto) {
@@ -76,34 +82,30 @@ export class UserService {
 
   async findAll(pagination) {
     const { page, limit } = pagination;
-    const defaultPage = page || 1;
-    const defaultLimit = limit || 5;
-
-    const startIndex = (defaultPage - 1) * defaultLimit;
-    const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
       relations: { orders: true },
     });
 
-    const usersNotPassword = users
-      .map((user) => {
-        const { password, ...userNotPassWord } = user;
-        return userNotPassWord;
-      })
-      .slice(startIndex, endIndex);
+    const usersNotPassword = users.map((user) => {
+      const { password, ...userNotPassWord } = user;
+      return userNotPassWord;
+    });
 
-    return usersNotPassword;
+    const sliceUsers = fnPagination(page, limit, usersNotPassword);
+
+    return sliceUsers;
   }
 
   async findOne(id: string) {
     const foundUser = await this.userRepository.findOne({
       where: { id: id },
-      relations: { orders: true },
+      relations: ['orders', 'favoriteProducts'],
     });
     if (!foundUser) {
       throw new NotFoundException('User notFound');
     }
+
     const { password, role, ...userNotPassword } = await foundUser;
     return userNotPassword;
   }
@@ -119,7 +121,6 @@ export class UserService {
     return `User ${id} change to admin`;
   }
   async inactiveUser(id: string) {
-    //const prueba = Object.values(id);
     const user = await this.userRepository.findOneBy({ id: id });
     if (!user) throw new NotFoundException('user not found');
 
@@ -127,5 +128,51 @@ export class UserService {
       isActive: false,
     });
     return `User ${id} change to inactive`;
+  }
+
+  async makeFavorite(favorite: userFavorites) {
+    const { userId, productId } = favorite;
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: { favoriteProducts: true },
+    });
+    if (!user) throw new NotFoundException('UserNot Found');
+
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+    });
+    if (!product) throw new NotFoundException('Product Not Found');
+
+    if (user && product) {
+      user.favoriteProducts.push(product);
+      await this.userRepository.save(user);
+
+      const userSelection = await this.userRepository.findOne({
+        where: { id: user.id },
+        relations: { favoriteProducts: true },
+      });
+
+      const userToReturn = {
+        userId: userSelection.id,
+        favoritesProducts: userSelection.favoriteProducts.map((p) => p.id),
+      };
+      return userToReturn;
+    }
+  }
+
+  async removeFavorite(userId: string, productId: string): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['favorites'],
+    });
+
+    if (!user) throw new NotFoundException('User Not Found');
+    const filterFavoritesUser = user.favoriteProducts.filter(
+      (product) => product.id !== productId,
+    );
+    await this.userRepository.update(
+      { id: userId },
+      { favoriteProducts: filterFavoritesUser },
+    );
   }
 }

@@ -1,9 +1,10 @@
-import { User } from 'src/user/entities/user.entity';
 import { Image } from './image.entity';
+import { Flavor } from './sabor.entity';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 export declare enum category {
     BOMBAS = "bombas",
     TABLETAS = "tabletas",
-    BOMBONES = "bombbones"
+    BOMBONES = "bombones"
 }
 export declare enum label {
     ONLINE = "SoloOnline",
@@ -11,12 +12,14 @@ export declare enum label {
 }
 export declare class Product {
     id: string;
-    name: string;
+    category: category;
+    presentacion: number;
     description: string;
     price: number;
     stock: number;
-    category: category;
     label: label;
+    isActive: boolean;
     images: Image[];
-    user: User;
+    flavors: Flavor[];
+    orderDetailProducts: OrderDetailProduct[];
 }
