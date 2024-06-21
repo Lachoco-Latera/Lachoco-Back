@@ -18,7 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const product_entity_1 = require("./entities/product.entity");
 const typeorm_2 = require("typeorm");
 const image_entity_1 = require("./entities/image.entity");
-const sabor_entity_1 = require("./entities/sabor.entity");
+const flavor_entity_1 = require("../flavor/entities/flavor.entity");
 let ProductService = class ProductService {
     constructor(productRepository, imageRepository, flavorRepository) {
         this.productRepository = productRepository;
@@ -27,13 +27,11 @@ let ProductService = class ProductService {
     }
     async create(createProductDto) {
         const imageEntities = createProductDto.images.map((imageUrl) => this.imageRepository.create({ img: imageUrl }));
-        const flavorEntities = createProductDto.flavors.map((flavor) => this.flavorRepository.create({ name: flavor }));
         const savedImages = await this.imageRepository.save(imageEntities);
-        const savedFlavors = await this.flavorRepository.save(flavorEntities);
         const newProduct = {
             ...createProductDto,
             images: savedImages,
-            flavors: savedFlavors,
+            flavors: null,
         };
         return await this.productRepository.save(newProduct);
     }
@@ -108,7 +106,7 @@ exports.ProductService = ProductService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(1, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
-    __param(2, (0, typeorm_1.InjectRepository)(sabor_entity_1.Flavor)),
+    __param(2, (0, typeorm_1.InjectRepository)(flavor_entity_1.Flavor)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

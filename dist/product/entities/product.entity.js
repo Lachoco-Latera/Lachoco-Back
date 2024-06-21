@@ -14,8 +14,8 @@ const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const uuid_1 = require("uuid");
 const image_entity_1 = require("./image.entity");
-const sabor_entity_1 = require("./sabor.entity");
 const orderDetailsProdusct_entity_1 = require("../../order/entities/orderDetailsProdusct.entity");
+const flavor_entity_1 = require("../../flavor/entities/flavor.entity");
 var category;
 (function (category) {
     category["BOMBAS"] = "bombas";
@@ -38,7 +38,7 @@ let Product = class Product {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, currency: { required: true, enum: require("./product.entity").currency }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("./sabor.entity").Flavor] }, orderDetailProducts: { required: true, type: () => [require("../../order/entities/orderDetailsProdusct.entity").OrderDetailProduct] } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, currency: { required: true, enum: require("./product.entity").currency }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("../../flavor/entities/flavor.entity").Flavor] }, orderDetailProducts: { required: true, type: () => [require("../../order/entities/orderDetailsProdusct.entity").OrderDetailProduct] } };
     }
 };
 exports.Product = Product;
@@ -67,10 +67,6 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "currency", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'integer', nullable: false }),
-    __metadata("design:type", Number)
-], Product.prototype, "stock", void 0);
-__decorate([
     (0, typeorm_1.Column)({ type: 'enum', enum: label, default: label.NEW }),
     __metadata("design:type", String)
 ], Product.prototype, "label", void 0);
@@ -84,7 +80,7 @@ __decorate([
     __metadata("design:type", Array)
 ], Product.prototype, "images", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => sabor_entity_1.Flavor, { cascade: true }),
+    (0, typeorm_1.ManyToMany)(() => flavor_entity_1.Flavor, { cascade: true }),
     (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], Product.prototype, "flavors", void 0);

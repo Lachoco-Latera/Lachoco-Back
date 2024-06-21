@@ -9,16 +9,41 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateOrderDto = void 0;
+exports.CreateOrderDto = exports.ProductOrder = exports.FlavorOrderDTO = void 0;
 const openapi = require("@nestjs/swagger");
 const swagger_1 = require("@nestjs/swagger");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-class ProductOrder {
+class FlavorOrderDTO {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String }, cantidad: { required: true, type: () => Number } };
+        return { flavorId: { required: true, type: () => String }, cantidad: { required: true, type: () => Number } };
     }
 }
+exports.FlavorOrderDTO = FlavorOrderDTO;
+__decorate([
+    (0, class_validator_1.IsUUID)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    (0, swagger_1.ApiProperty)({
+        description: 'Flavor ID, has to be UUID',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    __metadata("design:type", String)
+], FlavorOrderDTO.prototype, "flavorId", void 0);
+__decorate([
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    (0, swagger_1.ApiProperty)({
+        description: 'Quantity of the flavor',
+        example: 3,
+    }),
+    __metadata("design:type", Number)
+], FlavorOrderDTO.prototype, "cantidad", void 0);
+class ProductOrder {
+    static _OPENAPI_METADATA_FACTORY() {
+        return { productId: { required: true, type: () => String }, cantidad: { required: true, type: () => Number }, flavors: { required: true, type: () => [require("./create-order.dto").FlavorOrderDTO] } };
+    }
+}
+exports.ProductOrder = ProductOrder;
 __decorate([
     (0, class_validator_1.IsUUID)(),
     (0, class_validator_1.IsNotEmpty)(),
@@ -27,7 +52,7 @@ __decorate([
         example: '887a8887-598b-4240-a7da-4c751a9ab2d3',
     }),
     __metadata("design:type", String)
-], ProductOrder.prototype, "id", void 0);
+], ProductOrder.prototype, "productId", void 0);
 __decorate([
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
@@ -37,9 +62,21 @@ __decorate([
     }),
     __metadata("design:type", Number)
 ], ProductOrder.prototype, "cantidad", void 0);
+__decorate([
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ArrayNotEmpty)(),
+    (0, class_validator_1.ArrayMinSize)(1),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => FlavorOrderDTO),
+    (0, swagger_1.ApiProperty)({
+        description: 'Array of flavors with ID and quantity',
+        example: '[{"flavorid":"123e4567-e89b-12d3-a456-426614174000", "cantidad":3}]',
+    }),
+    __metadata("design:type", Array)
+], ProductOrder.prototype, "flavors", void 0);
 class CreateOrderDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { userId: { required: true, type: () => String }, products: { required: true, type: () => [ProductOrder] } };
+        return { userId: { required: true, type: () => String }, products: { required: true, type: () => [require("./create-order.dto").ProductOrder] } };
     }
 }
 exports.CreateOrderDto = CreateOrderDto;
