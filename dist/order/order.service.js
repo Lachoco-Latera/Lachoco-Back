@@ -166,7 +166,7 @@ let OrderService = class OrderService {
         return `This action updates a #${id} order`;
     }
     remove(id) {
-        return `This action removes a #${id} order`;
+        return this.orderRepository.delete(id);
     }
 };
 exports.OrderService = OrderService;
