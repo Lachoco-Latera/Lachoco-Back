@@ -35,4 +35,7 @@ export class OrderDetailProduct {
     { cascade: true },
   )
   orderDetailFlavors: OrderDetailFlavor[];
+
+  @Column({ type: 'text', array: true, default: '{}' })
+  pickedFlavors: string[];
 }
