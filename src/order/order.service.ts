@@ -201,7 +201,20 @@ export class OrderService {
     return `This action updates a #${id} order`;
   }
 
-  remove(id: string) {
-    return this.orderRepository.delete(id);
+  async remove(id: string): Promise<string> {
+    const order = await this.orderRepository.findOneOrFail({
+      where: { id },
+      relations: ['orderDetail', 'orderDetail.orderDetailProducts'],
+    });
+
+    const affectedProductIds = order.orderDetail.orderDetailProducts.map(
+      (product) => product.id,
+    );
+
+    await this.orderRepository.remove(order);
+
+    return `Se ha eliminado el pedido con ID ${id} y fueron afectados los productos con IDs: ${affectedProductIds.join(
+      ', ',
+    )}`;
   }
 }
