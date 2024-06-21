@@ -16,6 +16,7 @@ import { Product } from 'src/product/entities/product.entity';
 import { userFavorites } from './dto/userFavorite.dto';
 import { fnPagination } from '../utils/pagination';
 import e from 'express';
+import { updateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UserService {
@@ -180,5 +181,13 @@ export class UserService {
       { id: userId },
       { favoriteProducts: filterFavoritesUser },
     );
+  }
+
+  async editUser(id: string, updateUser: updateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(`User ${id} not found`);
+
+    await this.userRepository.update({ id: id }, { ...updateUser });
+    return `Usuario ${id} Actualizado`;
   }
 }
