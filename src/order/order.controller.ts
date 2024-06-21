@@ -48,7 +48,10 @@ export class OrderController {
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.orderService.remove(id);
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ message: string }> {
+    const message = await this.orderService.remove(id);
+    return { message };
   }
 }

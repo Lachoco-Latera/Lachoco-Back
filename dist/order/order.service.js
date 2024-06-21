@@ -165,8 +165,14 @@ let OrderService = class OrderService {
     update(id, updateOrderDto) {
         return `This action updates a #${id} order`;
     }
-    remove(id) {
-        return this.orderRepository.delete(id);
+    async remove(id) {
+        const order = await this.orderRepository.findOneOrFail({
+            where: { id },
+            relations: ['orderDetail', 'orderDetail.orderDetailProducts'],
+        });
+        const affectedProductIds = order.orderDetail.orderDetailProducts.map((product) => product.id);
+        await this.orderRepository.remove(order);
+        return `Se ha eliminado el pedido con ID ${id} y fueron afectados los productos con IDs: ${affectedProductIds.join(', ')}`;
     }
 };
 exports.OrderService = OrderService;

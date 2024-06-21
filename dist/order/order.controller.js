@@ -28,7 +28,7 @@ let OrderController = class OrderController {
         return this.orderService.create(createOrderDto);
     }
     findAll(pagination) {
-        console.log(...oo_oo(`2330139254_31_4_31_37_4`, pagination, ',*****'));
+        console.log(...oo_oo(`748965746_31_4_31_37_4`, pagination, ',*****'));
         return this.orderService.findAll(pagination);
     }
     confirmOrder(id) {
@@ -40,8 +40,9 @@ let OrderController = class OrderController {
     update(id, updateOrderDto) {
         return this.orderService.update(+id, updateOrderDto);
     }
-    remove(id) {
-        return this.orderService.remove(id);
+    async remove(id) {
+        const message = await this.orderService.remove(id);
+        return { message };
     }
 };
 exports.OrderController = OrderController;
@@ -91,7 +92,7 @@ __decorate([
     __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], OrderController.prototype, "remove", null);
 exports.OrderController = OrderController = __decorate([
     (0, common_1.Controller)('orders'),
