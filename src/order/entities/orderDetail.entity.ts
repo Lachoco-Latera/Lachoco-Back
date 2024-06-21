@@ -8,7 +8,6 @@ import {
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Order } from './order.entity';
-
 import { OrderDetailProduct } from './orderDetailsProdusct.entity';
 
 @Entity({
@@ -21,7 +20,7 @@ export class OrderDetail {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
-  @OneToOne(() => Order, (order) => order.orderDetail)
+  @OneToOne(() => Order, (order) => order.orderDetail, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 

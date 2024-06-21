@@ -28,7 +28,10 @@ export class Order {
   @Column({ type: 'enum', enum: status, default: status.PENDING })
   status: status;
 
-  @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order)
+  @OneToOne(() => OrderDetail, (orderDetail) => orderDetail.order, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   orderDetail: OrderDetail;
 
   @ManyToOne(() => User, (user) => user.orders)
