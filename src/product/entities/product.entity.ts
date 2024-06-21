@@ -9,8 +9,9 @@ import {
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { Image } from './image.entity';
-import { Flavor } from './sabor.entity';
+
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { Flavor } from 'src/flavor/entities/flavor.entity';
 
 export enum category {
   BOMBAS = 'bombas',
@@ -21,6 +22,12 @@ export enum category {
 export enum label {
   ONLINE = 'SoloOnline',
   NEW = 'nuevo',
+}
+
+export enum currency {
+  COP = 'COP',
+  USD = 'USD',
+  EUR = 'EUR',
 }
 
 @Entity({
@@ -42,8 +49,8 @@ export class Product {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
-  @Column({ type: 'integer', nullable: false })
-  stock: number;
+  @Column({ type: 'enum', enum: currency, nullable: false })
+  currency: currency;
 
   @Column({ type: 'enum', enum: label, default: label.NEW })
   label: label;

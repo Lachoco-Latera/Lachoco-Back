@@ -5,7 +5,7 @@ import {
   IsNumber,
   IsString,
 } from 'class-validator';
-import { category, label } from 'src/product/entities/product.entity';
+import { category, label, currency } from 'src/product/entities/product.entity';
 
 export class CreateProductDto {
   @IsEnum(category)
@@ -17,6 +17,9 @@ export class CreateProductDto {
 
   @IsNumber()
   price: number;
+
+  @IsEnum(currency)
+  currency: currency;
 
   @IsNumber()
   stock: number;
