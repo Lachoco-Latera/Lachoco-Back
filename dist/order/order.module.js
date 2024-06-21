@@ -16,6 +16,8 @@ const orderDetail_entity_1 = require("./entities/orderDetail.entity");
 const product_entity_1 = require("../product/entities/product.entity");
 const user_entity_1 = require("../user/entities/user.entity");
 const orderDetailsProdusct_entity_1 = require("./entities/orderDetailsProdusct.entity");
+const flavor_entity_1 = require("../flavor/entities/flavor.entity");
+const flavorDetail_entity_1 = require("./entities/flavorDetail.entity");
 let OrderModule = class OrderModule {
 };
 exports.OrderModule = OrderModule;
@@ -28,6 +30,8 @@ exports.OrderModule = OrderModule = __decorate([
                 product_entity_1.Product,
                 user_entity_1.User,
                 orderDetailsProdusct_entity_1.OrderDetailProduct,
+                flavorDetail_entity_1.OrderDetailFlavor,
+                flavor_entity_1.Flavor,
             ]),
         ],
         controllers: [order_controller_1.OrderController],

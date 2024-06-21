@@ -1,6 +1,6 @@
 import { User } from 'src/user/entities/user.entity';
 import { OrderDetail } from './orderDetail.entity';
-declare enum status {
+export declare enum status {
     PENDING = "PENDING",
     FINISHED = "FINISHED"
 }
@@ -11,4 +11,3 @@ export declare class Order {
     orderDetail: OrderDetail;
     user: User;
 }
-export {};

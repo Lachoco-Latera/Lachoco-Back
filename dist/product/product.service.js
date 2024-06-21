@@ -18,8 +18,7 @@ const typeorm_1 = require("@nestjs/typeorm");
 const product_entity_1 = require("./entities/product.entity");
 const typeorm_2 = require("typeorm");
 const image_entity_1 = require("./entities/image.entity");
-const sabor_entity_1 = require("./entities/sabor.entity");
-const pagination_1 = require("../utils/pagination");
+const flavor_entity_1 = require("../flavor/entities/flavor.entity");
 let ProductService = class ProductService {
     constructor(productRepository, imageRepository, flavorRepository) {
         this.productRepository = productRepository;
@@ -28,22 +27,24 @@ let ProductService = class ProductService {
     }
     async create(createProductDto) {
         const imageEntities = createProductDto.images.map((imageUrl) => this.imageRepository.create({ img: imageUrl }));
-        const flavorEntities = createProductDto.flavors.map((flavor) => this.flavorRepository.create({ name: flavor }));
         const savedImages = await this.imageRepository.save(imageEntities);
-        const savedFlavors = await this.flavorRepository.save(flavorEntities);
         const newProduct = {
             ...createProductDto,
-            images: await this.imageRepository.save(savedImages),
-            flavors: await this.imageRepository.save(savedFlavors),
+            images: savedImages,
+            flavors: null,
         };
         return await this.productRepository.save(newProduct);
     }
     async findAll(pagination) {
-        const { page, limit } = pagination;
+        const { page, limit } = pagination ?? {};
+        const defaultPage = page ?? 1;
+        const defaultLimit = limit ?? 15;
+        const startIndex = (defaultPage - 1) * defaultLimit;
+        const endIndex = startIndex + defaultLimit;
         const products = await this.productRepository.find({
-            relations: ['flavors', 'images'],
+            relations: { flavors: true, images: true },
         });
-        const sliceUsers = (0, pagination_1.fnPagination)(page, limit, products);
+        const sliceUsers = products.slice(startIndex, endIndex);
         return sliceUsers;
     }
     async findOne(id) {
@@ -105,7 +106,7 @@ exports.ProductService = ProductService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(product_entity_1.Product)),
     __param(1, (0, typeorm_1.InjectRepository)(image_entity_1.Image)),
-    __param(2, (0, typeorm_1.InjectRepository)(sabor_entity_1.Flavor)),
+    __param(2, (0, typeorm_1.InjectRepository)(flavor_entity_1.Flavor)),
     __metadata("design:paramtypes", [typeorm_2.Repository,
         typeorm_2.Repository,
         typeorm_2.Repository])

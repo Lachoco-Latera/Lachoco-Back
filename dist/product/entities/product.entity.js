@@ -9,13 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Product = exports.label = exports.category = void 0;
+exports.Product = exports.currency = exports.label = exports.category = void 0;
 const openapi = require("@nestjs/swagger");
 const typeorm_1 = require("typeorm");
 const uuid_1 = require("uuid");
 const image_entity_1 = require("./image.entity");
-const sabor_entity_1 = require("./sabor.entity");
 const orderDetailsProdusct_entity_1 = require("../../order/entities/orderDetailsProdusct.entity");
+const flavor_entity_1 = require("../../flavor/entities/flavor.entity");
 var category;
 (function (category) {
     category["BOMBAS"] = "bombas";
@@ -27,12 +27,18 @@ var label;
     label["ONLINE"] = "SoloOnline";
     label["NEW"] = "nuevo";
 })(label || (exports.label = label = {}));
+var currency;
+(function (currency) {
+    currency["COP"] = "COP";
+    currency["USD"] = "USD";
+    currency["EUR"] = "EUR";
+})(currency || (exports.currency = currency = {}));
 let Product = class Product {
     constructor() {
         this.id = (0, uuid_1.v4)();
     }
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, stock: { required: true, type: () => Number }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("./sabor.entity").Flavor] }, orderDetailProducts: { required: true, type: () => [require("../../order/entities/orderDetailsProdusct.entity").OrderDetailProduct] } };
+        return { id: { required: true, type: () => String, default: (0, uuid_1.v4)() }, category: { required: true, enum: require("./product.entity").category }, presentacion: { required: true, type: () => Number }, description: { required: true, type: () => String }, price: { required: true, type: () => Number }, currency: { required: true, enum: require("./product.entity").currency }, label: { required: true, enum: require("./product.entity").label }, isActive: { required: true, type: () => Boolean }, images: { required: true, type: () => [require("./image.entity").Image] }, flavors: { required: true, type: () => [require("../../flavor/entities/flavor.entity").Flavor] }, orderDetailProducts: { required: true, type: () => [require("../../order/entities/orderDetailsProdusct.entity").OrderDetailProduct] } };
     }
 };
 exports.Product = Product;
@@ -57,9 +63,9 @@ __decorate([
     __metadata("design:type", Number)
 ], Product.prototype, "price", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'integer', nullable: false }),
-    __metadata("design:type", Number)
-], Product.prototype, "stock", void 0);
+    (0, typeorm_1.Column)({ type: 'enum', enum: currency, nullable: false }),
+    __metadata("design:type", String)
+], Product.prototype, "currency", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'enum', enum: label, default: label.NEW }),
     __metadata("design:type", String)
@@ -74,7 +80,7 @@ __decorate([
     __metadata("design:type", Array)
 ], Product.prototype, "images", void 0);
 __decorate([
-    (0, typeorm_1.ManyToMany)(() => sabor_entity_1.Flavor, { cascade: true }),
+    (0, typeorm_1.ManyToMany)(() => flavor_entity_1.Flavor, { cascade: true }),
     (0, typeorm_1.JoinTable)(),
     __metadata("design:type", Array)
 ], Product.prototype, "flavors", void 0);
