@@ -9,8 +9,10 @@ import {
 } from '@nestjs/common';
 import { FlavorService } from './flavor.service';
 import { CreateFlavorDto } from './dto/create-flavor.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('flavor')
+@ApiTags('flavor')
 export class FlavorController {
   constructor(private readonly flavorService: FlavorService) {}
 
