@@ -42,7 +42,10 @@ __decorate([
     __metadata("design:type", String)
 ], Order.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => orderDetail_entity_1.OrderDetail, (orderDetail) => orderDetail.order),
+    (0, typeorm_1.OneToOne)(() => orderDetail_entity_1.OrderDetail, (orderDetail) => orderDetail.order, {
+        cascade: true,
+        onDelete: 'CASCADE',
+    }),
     __metadata("design:type", orderDetail_entity_1.OrderDetail)
 ], Order.prototype, "orderDetail", void 0);
 __decorate([

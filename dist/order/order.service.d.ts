@@ -24,5 +24,5 @@ export declare class OrderService {
     findAll(pagination?: PaginationQuery): Promise<Order[]>;
     findOne(id: string): Promise<Order>;
     update(id: number, updateOrderDto: UpdateOrderDto): string;
-    remove(id: number): string;
+    remove(id: string): Promise<string>;
 }

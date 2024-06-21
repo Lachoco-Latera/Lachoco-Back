@@ -12,6 +12,7 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { DeleteOrderDto } from './dto/delete-order.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 
@@ -47,7 +48,10 @@ export class OrderController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.orderService.remove(+id);
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<{ message: string }> {
+    const message = await this.orderService.remove(id);
+    return { message };
   }
 }

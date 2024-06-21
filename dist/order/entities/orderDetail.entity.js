@@ -33,7 +33,7 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderDetail.prototype, "price", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => order_entity_1.Order, (order) => order.orderDetail),
+    (0, typeorm_1.OneToOne)(() => order_entity_1.Order, (order) => order.orderDetail, { onDelete: 'CASCADE' }),
     (0, typeorm_1.JoinColumn)({ name: 'order_id' }),
     __metadata("design:type", order_entity_1.Order)
 ], OrderDetail.prototype, "order", void 0);

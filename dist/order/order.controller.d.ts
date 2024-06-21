@@ -10,5 +10,7 @@ export declare class OrderController {
     confirmOrder(id: string): Promise<void>;
     findOne(id: string): Promise<import("./entities/order.entity").Order>;
     update(id: string, updateOrderDto: UpdateOrderDto): string;
-    remove(id: string): string;
+    remove(id: string): Promise<{
+        message: string;
+    }>;
 }
