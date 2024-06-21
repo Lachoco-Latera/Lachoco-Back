@@ -10,4 +10,7 @@ export class Flavor {
 
   @Column({ type: 'varchar', nullable: true })
   name: string;
+
+  @Column({ type: 'integer', default: 0 })
+  stock: number;
 }
