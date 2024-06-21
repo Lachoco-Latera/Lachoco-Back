@@ -11,14 +11,32 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class ProductOrder {
+export class FlavorOrderDTO {
+  @IsUUID()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Flavor ID, has to be UUID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  flavorId: string;
+
+  @IsInt()
+  @Min(1)
+  @ApiProperty({
+    description: 'Quantity of the flavor',
+    example: 3,
+  })
+  cantidad: number;
+}
+
+export class ProductOrder {
   @IsUUID()
   @IsNotEmpty()
   @ApiProperty({
     description: 'Product ID, has to be UUID',
     example: '887a8887-598b-4240-a7da-4c751a9ab2d3',
   })
-  id: string;
+  productId: string;
 
   @IsInt()
   @Min(1)
@@ -27,6 +45,18 @@ class ProductOrder {
     example: 3,
   })
   cantidad: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => FlavorOrderDTO)
+  @ApiProperty({
+    description: 'Array of flavors with ID and quantity',
+    example:
+      '[{"flavorid":"123e4567-e89b-12d3-a456-426614174000", "cantidad":3}]',
+  })
+  flavors: FlavorOrderDTO[];
 }
 
 export class CreateOrderDto {
