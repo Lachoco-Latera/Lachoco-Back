@@ -57,6 +57,16 @@ export class ProductOrder {
       '[{"flavorid":"123e4567-e89b-12d3-a456-426614174000", "cantidad":3}]',
   })
   flavors: FlavorOrderDTO[];
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
+  @ApiProperty({
+    description: 'Array of picked flavor IDs',
+    example:
+      '["123e4567-e89b-12d3-a456-426614174000", "223e4567-e89b-12d3-a456-426614174001"]',
+  })
+  pickedFlavors: string[];
 }
 
 export class CreateOrderDto {
