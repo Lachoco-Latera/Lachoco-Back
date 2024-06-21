@@ -13,6 +13,8 @@ import { OrderDetail } from './entities/orderDetail.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
+import { Flavor } from 'src/flavor/entities/flavor.entity';
+import { OrderDetailFlavor } from './entities/flavorDetail.entity';
 
 @Injectable()
 export class OrderService {
@@ -24,42 +26,65 @@ export class OrderService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(OrderDetailProduct)
     private OrderDetailProductRepository: Repository<OrderDetailProduct>,
+    @InjectRepository(OrderDetailFlavor)
+    private orderDetailFlavorRepository: Repository<OrderDetailFlavor>,
+    @InjectRepository(Flavor)
+    private flavorRepository: Repository<Flavor>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
     const { userId, products } = createOrderDto;
-
     let total = 0;
     const errors = [];
+    const orderFlavor = [];
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
+
+    const flavors = await this.flavorRepository.find();
 
     const productsArr = await Promise.all(
       products.map(async (product) => {
         const findProduct = await this.productRepository.findOneBy({
-          id: product.id,
+          id: product.productId,
         });
 
         const productInfo = { product: null, cantidad: 0 };
 
         if (!findProduct) {
-          errors.push(`Product ${product.id} not found`);
-        } else if (findProduct.stock === 0) {
-          errors.push(`Product ${product.id} with no enough stock`);
-        } else if (findProduct.stock < product.cantidad) {
-          errors.push(`Product ${product.id} with no enough stock`);
+          errors.push(`Product ${product.productId} not found`);
         } else {
           productInfo.product = findProduct;
           productInfo.cantidad = product.cantidad;
           total += Number(findProduct.price * product.cantidad);
 
-          await this.productRepository.update(
-            { id: findProduct.id },
-            { stock: findProduct.stock - product.cantidad },
+          const filterFlavors = product.flavors.map((pf) =>
+            flavors.find((f) => f.id === pf.flavorId),
           );
 
-          return productInfo;
+          if (
+            filterFlavors.includes(undefined) ||
+            filterFlavors.length !== product.flavors.length
+          ) {
+            errors.push(`Un sabor seleccionado no disponible`);
+          } else {
+            product.flavors.forEach((pf) => {
+              const flavor = flavors.find((f) => f.id === pf.flavorId);
+              if (flavor) {
+                orderFlavor.push({
+                  cantidad: pf.cantidad,
+                  flavor: flavor,
+                });
+              }
+            });
+
+            await this.productRepository.save({
+              ...findProduct,
+              flavors: filterFlavors,
+              orderDetailFlavors: product.flavors,
+            });
+            return productInfo;
+          }
         }
       }),
     );
@@ -87,6 +112,7 @@ export class OrderService {
         orderDetail: newOrderDetail,
         product,
         cantidad,
+        orderDetailFlavors: orderFlavor,
       };
       await this.OrderDetailProductRepository.save(orderDetailProduct);
     }
@@ -97,6 +123,7 @@ export class OrderService {
         orderDetail: {
           orderDetailProducts: {
             product: true,
+            orderDetailFlavors: true,
           },
         },
       },
@@ -120,13 +147,13 @@ export class OrderService {
         const product = orderDetailProduct.product;
         const cantidad = orderDetailProduct.cantidad;
 
-        if (cantidad && product) {
-          await transactionalEntityManager.update(
-            Product,
-            { id: product.id },
-            { stock: product.stock - cantidad },
-          );
-        }
+        // if (cantidad && product) {
+        //   await transactionalEntityManager.update(
+        //     Product,
+        //     { id: product.id },
+        //     { stock: product.stock - cantidad },
+        //   );
+        // }
       }
 
       await transactionalEntityManager.update(

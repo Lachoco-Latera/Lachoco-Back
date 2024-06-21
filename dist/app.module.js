@@ -15,6 +15,7 @@ const config_1 = require("@nestjs/config");
 const typeOrm_1 = require("./config/typeOrm");
 const typeorm_1 = require("@nestjs/typeorm");
 const jwt_1 = require("@nestjs/jwt");
+const flavor_module_1 = require("./flavor/flavor.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,6 +38,7 @@ exports.AppModule = AppModule = __decorate([
             user_module_1.UserModule,
             product_module_1.ProductModule,
             order_module_1.OrderModule,
+            flavor_module_1.FlavorModule,
         ],
     })
 ], AppModule);

@@ -1,8 +1,8 @@
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
-import { Flavor } from './entities/sabor.entity';
 import { CreateProductDto } from './dto/create-product.dto';
+import { Flavor } from 'src/flavor/entities/flavor.entity';
 export declare class ProductService {
     private productRepository;
     private imageRepository;
@@ -10,7 +10,7 @@ export declare class ProductService {
     constructor(productRepository: Repository<Product>, imageRepository: Repository<Image>, flavorRepository: Repository<Flavor>);
     create(createProductDto: CreateProductDto): Promise<{
         images: Image[];
-        flavors: Flavor[];
+        flavors: any;
         category: import("./entities/product.entity").category;
         description: string;
         price: number;

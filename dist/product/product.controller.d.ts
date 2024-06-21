@@ -7,7 +7,7 @@ export declare class ProductController {
     constructor(productService: ProductService);
     create(createProductDto: CreateProductDto): Promise<{
         images: import("./entities/image.entity").Image[];
-        flavors: import("./entities/sabor.entity").Flavor[];
+        flavors: any;
         category: import("./entities/product.entity").category;
         description: string;
         price: number;

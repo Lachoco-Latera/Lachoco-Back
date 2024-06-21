@@ -3,9 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
-import { Flavor } from './entities/sabor.entity';
-import { fnPagination } from 'src/utils/pagination';
 import { CreateProductDto } from './dto/create-product.dto';
+import { Flavor } from 'src/flavor/entities/flavor.entity';
 
 @Injectable()
 export class ProductService {
@@ -19,17 +18,17 @@ export class ProductService {
     const imageEntities = createProductDto.images.map((imageUrl) =>
       this.imageRepository.create({ img: imageUrl }),
     );
-    const flavorEntities = createProductDto.flavors.map((flavor) =>
-      this.flavorRepository.create({ name: flavor }),
-    );
+    // const flavorEntities = createProductDto.flavors.map((flavor) =>
+    //   this.flavorRepository.create({ name: flavor }),
+    // );
 
     const savedImages = await this.imageRepository.save(imageEntities);
-    const savedFlavors = await this.flavorRepository.save(flavorEntities);
+    // const savedFlavors = await this.flavorRepository.save(flavorEntities);
 
     const newProduct = {
       ...createProductDto,
       images: savedImages,
-      flavors: savedFlavors,
+      flavors: null,
     };
 
     return await this.productRepository.save(newProduct);
