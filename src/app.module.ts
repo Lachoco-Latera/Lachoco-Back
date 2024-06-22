@@ -7,6 +7,8 @@ import typeOrmConfig from './config/typeOrm';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { FlavorModule } from './flavor/flavor.module';
+import { EmailModule } from './email/email.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -14,6 +16,7 @@ import { FlavorModule } from './flavor/flavor.module';
       isGlobal: true,
       load: [typeOrmConfig],
     }),
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
@@ -28,6 +31,7 @@ import { FlavorModule } from './flavor/flavor.module';
     ProductModule,
     OrderModule,
     FlavorModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
