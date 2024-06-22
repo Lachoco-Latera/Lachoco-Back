@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { FlavorModule } from './flavor/flavor.module';
 import { EmailModule } from './email/email.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     OrderModule,
     FlavorModule,
     EmailModule,
+    CategoryModule,
   ],
 })
 export class AppModule {}

@@ -4,6 +4,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import { Image } from './image.entity';
 
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
+import { Category } from 'src/category/entity/category.entity';
 
 export enum category {
   BOMBAS = 'bombas',
@@ -37,8 +39,8 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string = uuid();
 
-  @Column({ type: 'enum', enum: category, nullable: false })
-  category: category;
+  @ManyToOne(() => Category, (category) => category.products)
+  category: Category;
 
   @Column({ type: 'integer', nullable: false })
   presentacion: number;

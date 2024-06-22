@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
+import { Category } from 'src/category/entity/category.entity';
 
 @Injectable()
 export class ProductService {
@@ -12,21 +13,31 @@ export class ProductService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(Image) private imageRepository: Repository<Image>,
     @InjectRepository(Flavor) private flavorRepository: Repository<Flavor>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
+    const findCategory = await this.categoryRepository.findOne({
+      where: { id: createProductDto.categoryId },
+    });
+    if (!findCategory)
+      throw new NotFoundException(
+        `Category ${createProductDto.categoryId} not found`,
+      );
+
     const imageEntities = createProductDto.images.map((imageUrl) =>
       this.imageRepository.create({ img: imageUrl }),
     );
     // const flavorEntities = createProductDto.flavors.map((flavor) =>
     //   this.flavorRepository.create({ name: flavor }),
     // );
-
     const savedImages = await this.imageRepository.save(imageEntities);
     // const savedFlavors = await this.flavorRepository.save(flavorEntities);
-
+    const { categoryId, ...saveProduct } = createProductDto;
     const newProduct = {
-      ...createProductDto,
+      ...saveProduct,
+      category: findCategory,
       images: savedImages,
       flavors: null,
     };
