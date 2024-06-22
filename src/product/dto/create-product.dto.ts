@@ -6,7 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { category, label, currency } from 'src/product/entities/product.entity';
+import { label, currency } from 'src/product/entities/product.entity';
 
 export class CreateProductDto {
   @IsNotEmpty()

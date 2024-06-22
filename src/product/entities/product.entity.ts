@@ -15,12 +15,6 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 
-export enum category {
-  BOMBAS = 'bombas',
-  TABLETAS = 'tabletas',
-  BOMBONES = 'bombones',
-}
-
 export enum label {
   ONLINE = 'SoloOnline',
   NEW = 'nuevo',
