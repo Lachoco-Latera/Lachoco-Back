@@ -14,8 +14,11 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Product } from 'src/product/entities/product.entity';
 import { userFavorites } from './dto/userFavorite.dto';
-import { fnPagination } from '../utils/pagination';
-import e from 'express';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { updateUserDto } from './dto/updateUser.dto';
+import { EmailService } from 'src/email/email.service';
+import { UserCreatedEvent } from './user.registerEvent';
+import { bodyRegister } from './emailBody/bodyRegister';
 
 @Injectable()
 export class UserService {
@@ -24,6 +27,8 @@ export class UserService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly jwtService: JwtService,
+    private eventEmitter: EventEmitter2,
+    private emailService: EmailService,
   ) {}
   async create(user: createUserDto) {
     const findEmail = await this.userRepository.findOne({
@@ -46,8 +51,11 @@ export class UserService {
 
     const userSaved = await this.userRepository.save(newUser);
 
+    if (!userSaved) throw new BadRequestException('Registro fallido');
+
     const { id, isActive, role, name, lastname, email, country } = userSaved;
 
+    this.eventEmitter.emit('user.created', new UserCreatedEvent(id));
     return { id, isActive, role, name, lastname, email, country };
   }
 
@@ -180,5 +188,35 @@ export class UserService {
       { id: userId },
       { favoriteProducts: filterFavoritesUser },
     );
+  }
+
+  async editUser(id: string, updateUser: updateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(`User ${id} not found`);
+
+    await this.userRepository.update({ id: id }, { ...updateUser });
+    return `Usuario ${id} Actualizado`;
+  }
+
+  //*Evento al crear usuario
+  @OnEvent('user.created')
+  private async sendEmail(payload: UserCreatedEvent) {
+    const userId = await this.userRepository.findOne({
+      where: { id: payload.userId },
+    });
+
+    const template = bodyRegister(
+      userId.email,
+      'Bienvenido a Chocolatera',
+      userId,
+    );
+
+    const mail = {
+      to: userId.email,
+      subject: 'Registro Chocolatera',
+      text: 'Registro Exitoso',
+      template: template,
+    };
+    await this.emailService.sendPostulation(mail);
   }
 }
