@@ -58,4 +58,8 @@ export class ProductController {
   inactiveProduct(@Param('id') id: string) {
     return this.productService.inactiveProduct(id);
   }
+  @Delete(':id')
+  async remove(@Param('id') id: string) {
+    return this.productService.remove(id);
+  }
 }
