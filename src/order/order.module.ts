@@ -24,6 +24,5 @@ import { OrderDetailFlavor } from './entities/flavorDetail.entity';
   ],
   controllers: [OrderController],
   providers: [OrderService],
-  exports: [TypeOrmModule], 
 })
 export class OrderModule {}

@@ -7,10 +7,16 @@ import { Image } from './entities/image.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { OrderModule } from 'src/order/order.module'; // Import OrderModule
-
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, Category, Image, Flavor]),
+    TypeOrmModule.forFeature([
+      Product,
+      Category,
+      Image,
+      Flavor,
+      OrderDetailProduct,
+    ]),
     OrderModule,
   ],
   controllers: [ProductController],

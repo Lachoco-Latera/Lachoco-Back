@@ -35,8 +35,10 @@ export class Product {
 
   @ManyToOne(() => Category, (category) => category.products)
   category: Category;
-  @Column({ type: 'text', nullable: false })
+
+  @Column({ type: 'text', nullable: true })
   name: string;
+  
   @Column({ type: 'integer', nullable: false })
   presentacion: number;
 
