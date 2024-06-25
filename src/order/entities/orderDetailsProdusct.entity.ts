@@ -36,6 +36,6 @@ export class OrderDetailProduct {
   )
   orderDetailFlavors: OrderDetailFlavor[];
 
-  @Column({ type: 'text', array: true, default: '{}' })
-  pickedFlavors: string[];
+  @Column({ type: 'text', array: true, default: '{}', nullable: true })
+  pickedFlavors?: string[];
 }
