@@ -19,6 +19,7 @@ import { updateUserDto } from './dto/updateUser.dto';
 import { EmailService } from 'src/email/email.service';
 import { UserCreatedEvent } from './user.registerEvent';
 import { bodyRegister } from './emailBody/bodyRegister';
+import { PaginationQuery } from 'src/dto/pagination.dto';
 
 @Injectable()
 export class UserService {
@@ -89,10 +90,9 @@ export class UserService {
     return { success: 'Login Success', token };
   }
 
-  async findAll(pagination) {
-    const { page, limit } = pagination ?? {};
-    const defaultPage = page ?? 1;
-    const defaultLimit = limit ?? 15;
+  async findAll(pagination?: PaginationQuery) {
+    const defaultPage = pagination?.page || 1;
+    const defaultLimit = pagination?.limit || 15;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;
