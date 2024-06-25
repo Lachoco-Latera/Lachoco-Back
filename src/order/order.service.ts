@@ -157,15 +157,21 @@ export class OrderService {
     });
   }
   async findAll(pagination?: PaginationQuery) {
-    const { page, limit } = pagination ?? {};
-    const defaultPage = page ?? 1;
-    const defaultLimit = limit ?? 15;
+    const defaultPage = pagination?.page || 1;
+    const defaultLimit = pagination?.limit || 15;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;
 
     const orders = await this.orderRepository.find({
-      relations: { orderDetail: true },
+      relations: {
+        orderDetail: {
+          orderDetailProducts: {
+            product: { category: true },
+            orderDetailFlavors: true,
+          },
+        },
+      },
     });
 
     const sliceOrders = orders.slice(startIndex, endIndex);

@@ -10,6 +10,8 @@ import { FlavorModule } from './flavor/flavor.module';
 import { EmailModule } from './email/email.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CategoryModule } from './category/category.module';
+import { SuscriptionModule } from './suscription/suscription.module';
+import { PagosModule } from './pagos/pagos.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { CategoryModule } from './category/category.module';
     FlavorModule,
     EmailModule,
     CategoryModule,
+    SuscriptionModule,
+    PagosModule,
   ],
 })
 export class AppModule {}

@@ -6,7 +6,9 @@ import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
+import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+
 
 @Injectable()
 export class ProductService {
@@ -46,10 +48,9 @@ export class ProductService {
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(pagination) {
-    const { page, limit } = pagination ?? {};
-    const defaultPage = page ?? 1;
-    const defaultLimit = limit ?? 15;
+  async findAll(pagination?: PaginationQuery) {
+    const defaultPage = pagination?.page || 1;
+    const defaultLimit = pagination?.limit || 15;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;

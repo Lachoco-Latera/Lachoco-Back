@@ -28,7 +28,6 @@ export class OrderController {
 
   @Get()
   findAll(pagination?: PaginationQuery) {
-    console.log(pagination, ',*****');
     return this.orderService.findAll(pagination);
   }
 
