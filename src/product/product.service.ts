@@ -32,18 +32,16 @@ export class ProductService {
     const imageEntities = createProductDto.images.map((imageUrl) =>
       this.imageRepository.create({ img: imageUrl }),
     );
-    // const flavorEntities = createProductDto.flavors.map((flavor) =>
-    //   this.flavorRepository.create({ name: flavor }),
-    // );
     const savedImages = await this.imageRepository.save(imageEntities);
-    // const savedFlavors = await this.flavorRepository.save(flavorEntities);
     const { categoryId, ...saveProduct } = createProductDto;
+    console.log(saveProduct);
     const newProduct = {
       ...saveProduct,
       category: findCategory,
       images: savedImages,
       flavors: null,
     };
+    console.log(newProduct);
 
     return await this.productRepository.save(newProduct);
   }
