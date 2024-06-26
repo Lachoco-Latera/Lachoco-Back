@@ -39,6 +39,7 @@ export class UserService {
     if (findEmail) throw new ConflictException('Email already exists');
 
     const hashPassword = await bcrypt.hash(user.password, 10);
+
     if (!hashPassword)
       throw new BadRequestException('Password could not be hashed');
 
