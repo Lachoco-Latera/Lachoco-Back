@@ -20,7 +20,9 @@ import { EmailService } from 'src/email/email.service';
 import { UserCreatedEvent } from './user.registerEvent';
 import { bodyRegister } from './emailBody/bodyRegister';
 import { PaginationQuery } from 'src/dto/pagination.dto';
+import Stripe from 'stripe';
 
+const stripe = new Stripe(process.env.KEY_STRIPE);
 @Injectable()
 export class UserService {
   constructor(
@@ -39,6 +41,7 @@ export class UserService {
     if (findEmail) throw new ConflictException('Email already exists');
 
     const hashPassword = await bcrypt.hash(user.password, 10);
+
     if (!hashPassword)
       throw new BadRequestException('Password could not be hashed');
 
@@ -86,8 +89,18 @@ export class UserService {
       role: [emailUser.role],
     };
 
+    const suscription = await stripe.subscriptions.retrieve(
+      emailUser.suscriptionId,
+    );
+
+    const sendSuscription = {
+      start: suscription.current_period_start,
+      end: suscription.current_period_end,
+      plan: suscription.items.data[0].plan.nickname,
+    };
+
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token };
+    return { success: 'Login Success', token, sendSuscription };
   }
 
   async findAll(pagination?: PaginationQuery) {

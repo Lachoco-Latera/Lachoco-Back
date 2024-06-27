@@ -1,12 +1,11 @@
 import { User } from '../entities/user.entity';
 
-export const bodySuscription = (
+export const bodypago = (
   to: string,
   subject: string,
   user: User,
   invoice: string,
-  suscripcion: any,
-
+  order: any,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -394,8 +393,20 @@ export const bodySuscription = (
     </h1>
     <h2>
     ${user.name} ${user.lastname}
+    <ul>
+    ${order.orderDetail.orderDetailProducts.map(
+      (p) =>
+        `<li>
+      <h3>${p.product.category.name}</h3>
+      <p>Presentacion${p.product.presentacion}</p>
+      <p>${p.cantidad}</p>
+      <p>${p.price.price}</p>
+      </li>`,
+    )}
+    </ul>
+    <p>Total ${order.orderDetail.price}$</p>
+    
     </h2>
-    <p> Creado:${new Date(suscripcion.current_period_start * 1000)} - Termina:${new Date(suscripcion.current_period_end * 1000)}</p>
 
     <a href=${invoice}>
     Click para ver factura

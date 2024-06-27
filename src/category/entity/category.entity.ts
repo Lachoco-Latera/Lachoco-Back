@@ -6,6 +6,9 @@ export enum category {
   BOMBAS = 'bombas',
   TABLETAS = 'tabletas',
   BOMBONES = 'bombones',
+  CAFES = 'cafes',
+  DELICIAS = 'delicias',
+
 }
 
 @Entity({
