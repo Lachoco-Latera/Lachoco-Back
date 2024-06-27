@@ -19,7 +19,7 @@ const config = {
   migrations: ['dist/migrations/*{.ts,.js}'],
   ssl: true,
   cache: true,
-  maxQueryExecutionTime: 1000, // log queries that are slow// reduce logging in production
+  maxQueryExecutionTime: 1000,
   extra: {
     ssl: {
       rejectUnauthorized: false,

@@ -4,12 +4,17 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  IsUUID,
 } from 'class-validator';
-import { category, label, currency } from 'src/product/entities/product.entity';
-
+import { label, currency } from 'src/product/entities/product.entity';
 export class CreateProductDto {
-  @IsEnum(category)
-  category: category;
+  @IsNotEmpty()
+  @IsUUID()
+  categoryId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -34,5 +39,5 @@ export class CreateProductDto {
   images: string[];
 
   @IsArray()
-  flavors: string[];
+  flavors: { id: string; name: string; stock: number }[];
 }

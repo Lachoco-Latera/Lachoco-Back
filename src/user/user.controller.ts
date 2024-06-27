@@ -19,6 +19,7 @@ import {
   userValidationsErrors,
 } from './swagger.user';
 import { userFavorites } from './dto/userFavorite.dto';
+import { updateUserDto } from './dto/updateUser.dto';
 
 @Controller('users')
 @ApiTags('Users')
@@ -126,5 +127,13 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.findOne(id);
+  }
+
+  @Put(':id')
+  editUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUser: updateUserDto,
+  ) {
+    return this.userService.editUser(id, updateUser);
   }
 }

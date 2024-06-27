@@ -5,6 +5,9 @@ import { Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
+import { Category } from 'src/category/entity/category.entity';
+import { PaginationQuery } from 'src/dto/pagination.dto';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 
 @Injectable()
 export class ProductService {
@@ -12,32 +15,47 @@ export class ProductService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(Image) private imageRepository: Repository<Image>,
     @InjectRepository(Flavor) private flavorRepository: Repository<Flavor>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+    @InjectRepository(OrderDetailProduct)
+    private readonly orderDetailProductRepository: Repository<OrderDetailProduct>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
+    const findCategory = await this.categoryRepository.findOne({
+      where: { id: createProductDto.categoryId },
+    });
+    if (!findCategory)
+      throw new NotFoundException(
+        `Category ${createProductDto.categoryId} not found`,
+      );
+
     const imageEntities = createProductDto.images.map((imageUrl) =>
       this.imageRepository.create({ img: imageUrl }),
     );
-    // const flavorEntities = createProductDto.flavors.map((flavor) =>
-    //   this.flavorRepository.create({ name: flavor }),
-    // );
-
     const savedImages = await this.imageRepository.save(imageEntities);
-    // const savedFlavors = await this.flavorRepository.save(flavorEntities);
+    const { categoryId, ...saveProduct } = createProductDto;
+
+    // Manejar la creación de los sabores
+    const flavorEntities = createProductDto.flavors.map((flavor) => ({
+      id: flavor.id,
+      name: flavor.name,
+      stock: flavor.stock,
+    }));
 
     const newProduct = {
-      ...createProductDto,
+      ...saveProduct,
+      category: findCategory,
       images: savedImages,
-      flavors: null,
+      flavors: flavorEntities,
     };
 
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(pagination) {
-    const { page, limit } = pagination ?? {};
-    const defaultPage = page ?? 1;
-    const defaultLimit = limit ?? 15;
+  async findAll(pagination?: PaginationQuery) {
+    const defaultPage = pagination?.page || 1;
+    const defaultLimit = pagination?.limit || 15;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;
@@ -112,5 +130,32 @@ export class ProductService {
       isActive: false,
     });
     return `Product ${id} change to inactive`;
+  }
+  async remove(id: string): Promise<string> {
+    const findProduct = await this.productRepository.findOne({
+      where: { id },
+      relations: ['orderDetailProducts', 'images', 'flavors'],
+    });
+
+    if (!findProduct) {
+      throw new NotFoundException(`Product with id ${id} not found`);
+    }
+
+    // Elimina las relaciones con OrderDetailProducts si existen
+    if (findProduct.orderDetailProducts?.length > 0) {
+      await this.orderDetailProductRepository.remove(
+        findProduct.orderDetailProducts,
+      );
+    }
+
+    // Elimina las imágenes si existen
+    if (findProduct.images?.length > 0) {
+      await this.imageRepository.remove(findProduct.images);
+    }
+
+    // Elimina el producto
+    await this.productRepository.remove(findProduct);
+
+    return `Se ha eliminado el producto correspondiente`;
   }
 }

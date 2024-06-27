@@ -14,9 +14,15 @@ import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { Product } from 'src/product/entities/product.entity';
 import { userFavorites } from './dto/userFavorite.dto';
-import { fnPagination } from '../utils/pagination';
-import e from 'express';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { updateUserDto } from './dto/updateUser.dto';
+import { EmailService } from 'src/email/email.service';
+import { UserCreatedEvent } from './user.registerEvent';
+import { bodyRegister } from './emailBody/bodyRegister';
+import { PaginationQuery } from 'src/dto/pagination.dto';
+import Stripe from 'stripe';
 
+const stripe = new Stripe(process.env.KEY_STRIPE);
 @Injectable()
 export class UserService {
   constructor(
@@ -24,6 +30,8 @@ export class UserService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly jwtService: JwtService,
+    private eventEmitter: EventEmitter2,
+    private emailService: EmailService,
   ) {}
   async create(user: createUserDto) {
     const findEmail = await this.userRepository.findOne({
@@ -33,6 +41,7 @@ export class UserService {
     if (findEmail) throw new ConflictException('Email already exists');
 
     const hashPassword = await bcrypt.hash(user.password, 10);
+
     if (!hashPassword)
       throw new BadRequestException('Password could not be hashed');
 
@@ -46,8 +55,11 @@ export class UserService {
 
     const userSaved = await this.userRepository.save(newUser);
 
+    if (!userSaved) throw new BadRequestException('Registro fallido');
+
     const { id, isActive, role, name, lastname, email, country } = userSaved;
 
+    this.eventEmitter.emit('user.created', new UserCreatedEvent(id));
     return { id, isActive, role, name, lastname, email, country };
   }
 
@@ -77,14 +89,23 @@ export class UserService {
       role: [emailUser.role],
     };
 
+    const suscription = await stripe.subscriptions.retrieve(
+      emailUser.suscriptionId,
+    );
+
+    const sendSuscription = {
+      start: suscription.current_period_start,
+      end: suscription.current_period_end,
+      plan: suscription.items.data[0].plan.nickname,
+    };
+
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token };
+    return { success: 'Login Success', token, sendSuscription };
   }
 
-  async findAll(pagination) {
-    const { page, limit } = pagination ?? {};
-    const defaultPage = page ?? 1;
-    const defaultLimit = limit ?? 15;
+  async findAll(pagination?: PaginationQuery) {
+    const defaultPage = pagination?.page || 1;
+    const defaultLimit = pagination?.limit || 15;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;
@@ -180,5 +201,35 @@ export class UserService {
       { id: userId },
       { favoriteProducts: filterFavoritesUser },
     );
+  }
+
+  async editUser(id: string, updateUser: updateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException(`User ${id} not found`);
+
+    await this.userRepository.update({ id: id }, { ...updateUser });
+    return `Usuario ${id} Actualizado`;
+  }
+
+  //*Evento al crear usuario
+  @OnEvent('user.created')
+  private async sendEmail(payload: UserCreatedEvent) {
+    const userId = await this.userRepository.findOne({
+      where: { id: payload.userId },
+    });
+
+    const template = bodyRegister(
+      userId.email,
+      'Bienvenido a Chocolatera',
+      userId,
+    );
+
+    const mail = {
+      to: userId.email,
+      subject: 'Registro Chocolatera',
+      text: 'Registro Exitoso',
+      template: template,
+    };
+    await this.emailService.sendPostulation(mail);
   }
 }
