@@ -18,7 +18,7 @@ export class SuscriptionService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
   async getSuscriptions() {
-    const stripe = new Stripe(process.env.KEY_STRIPE);
+    const stripe = new Stripe(process.env.KEY_STRIPE || '');
     const prices = await stripe.prices.list();
 
     //*Factura suscripcion
@@ -31,7 +31,7 @@ export class SuscriptionService {
   }
 
   async newSuscription(priceId: any) {
-    const stripe = new Stripe(process.env.KEY_STRIPE);
+    const stripe = new Stripe(process.env.KEY_STRIPE || '');
 
     const findPlan = await stripe.plans.retrieve(priceId.priceId);
 
@@ -56,9 +56,8 @@ export class SuscriptionService {
   }
 
   async webhookSus(req: any) {
-    const stripe = new Stripe(process.env.KEY_STRIPE);
-    const endpointSecret = 'whsec_AfVcnMUB2METz7opiZxkLfccPo0Hbxpy';
-
+    const stripe = new Stripe(process.env.KEY_STRIPE || '');
+    const endpointSecret = process.env.ENDPOINT_SECRERT || '';
     const body = JSON.stringify(req.body, null, 2);
 
     //const sig = req.headers['stripe-signature'];
