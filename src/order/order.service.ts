@@ -180,6 +180,7 @@ export class OrderService {
             orderDetailFlavors: true,
           },
         },
+        user: true,
       },
     });
 

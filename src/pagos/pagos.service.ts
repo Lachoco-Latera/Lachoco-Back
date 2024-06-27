@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from 'src/order/entities/order.entity';
 import { Stripe } from 'stripe';
 import { Repository } from 'typeorm';
-import { MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import { Invoice, MercadoPagoConfig, Payment, Preference } from 'mercadopago';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -28,6 +28,7 @@ export class PagosService {
             orderDetailFlavors: true,
           },
         },
+        user: true,
       },
     });
 
@@ -62,7 +63,17 @@ export class PagosService {
       }
     }
     if (order.country === 'SPAIN') {
+      let customer = orderById.user.customerId;
+      if (!orderById.user.customerId) {
+        customer = await stripe.customers
+          .create({
+            email: orderById.user.email,
+          })
+          .then((customer) => customer.id);
+      }
+
       const session = await stripe.checkout.sessions.create({
+        customer: customer,
         line_items: orderById.orderDetail.orderDetailProducts.map((p) => ({
           price_data: {
             product_data: {
@@ -74,12 +85,18 @@ export class PagosService {
           },
           quantity: p.cantidad,
         })),
+        invoice_creation: { enabled: true },
+        metadata: {
+          order: orderById.id,
+          user: orderById.user.id,
+        },
         mode: 'payment',
+        payment_method_types: ['card'],
         success_url: 'http://localhost:3000/pagos/success',
         cancel_url: 'http://localhost:3000/pagos/cancel',
       });
 
-      return session;
+      return { url: session.url };
     }
   }
 
@@ -91,6 +108,7 @@ export class PagosService {
     return 'cancel';
   }
 
+  //*mp webhook
   async receiveWebhook(query: any) {
     const payment = query;
     const searchPayment = new Payment(client);
@@ -103,5 +121,14 @@ export class PagosService {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  //*stripeWebhook
+  async stripeWebhook(req: any) {
+    console.log('**********', req.body, '***********');
+
+    // const invoice = stripe.invoices.create({
+    //   customer: 'cus_NeZwdNtLEOXuvB',
+    // });
   }
 }

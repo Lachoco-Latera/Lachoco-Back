@@ -43,6 +43,12 @@ export class User {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  suscriptionId: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  customerId: string;
+
   @OneToMany(() => Order, (order) => order.user)
   @JoinColumn({ name: 'orders_id' })
   orders: Order[];

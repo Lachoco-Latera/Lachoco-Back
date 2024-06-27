@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common';
 import { PagosService } from './pagos.service';
 
 @Controller('pagos')
@@ -22,5 +22,10 @@ export class PagosController {
   @Post('webhook')
   receivceWebhook(@Query() query: any) {
     return this.pagosService.receiveWebhook(query);
+  }
+
+  @Post('stripewebhook')
+  stripewbhook(@Request() req: any) {
+    return this.pagosService.stripeWebhook(req);
   }
 }
