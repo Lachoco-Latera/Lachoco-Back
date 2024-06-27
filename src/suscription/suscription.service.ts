@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EmailService } from 'src/email/email.service';
 import { Order, status } from 'src/order/entities/order.entity';
 import { bodypago } from 'src/user/emailBody/bodyPago';
-
 import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
 import { Stripe } from 'stripe';
@@ -20,10 +19,9 @@ export class SuscriptionService {
     private readonly emailService: EmailService,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
-
   ) {}
   async getSuscriptions() {
-    const stripe = new Stripe(process.env.KEY_STRIPE || '');
+    const stripe = new Stripe(process.env.KEY_STRIPE);
     const prices = await stripe.prices.list();
 
     const suscripcion = await stripe.subscriptions.list();
@@ -37,8 +35,8 @@ export class SuscriptionService {
   }
 
   async newSuscription(priceId: any) {
+    const stripe = new Stripe(process.env.KEY_STRIPE);
 
-    const stripe = new Stripe(process.env.KEY_STRIPE || '');
     const findPlan = await stripe.plans.retrieve(priceId.priceId);
 
     if (!findPlan) {
@@ -62,9 +60,9 @@ export class SuscriptionService {
   }
 
   async webhookSus(req: any) {
+    const stripe = new Stripe(process.env.KEY_STRIPE);
+    const endpointSecret = process.env.ENDPOINT_SECRET;
 
-    const stripe = new Stripe(process.env.KEY_STRIPE || '');
-    const endpointSecret = process.env.ENDPOINT_SECRERT || '';
     const body = JSON.stringify(req.body, null, 2);
 
     //const sig = req.headers['stripe-signature'];
@@ -80,19 +78,21 @@ export class SuscriptionService {
       event = stripe.webhooks.constructEvent(body, header, endpointSecret);
     } catch (err) {
       console.log(err);
-      throw new BadRequestException(`Webhook Error: ${err.message}`);
+      throw new BadRequestException(Webhook Error: ${err.message});
     }
     // Manejar el evento de Stripe
     switch (event.type) {
       case 'checkout.session.completed':
         const checkoutSessionCompleted = event.data.object;
+
         const userEmail = await this.userRepository.findOne({
           where: {
             email: checkoutSessionCompleted.customer_details.email,
           },
         });
         if (!userEmail)
-          throw new NotFoundException(`UserEMail ${userEmail.email} notFound`);
+          throw new NotFoundException(UserEMail ${userEmail.email} notFound);
+
         console.log(checkoutSessionCompleted);
         if (checkoutSessionCompleted.mode === 'suscripcion') {
           await this.userRepository.update(
@@ -165,7 +165,7 @@ export class SuscriptionService {
             template: template,
           };
           await this.emailService.sendPostulation(mail);
-        }
-    }
-  }
+        }
+    }
+  }
 }
