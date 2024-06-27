@@ -58,7 +58,6 @@ export class SuscriptionService {
   async webhookSus(req: any) {
     const stripe = new Stripe(process.env.KEY_STRIPE || '');
     const endpointSecret = process.env.ENDPOINT_SECRERT || '';
-
     const body = JSON.stringify(req.body, null, 2);
 
     //const sig = req.headers['stripe-signature'];
