@@ -7,11 +7,14 @@ import {
   IsUUID,
 } from 'class-validator';
 import { label, currency } from 'src/product/entities/product.entity';
-
 export class CreateProductDto {
   @IsNotEmpty()
   @IsUUID()
   categoryId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -36,5 +39,5 @@ export class CreateProductDto {
   images: string[];
 
   @IsArray()
-  flavors: string[];
+  flavors: { id: string; name: string; stock: number }[];
 }

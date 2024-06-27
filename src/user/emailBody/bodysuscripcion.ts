@@ -6,6 +6,7 @@ export const bodySuscription = (
   user: User,
   invoice: string,
   suscripcion: any,
+
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -395,6 +396,7 @@ export const bodySuscription = (
     ${user.name} ${user.lastname}
     </h2>
     <p> Creado:${new Date(suscripcion.current_period_start * 1000)} - Termina:${new Date(suscripcion.current_period_end * 1000)}</p>
+
     <a href=${invoice}>
     Click para ver factura
     </a>

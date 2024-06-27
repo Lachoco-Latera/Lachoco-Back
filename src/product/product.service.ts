@@ -7,6 +7,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { PaginationQuery } from 'src/dto/pagination.dto';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 
 @Injectable()
 export class ProductService {
@@ -16,6 +17,8 @@ export class ProductService {
     @InjectRepository(Flavor) private flavorRepository: Repository<Flavor>,
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(OrderDetailProduct)
+    private readonly orderDetailProductRepository: Repository<OrderDetailProduct>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -30,17 +33,21 @@ export class ProductService {
     const imageEntities = createProductDto.images.map((imageUrl) =>
       this.imageRepository.create({ img: imageUrl }),
     );
-    // const flavorEntities = createProductDto.flavors.map((flavor) =>
-    //   this.flavorRepository.create({ name: flavor }),
-    // );
     const savedImages = await this.imageRepository.save(imageEntities);
-    // const savedFlavors = await this.flavorRepository.save(flavorEntities);
     const { categoryId, ...saveProduct } = createProductDto;
+
+    // Manejar la creación de los sabores
+    const flavorEntities = createProductDto.flavors.map((flavor) => ({
+      id: flavor.id,
+      name: flavor.name,
+      stock: flavor.stock,
+    }));
+
     const newProduct = {
       ...saveProduct,
       category: findCategory,
       images: savedImages,
-      flavors: null,
+      flavors: flavorEntities,
     };
 
     return await this.productRepository.save(newProduct);
@@ -123,5 +130,32 @@ export class ProductService {
       isActive: false,
     });
     return `Product ${id} change to inactive`;
+  }
+  async remove(id: string): Promise<string> {
+    const findProduct = await this.productRepository.findOne({
+      where: { id },
+      relations: ['orderDetailProducts', 'images', 'flavors'],
+    });
+
+    if (!findProduct) {
+      throw new NotFoundException(`Product with id ${id} not found`);
+    }
+
+    // Elimina las relaciones con OrderDetailProducts si existen
+    if (findProduct.orderDetailProducts?.length > 0) {
+      await this.orderDetailProductRepository.remove(
+        findProduct.orderDetailProducts,
+      );
+    }
+
+    // Elimina las imágenes si existen
+    if (findProduct.images?.length > 0) {
+      await this.imageRepository.remove(findProduct.images);
+    }
+
+    // Elimina el producto
+    await this.productRepository.remove(findProduct);
+
+    return `Se ha eliminado el producto correspondiente`;
   }
 }

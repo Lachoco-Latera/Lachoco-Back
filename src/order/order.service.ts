@@ -37,7 +37,6 @@ export class OrderService {
     const { userId, products } = createOrderDto;
     let total = 0;
     const errors = [];
-    const orderFlavor = [];
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -68,22 +67,12 @@ export class OrderService {
           ) {
             errors.push(`Un sabor seleccionado no disponible`);
           } else {
-            product.flavors.forEach((pf) => {
-              const flavor = flavors.find((f) => f.id === pf.flavorId);
-              if (flavor) {
-                orderFlavor.push({
-                  cantidad: pf.cantidad,
-                  flavor: flavor,
-                });
-              }
-            });
-
             await this.productRepository.save({
               ...findProduct,
               flavors: filterFlavors,
               orderDetailFlavors: product.flavors,
             });
-            return productInfo;
+            return { ...productInfo, pickedFlavors: product.pickedFlavors };
           }
         }
       }),
@@ -107,12 +96,13 @@ export class OrderService {
 
     const newOrderDetail = await this.orderDetailRepository.save(orderDetail);
 
-    for (const { product, cantidad } of productsArr) {
+    for (const { product, cantidad, pickedFlavors } of productsArr) {
       const orderDetailProduct = {
         orderDetail: newOrderDetail,
         product,
         cantidad,
-        orderDetailFlavors: orderFlavor,
+        orderDetailFlavors: product.flavors,
+        pickedFlavors,
       };
       await this.OrderDetailProductRepository.save(orderDetailProduct);
     }
@@ -129,6 +119,7 @@ export class OrderService {
       },
     });
   }
+
   async confirmOrder(orderId) {
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
