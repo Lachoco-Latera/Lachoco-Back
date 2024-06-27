@@ -9,7 +9,6 @@ import { Category } from 'src/category/entity/category.entity';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 
-
 @Injectable()
 export class ProductService {
   constructor(
@@ -36,14 +35,20 @@ export class ProductService {
     );
     const savedImages = await this.imageRepository.save(imageEntities);
     const { categoryId, ...saveProduct } = createProductDto;
-    console.log(saveProduct);
+
+    // Manejar la creación de los sabores
+    const flavorEntities = createProductDto.flavors.map((flavor) => ({
+      id: flavor.id,
+      name: flavor.name,
+      stock: flavor.stock,
+    }));
+
     const newProduct = {
       ...saveProduct,
       category: findCategory,
       images: savedImages,
-      flavors: null,
+      flavors: flavorEntities,
     };
-    console.log(newProduct);
 
     return await this.productRepository.save(newProduct);
   }
