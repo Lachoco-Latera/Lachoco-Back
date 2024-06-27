@@ -78,7 +78,7 @@ export class SuscriptionService {
       event = stripe.webhooks.constructEvent(body, header, endpointSecret);
     } catch (err) {
       console.log(err);
-      throw new BadRequestException(Webhook Error: ${err.message});
+      throw new BadRequestException(`Webhook Error: ${err.message}`);
     }
     // Manejar el evento de Stripe
     switch (event.type) {
@@ -91,7 +91,7 @@ export class SuscriptionService {
           },
         });
         if (!userEmail)
-          throw new NotFoundException(UserEMail ${userEmail.email} notFound);
+          throw new NotFoundException(`UserEMail ${userEmail.email} notFound`);
 
         console.log(checkoutSessionCompleted);
         if (checkoutSessionCompleted.mode === 'suscripcion') {
@@ -165,7 +165,7 @@ export class SuscriptionService {
             template: template,
           };
           await this.emailService.sendPostulation(mail);
-        }
-    }
-  }
+        }
+    }
+  }
 }
