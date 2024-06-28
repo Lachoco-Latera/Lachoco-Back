@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Header, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request } from '@nestjs/common';
 import { SuscriptionService } from './suscription.service';
 
 @Controller('subscription')
@@ -7,7 +7,13 @@ export class SuscriptionController {
 
   @Get()
   findAll() {
-    return this.suscriptionService.getSuscriptions();
+    return this.suscriptionService.newPlanMP();
+  }
+
+  @Post('/prueba')
+  prueba(@Request() evnt: any) {
+    console.log(evnt);
+    return this.suscriptionService.prueba();
   }
 
   @Post('newsuscription')
