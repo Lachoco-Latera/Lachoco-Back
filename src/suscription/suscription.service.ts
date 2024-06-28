@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import MercadoPagoConfig, {
+  CardToken,
   Invoice,
   Payment,
   PreApproval,
@@ -39,7 +40,7 @@ export class SuscriptionService {
     // const factura = await stripe.invoices.list();
     // const factura1 = factura.data.find((f) => f.customer === uno.id);
     // console.log(factura1);
-    return invoice;
+    return prices;
   }
 
   async newPlanMP() {
@@ -52,23 +53,18 @@ export class SuscriptionService {
         auto_recurring: {
           frequency: 1,
           frequency_type: 'months',
-          repetitions: 1,
+          repetitions: 12, // Permitir que la suscripción se renueve cada mes durante un año (12 meses)
           billing_day: 10,
           billing_day_proportional: true,
           free_trial: {
             frequency: 1,
             frequency_type: 'days',
           },
-          transaction_amount: 2000,
+          transaction_amount: 200,
           currency_id: 'ARS',
         },
         payment_methods_allowed: {
-          payment_types: [
-            { id: 'credit_card' },
-            {
-              id: 'debit_card',
-            },
-          ],
+          payment_types: [{ id: 'credit_card' }, { id: 'debit_card' }],
           payment_methods: [],
         },
         back_url: 'https://www.yoursite.com',
@@ -212,9 +208,17 @@ export class SuscriptionService {
         }
     }
   }
-
-  async prueba() {
-    console.log('prueba mp');
+  //*webhook subscription/prueba
+  async prueba(event) {
     const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
+    const searchPayment = new Payment(client);
+
+    const card = new CardToken(client);
+    card.create({ body: {} });
+    const payment = await searchPayment.get({ id: event.body.data.id });
+
+    const findUser = await this.userRepository.findOne({
+      where: { email: payment.payer.email },
+    });
   }
 }

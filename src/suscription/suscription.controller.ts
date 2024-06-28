@@ -10,10 +10,9 @@ export class SuscriptionController {
     return this.suscriptionService.newPlanMP();
   }
 
-  @Post('/prueba')
-  prueba(@Request() evnt: any) {
-    console.log(evnt);
-    return this.suscriptionService.prueba();
+  @Post('prueba')
+  prueba(@Request() event: any) {
+    return this.suscriptionService.prueba(event);
   }
 
   @Post('newsuscription')
