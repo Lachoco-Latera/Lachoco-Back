@@ -36,13 +36,22 @@ export class PagosService {
             orderDetailFlavors: true,
           },
         },
-        user: true,
+        user: { giftcards: true },
       },
     });
 
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
+    let discount = 0;
+
+    const hasGiftCardCode = orderById.user.giftcards.find(
+      (g) => g.code === order.giftcardCode,
+    );
+
+    if (hasGiftCardCode) {
+      discount = hasGiftCardCode.amount;
+    }
 
     if (order.country === 'COL') {
       const preference = new Preference(client);
@@ -65,7 +74,7 @@ export class PagosService {
               id: p.id,
               title: p.product.category.name,
               quantity: p.cantidad,
-              unit_price: Number(p.product.price),
+              unit_price: Number(p.product.price) - discount,
             })),
             notification_url:
               'https://3e58-190-246-136-74.ngrok-free.app/pagos/webhook',
@@ -96,7 +105,7 @@ export class PagosService {
               description: p.product.description,
             },
             currency: 'EUR',
-            unit_amount: p.product.price * 100,
+            unit_amount: p.product.price * 100 - discount,
           },
           quantity: p.cantidad,
         })),

@@ -67,7 +67,7 @@ export class SuscriptionService {
           payment_types: [{ id: 'credit_card' }, { id: 'debit_card' }],
           payment_methods: [],
         },
-        back_url: 'https://www.yoursite.com',
+        back_url: 'https://lachoco-back.onrender.com',
       },
     });
 

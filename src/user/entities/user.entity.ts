@@ -1,3 +1,4 @@
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
 import {
@@ -56,4 +57,8 @@ export class User {
   @ManyToMany(() => Product)
   @JoinTable()
   favoriteProducts: Product[];
+
+  @OneToMany(() => GiftCard, (giftcard) => giftcard.user)
+  @JoinColumn({ name: 'giftcards_id' })
+  giftcards: GiftCard[];
 }
