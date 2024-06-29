@@ -4,10 +4,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Order } from 'src/order/entities/order.entity';
+import { Order, status } from 'src/order/entities/order.entity';
 import { Stripe } from 'stripe';
 import { Repository } from 'typeorm';
-import { Invoice, MercadoPagoConfig, Payment, Preference } from 'mercadopago';
+import {
+  Invoice,
+  MercadoPagoConfig,
+  MerchantOrder,
+  Payment,
+  Preference,
+} from 'mercadopago';
+import { EmailService } from 'src/email/email.service';
+import { bodyPagoMP } from 'src/user/emailBody/bodyPagoMP';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -15,10 +23,10 @@ const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 export class PagosService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
+    private emailService: EmailService,
   ) {}
 
   async checkoutSession(order: any) {
-    console.log(order);
     const orderById = await this.orderRepository.findOne({
       where: { id: order.order },
       relations: {
@@ -28,19 +36,35 @@ export class PagosService {
             orderDetailFlavors: true,
           },
         },
-        user: true,
+        user: { giftcards: true },
       },
     });
 
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
+    let discount = 0;
+
+    const hasGiftCardCode = orderById.user.giftcards.find(
+      (g) => g.code === order.giftcardCode,
+    );
+
+    if (hasGiftCardCode) {
+      discount = hasGiftCardCode.amount;
+    }
 
     if (order.country === 'COL') {
       const preference = new Preference(client);
       try {
         const res = await preference.create({
           body: {
+            payer: {
+              name: orderById.user.name,
+              surname: orderById.user.lastname,
+              email: orderById.user.email,
+            },
+            statement_descriptor: 'Chocolatera',
+            metadata: { order: orderById },
             back_urls: {
               success: 'http://localhost:3000/pagos/success',
               failure: 'http://localhost:3000/pagos/failure',
@@ -50,10 +74,10 @@ export class PagosService {
               id: p.id,
               title: p.product.category.name,
               quantity: p.cantidad,
-              unit_price: Number(p.product.price),
+              unit_price: Number(p.product.price) - discount,
             })),
             notification_url:
-              'https://9e54-190-246-136-74.ngrok-free.app/pagos/webhook',
+              'https://3e58-190-246-136-74.ngrok-free.app/pagos/webhook',
           },
         });
         return res.init_point;
@@ -81,7 +105,7 @@ export class PagosService {
               description: p.product.description,
             },
             currency: 'EUR',
-            unit_amount: p.product.price * 100,
+            unit_amount: p.product.price * 100 - discount,
           },
           quantity: p.cantidad,
         })),
@@ -112,11 +136,57 @@ export class PagosService {
   async receiveWebhook(query: any) {
     const payment = query;
     const searchPayment = new Payment(client);
-    console.log(query);
+    const searchMercharOrder = new MerchantOrder(client);
     try {
       if (payment.type === 'payment') {
         const data = await searchPayment.get({ id: payment['data.id'] });
-        console.log(data);
+        const mercharOrderBody = await searchMercharOrder.get({
+          merchantOrderId: data.order.id,
+        });
+
+        const payments = mercharOrderBody.payments;
+        console.log('*******', payments, '****');
+
+        const orderById = await this.orderRepository.findOne({
+          where: { id: data.metadata.order.id },
+          relations: {
+            orderDetail: {
+              orderDetailProducts: {
+                product: { category: true },
+                orderDetailFlavors: true,
+              },
+            },
+            user: true,
+          },
+        });
+        if (orderById.status === status.FINISHED)
+          throw new BadRequestException('Order Finished');
+        if (!orderById) throw new NotFoundException('Order not found');
+        if (orderById.orderDetail.orderDetailProducts.length === 0)
+          throw new BadRequestException('Order without products');
+
+        await this.orderRepository.update(
+          {
+            id: orderById.id,
+          },
+          { status: status.FINISHED },
+        );
+
+        const template = bodyPagoMP(
+          orderById.user.email, //*email
+          'Compra Exitosa',
+          orderById.user, //*user
+          payments,
+          orderById, //*order
+        );
+
+        const mail = {
+          to: orderById.user.email,
+          subject: 'Compra Exitosa',
+          text: 'Compra Exitosa',
+          template: template,
+        };
+        await this.emailService.sendPostulation(mail);
       }
     } catch (error) {
       console.log(error);

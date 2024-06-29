@@ -4,6 +4,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import MercadoPagoConfig, {
+  CardToken,
+  Invoice,
+  Payment,
+  PreApproval,
+  PreApprovalPlan,
+} from 'mercadopago';
 
 import { EmailService } from 'src/email/email.service';
 import { Order, status } from 'src/order/entities/order.entity';
@@ -23,7 +30,9 @@ export class SuscriptionService {
   async getSuscriptions() {
     const stripe = new Stripe(process.env.KEY_STRIPE);
     const prices = await stripe.prices.list();
-
+    const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
+    const sinvoice = await new PreApproval(client);
+    const invoice = sinvoice.get({ id: '60df5cc579e44bbd8772c7cf8972ce86' });
     const suscripcion = await stripe.subscriptions.list();
     //*Factura suscripcion
     // const customer = await stripe.customers.list();
@@ -31,7 +40,38 @@ export class SuscriptionService {
     // const factura = await stripe.invoices.list();
     // const factura1 = factura.data.find((f) => f.customer === uno.id);
     // console.log(factura1);
-    return prices.data;
+    return prices;
+  }
+
+  async newPlanMP() {
+    const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
+    const createPlan = new PreApprovalPlan(client);
+
+    const newPlan = await createPlan.create({
+      body: {
+        reason: 'chocolateraPLanMensual',
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: 'months',
+          repetitions: 12, // Permitir que la suscripción se renueve cada mes durante un año (12 meses)
+          billing_day: 10,
+          billing_day_proportional: true,
+          free_trial: {
+            frequency: 1,
+            frequency_type: 'days',
+          },
+          transaction_amount: 200,
+          currency_id: 'ARS',
+        },
+        payment_methods_allowed: {
+          payment_types: [{ id: 'credit_card' }, { id: 'debit_card' }],
+          payment_methods: [],
+        },
+        back_url: 'https://lachoco-back.onrender.com',
+      },
+    });
+
+    return newPlan;
   }
 
   async newSuscription(priceId: any) {
@@ -167,5 +207,18 @@ export class SuscriptionService {
           await this.emailService.sendPostulation(mail);
         }
     }
+  }
+  //*webhook subscription/prueba
+  async prueba(event) {
+    const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
+    const searchPayment = new Payment(client);
+
+    const card = new CardToken(client);
+    card.create({ body: {} });
+    const payment = await searchPayment.get({ id: event.body.data.id });
+
+    const findUser = await this.userRepository.findOne({
+      where: { email: payment.payer.email },
+    });
   }
 }

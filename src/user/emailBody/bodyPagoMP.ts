@@ -1,10 +1,10 @@
 import { User } from '../entities/user.entity';
 
-export const bodypago = (
+export const bodyPagoMP = (
   to: string,
   subject: string,
   user: User,
-  invoice: string,
+  payments: any,
   order: any,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -408,9 +408,8 @@ export const bodypago = (
     
     </h2>
 
-    <a href=${invoice}>
-    Click para ver factura
-    </a>
+    <p>Tu pago fue ${payments[0].status} 
+    </p>
    </div>
   </body>
 </html>`;

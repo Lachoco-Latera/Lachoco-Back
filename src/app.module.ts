@@ -12,6 +12,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CategoryModule } from './category/category.module';
 import { SuscriptionModule } from './suscription/suscription.module';
 import { PagosModule } from './pagos/pagos.module';
+import { GitfcardsModule } from './gitfcards/gitfcards.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { PagosModule } from './pagos/pagos.module';
     CategoryModule,
     SuscriptionModule,
     PagosModule,
+    GitfcardsModule,
   ],
 })
 export class AppModule {}

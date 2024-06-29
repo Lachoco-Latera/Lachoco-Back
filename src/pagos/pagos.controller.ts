@@ -20,7 +20,7 @@ export class PagosController {
   }
 
   @Post('webhook')
-  receivceWebhook(@Query() query: any) {
+  receiveWebhook(@Query() query: any) {
     return this.pagosService.receiveWebhook(query);
   }
 
