@@ -13,6 +13,7 @@ import { CategoryModule } from './category/category.module';
 import { SuscriptionModule } from './suscription/suscription.module';
 import { PagosModule } from './pagos/pagos.module';
 import { GitfcardsModule } from './gitfcards/gitfcards.module';
+import { RedesModule } from './redes/redes.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GitfcardsModule } from './gitfcards/gitfcards.module';
     SuscriptionModule,
     PagosModule,
     GitfcardsModule,
+    RedesModule,
   ],
 })
 export class AppModule {}

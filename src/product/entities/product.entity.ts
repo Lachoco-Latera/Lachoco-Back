@@ -14,6 +14,7 @@ import { Image } from './image.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 
 export enum label {
   ONLINE = 'SoloOnline',
@@ -38,7 +39,7 @@ export class Product {
 
   @Column({ type: 'text', nullable: true })
   name: string;
-  
+
   @Column({ type: 'integer', nullable: false })
   presentacion: number;
 
@@ -70,4 +71,7 @@ export class Product {
     (orderDetailProduct) => orderDetailProduct.product,
   )
   orderDetailProducts: OrderDetailProduct[];
+
+  @OneToMany(() => GiftCard, (giftCard) => giftCard.product)
+  giftCards: GiftCard[];
 }

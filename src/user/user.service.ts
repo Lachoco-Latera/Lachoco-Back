@@ -111,7 +111,7 @@ export class UserService {
     const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
-      relations: { orders: true },
+      relations: { orders: true, giftcards: { product: true } },
     });
 
     const usersNotPassword = users.map((user) => {

@@ -26,11 +26,8 @@ export class CreateProductDto {
   @IsEnum(currency)
   currency: currency;
 
-  @IsNumber()
-  stock: number;
-
-  @IsEnum(label)
-  label: label;
+  // @IsNumber()
+  // stock: number;
 
   @IsNumber()
   presentacion: number;

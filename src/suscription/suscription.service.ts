@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Console } from 'console';
 import MercadoPagoConfig, {
   CardToken,
   Invoice,
@@ -169,7 +170,6 @@ export class SuscriptionService {
           const invoice = await stripe.invoices.retrieve(
             checkoutSessionCompleted.invoice,
           );
-
           const order = await this.orderRepository.findOne({
             where: { id: checkoutSessionCompleted.metadata.order },
             relations: {
@@ -182,6 +182,7 @@ export class SuscriptionService {
               user: true,
             },
           });
+          console.log(order);
 
           await this.orderRepository.update(
             {

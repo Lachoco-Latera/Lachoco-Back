@@ -8,7 +8,6 @@ import { Order, status } from 'src/order/entities/order.entity';
 import { Stripe } from 'stripe';
 import { Repository } from 'typeorm';
 import {
-  Invoice,
   MercadoPagoConfig,
   MerchantOrder,
   Payment,
@@ -16,6 +15,10 @@ import {
 } from 'mercadopago';
 import { EmailService } from 'src/email/email.service';
 import { bodyPagoMP } from 'src/user/emailBody/bodyPagoMP';
+import { checkoutOrder } from './dto/checkout.dto';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { OrderDetail } from 'src/order/entities/orderDetail.entity';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -23,12 +26,20 @@ const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 export class PagosService {
   constructor(
     @InjectRepository(Order) private orderRepository: Repository<Order>,
+    @InjectRepository(Order)
+    private orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(GiftCard)
+    private giftCardRepository: Repository<GiftCard>,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
     private emailService: EmailService,
   ) {}
 
-  async checkoutSession(order: any) {
+  async checkoutSession(order: checkoutOrder) {
+    let totalProducts;
+    let updateOrder;
     const orderById = await this.orderRepository.findOne({
-      where: { id: order.order },
+      where: { id: order.orderId },
       relations: {
         orderDetail: {
           orderDetailProducts: {
@@ -39,22 +50,63 @@ export class PagosService {
         user: { giftcards: true },
       },
     });
-
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
     let discount = 0;
 
+    //*buscar si usuario tiene giftcard
+    const findGitCard = await this.giftCardRepository.findOne({
+      where: { id: order.giftCardId },
+      relations: { product: true },
+    });
+
     const hasGiftCardCode = orderById.user.giftcards.find(
-      (g) => g.code === order.giftcardCode,
+      (g) => g.code === findGitCard.code,
     );
-
     if (hasGiftCardCode) {
-      discount = hasGiftCardCode.amount;
-    }
+      //*si giftcardId no undefined, buscar producto
+      if (findGitCard.product !== null) {
+        const findProduct = await this.productRepository.findOne({
+          where: { id: findGitCard.product.id },
+        });
+        //*setear valor de producto a regalar en 0
+        const giftProduct = {
+          price: 0,
+          ...findProduct,
+        };
+        const concatProduct = {
+          cantidad: findGitCard.cantidad,
+          product: giftProduct,
+        };
+        //*agregar producto regalado
 
+        console.log(updateOrder);
+        // //*agregar producto a regalar a lista checkout
+        // for (let i = 0; i < findGitCard.cantidad; i++) {
+        //   totalProducts.push({ ...giftProduct });
+        // }
+      }
+
+      discount = hasGiftCardCode.discount;
+    }
+    console.log(updateOrder);
     if (order.country === 'COL') {
       const preference = new Preference(client);
+
+      totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
+        id: p.id,
+        title: p.product.category.name,
+        quantity: p.cantidad,
+        unit_price: Number(p.product.price),
+      }));
+      const totalPriceProducts = totalProducts.reduce(
+        (accumulator, currentProduct) => {
+          return accumulator + Number(currentProduct.unit_price);
+        },
+        0,
+      );
+
       try {
         const res = await preference.create({
           body: {
@@ -70,12 +122,14 @@ export class PagosService {
               failure: 'http://localhost:3000/pagos/failure',
               pending: 'http://localhost/3000/pagos/pending',
             },
-            items: orderById.orderDetail.orderDetailProducts.map((p) => ({
-              id: p.id,
-              title: p.product.category.name,
-              quantity: p.cantidad,
-              unit_price: Number(p.product.price) - discount,
-            })),
+            items: [
+              {
+                id: orderById.id,
+                title: 'Productos',
+                quantity: 1,
+                unit_price: totalPriceProducts * (1 - discount / 100),
+              },
+            ],
             notification_url:
               'https://3e58-190-246-136-74.ngrok-free.app/pagos/webhook',
           },
@@ -95,20 +149,45 @@ export class PagosService {
           })
           .then((customer) => customer.id);
       }
+      orderById.orderDetail.orderDetailProducts.forEach((p) =>
+        console.log(typeof Number(p.product.price)),
+      );
+      totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
+        price_data: {
+          product_data: {
+            name: p.product.category.name,
+            description: p.product.description,
+          },
+          currency: 'EUR',
+          unit_amount: Number(p.product.price) * p.cantidad,
+        },
+        quantity: p.cantidad,
+      }));
+
+      const totalPriceProducts = totalProducts.reduce(
+        (accumulator, currentProduct) => {
+          return (
+            Number(accumulator) + Number(currentProduct.price_data.unit_amount)
+          );
+        },
+        0,
+      );
 
       const session = await stripe.checkout.sessions.create({
         customer: customer,
-        line_items: orderById.orderDetail.orderDetailProducts.map((p) => ({
-          price_data: {
-            product_data: {
-              name: p.product.category.name,
-              description: p.product.description,
+        line_items: [
+          {
+            price_data: {
+              product_data: {
+                name: 'Productos',
+                description: 'Productos',
+              },
+              currency: 'EUR',
+              unit_amount: Number(totalPriceProducts * 100 - discount * 100),
             },
-            currency: 'EUR',
-            unit_amount: p.product.price * 100 - discount,
+            quantity: 1,
           },
-          quantity: p.cantidad,
-        })),
+        ],
         invoice_creation: { enabled: true },
         metadata: {
           order: orderById.id,
