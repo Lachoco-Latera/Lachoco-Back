@@ -1,5 +1,13 @@
+import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 @Entity({ name: 'giftCards' })
@@ -8,7 +16,7 @@ export class GiftCard {
   id: string = uuid();
 
   @Column({ type: 'int', nullable: true })
-  amount: number;
+  discount: number;
 
   @Column({ type: 'varchar', nullable: true })
   img: string;
@@ -18,4 +26,10 @@ export class GiftCard {
 
   @ManyToOne(() => User, (user) => user)
   user: User;
+
+  @ManyToOne(() => Product, (product) => product.giftCards)
+  product: Product;
+
+  @Column({ type: 'int', nullable: true })
+  cantidad: number;
 }

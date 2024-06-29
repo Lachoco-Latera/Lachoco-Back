@@ -3,13 +3,13 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { GitfcardsService } from './gitfcards.service';
 import { CreateGitfcardDto } from './dto/create-gitfcard.dto';
+import { CreateGitfcardCoffeeDto } from './dto/create-gitfcardCoffe.dto';
 
 @Controller('gitfcards')
 export class GitfcardsController {
@@ -18,6 +18,11 @@ export class GitfcardsController {
   @Post()
   create(@Body() createGitfcardDto: CreateGitfcardDto) {
     return this.gitfcardsService.create(createGitfcardDto);
+  }
+
+  @Post('cafe')
+  giftCoffe(@Body() createGitfcardCoffeeDto: CreateGitfcardCoffeeDto) {
+    return this.gitfcardsService.giftCoffe(createGitfcardCoffeeDto);
   }
 
   @Get()
