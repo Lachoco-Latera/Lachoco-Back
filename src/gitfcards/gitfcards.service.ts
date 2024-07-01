@@ -79,6 +79,7 @@ export class GitfcardsService {
   async findOne(id: string) {
     const giftCard = await this.giftcardRepository.findOne({
       where: { id: id },
+      relations: { product: true, user: true },
     });
     if (!giftCard) throw new NotFoundException('Giftcard not found');
     const { code, ...returnCard } = giftCard;

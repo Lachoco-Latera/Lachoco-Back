@@ -38,7 +38,7 @@ export class PagosService {
   async checkoutSession(order: checkoutOrder) {
     let totalProducts;
     let updateOrder;
-    const orderById = await this.orderRepository.findOne({
+    let orderById = await this.orderRepository.findOne({
       where: { id: order.orderId },
       relations: {
         orderDetail: {
@@ -48,8 +48,10 @@ export class PagosService {
           },
         },
         user: { giftcards: true },
+        giftCard: true,
       },
     });
+
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
@@ -61,36 +63,38 @@ export class PagosService {
       relations: { product: true },
     });
 
+    if (findGitCard.isUsed === true)
+      throw new BadRequestException('GiftCard is Used');
+
     const hasGiftCardCode = orderById.user.giftcards.find(
       (g) => g.code === findGitCard.code,
     );
     if (hasGiftCardCode) {
       //*si giftcardId no undefined, buscar producto
       if (findGitCard.product !== null) {
-        const findProduct = await this.productRepository.findOne({
-          where: { id: findGitCard.product.id },
+        //*agregar giftcard a orden
+        await this.orderRepository.update(
+          { id: orderById.id },
+          { giftCard: findGitCard },
+        );
+        updateOrder = await this.orderRepository.findOne({
+          where: { id: orderById.id },
+          relations: {
+            orderDetail: {
+              orderDetailProducts: {
+                product: { category: true },
+                orderDetailFlavors: true,
+              },
+            },
+            user: { giftcards: true },
+            giftCard: true,
+          },
         });
-        //*setear valor de producto a regalar en 0
-        const giftProduct = {
-          price: 0,
-          ...findProduct,
-        };
-        const concatProduct = {
-          cantidad: findGitCard.cantidad,
-          product: giftProduct,
-        };
-        //*agregar producto regalado
-
-        console.log(updateOrder);
-        // //*agregar producto a regalar a lista checkout
-        // for (let i = 0; i < findGitCard.cantidad; i++) {
-        //   totalProducts.push({ ...giftProduct });
-        // }
+        orderById = updateOrder;
       }
-
       discount = hasGiftCardCode.discount;
     }
-    console.log(updateOrder);
+
     if (order.country === 'COL') {
       const preference = new Preference(client);
 
@@ -127,7 +131,7 @@ export class PagosService {
                 id: orderById.id,
                 title: 'Productos',
                 quantity: 1,
-                unit_price: totalPriceProducts * (1 - discount / 100),
+                unit_price: totalPriceProducts - discount,
               },
             ],
             notification_url:

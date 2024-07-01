@@ -405,7 +405,17 @@ export const bodypago = (
     )}
     </ul>
     <p>Total ${order.orderDetail.price}$</p>
-    
+    <p> Obtuvo gracias a su cupon
+    ${order.giftCard.code}
+    </p>
+    <p>
+  ${
+    order.giftCard && order.giftCard.product
+      ? `${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}`
+      : order.giftCard?.discount
+  }
+</p>
+
     </h2>
 
     <a href=${invoice}>

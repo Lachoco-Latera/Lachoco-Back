@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 
 export enum status {
   PENDING = 'PENDING',
@@ -37,4 +38,8 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @OneToOne(() => GiftCard)
+  @JoinColumn()
+  giftCard: GiftCard;
 }

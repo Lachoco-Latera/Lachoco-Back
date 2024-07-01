@@ -172,6 +172,7 @@ export class OrderService {
           },
         },
         user: true,
+        giftCard: true
       },
     });
 
@@ -188,6 +189,7 @@ export class OrderService {
             product: true,
           },
         },
+        giftCard: {product: true},
       },
     });
     if (!order) throw new NotFoundException('Order not found');
