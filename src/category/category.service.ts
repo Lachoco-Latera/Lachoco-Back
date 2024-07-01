@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category } from './entity/category.entity';
+import { Category, CategoryIcon } from './entity/category.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async createCategory(categoryName: string) {
+  async createCategory(categoryName: string, categoryIcon?: CategoryIcon) {
     const findCategory = await this.categoryRepository.findOne({
       where: { name: categoryName },
     });
@@ -18,6 +18,7 @@ export class CategoryService {
 
     const saveCategory = await this.categoryRepository.save({
       name: categoryName,
+      icon: categoryIcon, 
     });
     return saveCategory;
   }
