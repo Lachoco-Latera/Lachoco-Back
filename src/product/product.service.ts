@@ -8,6 +8,7 @@ import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -157,5 +158,42 @@ export class ProductService {
     await this.productRepository.remove(findProduct);
 
     return `Se ha eliminado el producto correspondiente`;
+  }
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const findProduct = await this.productRepository.findOne({
+      where: { id: id },
+      relations: ['flavors', 'images'], 
+    });
+    if (!findProduct) throw new NotFoundException('Product not found');
+
+    if (updateProductDto.categoryId) {
+      const findCategory = await this.categoryRepository.findOne({
+        where: { id: updateProductDto.categoryId },
+      });
+      if (!findCategory)
+        throw new NotFoundException(
+          `Category ${updateProductDto.categoryId} not found`,
+        );
+
+      findProduct.category = findCategory;
+    }
+
+    if (updateProductDto.name) {
+      findProduct.name = updateProductDto.name;
+    }
+
+    if (updateProductDto.presentacion) {
+      findProduct.presentacion = updateProductDto.presentacion;
+    }
+
+    if (updateProductDto.description) {
+      findProduct.description = updateProductDto.description;
+    }
+
+    // Similar para otros campos como price, currency, label, isActive, flavors, images, etc.
+
+    await this.productRepository.save(findProduct);
+
+    return findProduct;
   }
 }
