@@ -1,6 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Category, CategoryIcon } from './entity/category.entity';
+import { Category } from './entity/category.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,7 +14,7 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async createCategory(categoryName: string, categoryIcon?: CategoryIcon) {
+  async createCategory(categoryName: string) {
     const findCategory = await this.categoryRepository.findOne({
       where: { name: categoryName },
     });
@@ -18,7 +22,6 @@ export class CategoryService {
 
     const saveCategory = await this.categoryRepository.save({
       name: categoryName,
-      icon: categoryIcon, 
     });
     return saveCategory;
   }
@@ -28,11 +31,21 @@ export class CategoryService {
     return allCategories;
   }
 
+  async updateCategory(id: string, icon: string) {
+    const category = await this.categoryRepository.findOne({
+      where: { id: id },
+    });
+    if (!category) throw new NotFoundException('Category not found');
+
+    category.icon = icon; // Actualiza el icono de la categoría
+    return this.categoryRepository.save(category);
+  }
+
   async deleteCategory(id: string) {
     const findCategory = await this.categoryRepository.findOne({
       where: { id: id },
     });
-    if (!findCategory) throw new ConflictException('Category already exists');
+    if (!findCategory) throw new NotFoundException('Category not found');
 
     await this.categoryRepository.remove(findCategory);
     return `Category ${findCategory.id} deleted`;
