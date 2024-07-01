@@ -1,3 +1,4 @@
+import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -6,6 +7,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -24,6 +26,9 @@ export class GiftCard {
   @Column({ type: 'varchar', length: 20, unique: true })
   code: string;
 
+  @Column({ type: 'boolean', default: false })
+  isUsed: boolean;
+
   @ManyToOne(() => User, (user) => user)
   user: User;
 
@@ -32,4 +37,7 @@ export class GiftCard {
 
   @Column({ type: 'int', nullable: true })
   cantidad: number;
+
+  @OneToOne(() => Order, (order) => order.giftCard)
+  order: Order;
 }

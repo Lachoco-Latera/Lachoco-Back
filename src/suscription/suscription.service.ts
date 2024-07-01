@@ -14,6 +14,7 @@ import MercadoPagoConfig, {
 } from 'mercadopago';
 
 import { EmailService } from 'src/email/email.service';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order, status } from 'src/order/entities/order.entity';
 import { bodypago } from 'src/user/emailBody/bodyPago';
 import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
@@ -27,6 +28,8 @@ export class SuscriptionService {
     private readonly emailService: EmailService,
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
+    @InjectRepository(GiftCard)
+    private giftcardRepository: Repository<GiftCard>,
   ) {}
   async getSuscriptions() {
     const stripe = new Stripe(process.env.KEY_STRIPE);
@@ -180,9 +183,16 @@ export class SuscriptionService {
                 },
               },
               user: true,
+              giftCard: { product: { category: true } },
             },
           });
-          console.log(order);
+          //*Encaso de que tenga cupo actualizar a usado
+          if (order.giftCard !== null) {
+            await this.giftcardRepository.update(
+              { id: order.giftCard.id },
+              { isUsed: true },
+            );
+          }
 
           await this.orderRepository.update(
             {
