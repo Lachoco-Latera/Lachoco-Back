@@ -62,20 +62,20 @@ export class ProductService {
     const endIndex = startIndex + defaultLimit;
 
     const products = await this.productRepository.find({
-      relations: { flavors: true, images: true },
+      relations: { flavors: true, images: true, category: true },
     });
     const sliceUsers = products.slice(startIndex, endIndex);
     return sliceUsers;
   }
 
   async findOne(id: string) {
-    const findProdut = await this.productRepository.findOne({
+    const findProduct = await this.productRepository.findOne({
       where: { id: id },
-      relations: ['flavors', 'images'],
+      relations: ['flavors', 'images', 'category'], 
     });
-    if (!findProdut) throw new NotFoundException('Product not found');
+    if (!findProduct) throw new NotFoundException('Product not found');
 
-    return findProdut;
+    return findProduct;
   }
 
   async updateFlavor(id: string, updateFlavorDto) {
@@ -162,7 +162,7 @@ export class ProductService {
   async update(id: string, updateProductDto: UpdateProductDto) {
     const findProduct = await this.productRepository.findOne({
       where: { id: id },
-      relations: ['flavors', 'images'], 
+      relations: ['flavors', 'images'],
     });
     if (!findProduct) throw new NotFoundException('Product not found');
 
@@ -189,9 +189,6 @@ export class ProductService {
     if (updateProductDto.description) {
       findProduct.description = updateProductDto.description;
     }
-
-    // Similar para otros campos como price, currency, label, isActive, flavors, images, etc.
-
     await this.productRepository.save(findProduct);
 
     return findProduct;
