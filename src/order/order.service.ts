@@ -15,6 +15,7 @@ import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { OrderDetailFlavor } from './entities/flavorDetail.entity';
+import { Category, category } from 'src/category/entity/category.entity';
 
 @Injectable()
 export class OrderService {
@@ -26,8 +27,6 @@ export class OrderService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(OrderDetailProduct)
     private OrderDetailProductRepository: Repository<OrderDetailProduct>,
-    @InjectRepository(OrderDetailFlavor)
-    private orderDetailFlavorRepository: Repository<OrderDetailFlavor>,
     @InjectRepository(Flavor)
     private flavorRepository: Repository<Flavor>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
@@ -44,10 +43,17 @@ export class OrderService {
 
     const productsArr = await Promise.all(
       products.map(async (product) => {
-        const findProduct = await this.productRepository.findOneBy({
-          id: product.productId,
+        const findProduct = await this.productRepository.findOne({
+          where: { id: product.productId },
+          relations: { category: true },
         });
-
+        //*si tiene 4 o mas productos de esta categoria da error
+        if (
+          findProduct.category.name === category.CAFES &&
+          product.cantidad >= 4
+        ) {
+          errors.push(`Cannot chose more than 4 CAFES`);
+        }
         const productInfo = { product: null, cantidad: 0 };
 
         if (!findProduct) {
@@ -172,7 +178,7 @@ export class OrderService {
           },
         },
         user: true,
-        giftCard: true
+        giftCard: true,
       },
     });
 
@@ -189,7 +195,7 @@ export class OrderService {
             product: true,
           },
         },
-        giftCard: {product: true},
+        giftCard: { product: true },
       },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -197,8 +203,21 @@ export class OrderService {
     return order;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async cancelOrder(id: string, cancelByUserId: string) {
+    const order = await this.orderRepository.findOne({ where: { id: id } });
+    if (!order) throw new NotFoundException('Order not found');
+    const userCancel = await this.userRepository.findOne({ where: { id: id } });
+    if (!userCancel) throw new NotFoundException('user not found');
+
+    await this.orderRepository.update(
+      { id: order.id },
+      {
+        status: status.CANCELLED,
+        cancelByUserId: userCancel.id,
+      },
+    );
+
+    return `This order ${order.id} has been canceled by ${userCancel.id}`;
   }
 
   async remove(id: string): Promise<string> {

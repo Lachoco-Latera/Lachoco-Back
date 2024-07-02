@@ -14,6 +14,7 @@ import { SuscriptionModule } from './suscription/suscription.module';
 import { PagosModule } from './pagos/pagos.module';
 import { GitfcardsModule } from './gitfcards/gitfcards.module';
 import { RedesModule } from './redes/redes.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { RedesModule } from './redes/redes.module';
       signOptions: { expiresIn: '1h' },
       secret: process.env.JWT_SECRET,
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     ProductModule,
     OrderModule,

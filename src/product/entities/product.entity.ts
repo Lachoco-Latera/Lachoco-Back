@@ -27,6 +27,12 @@ export enum currency {
   EUR = 'EUR',
 }
 
+export enum statusExp {
+  DISABLED = 'Disabled',
+  ACTIVATED = 'activated',
+  EXPIRED = 'expired',
+}
+
 @Entity({
   name: 'products',
 })
@@ -74,4 +80,13 @@ export class Product {
 
   @OneToMany(() => GiftCard, (giftCard) => giftCard.product)
   giftCards: GiftCard[];
+
+  @Column({ type: 'date', nullable: true })
+  purchaseDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  expiryDate: Date;
+
+  @Column({ type: 'enum', enum: statusExp, default: statusExp.DISABLED })
+  status: statusExp;
 }
