@@ -14,6 +14,7 @@ import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 export enum status {
   PENDING = 'PENDING',
   FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
 }
 
 @Entity({
@@ -42,4 +43,7 @@ export class Order {
   @OneToOne(() => GiftCard)
   @JoinColumn()
   giftCard: GiftCard;
+
+  @Column({ type: 'uuid', nullable: true })
+  cancelByUserId: string = uuid();
 }

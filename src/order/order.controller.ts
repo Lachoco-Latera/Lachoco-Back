@@ -41,9 +41,12 @@ export class OrderController {
     return this.orderService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.orderService.update(+id, updateOrderDto);
+  @Put(':id')
+  cancelOrder(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() cancelByUserId: string,
+  ) {
+    return this.orderService.cancelOrder(id, cancelByUserId);
   }
 
   @Delete(':id')

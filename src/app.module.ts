@@ -14,6 +14,7 @@ import { SuscriptionModule } from './suscription/suscription.module';
 import { PagosModule } from './pagos/pagos.module';
 import { GitfcardsModule } from './gitfcards/gitfcards.module';
 import { RedesModule } from './redes/redes.module';
+import { RecurrentsModule } from './recurrents/recurrents.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { RedesModule } from './redes/redes.module';
     PagosModule,
     GitfcardsModule,
     RedesModule,
+    RecurrentsModule,
   ],
 })
 export class AppModule {}

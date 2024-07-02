@@ -172,7 +172,7 @@ export class OrderService {
           },
         },
         user: true,
-        giftCard: true
+        giftCard: true,
       },
     });
 
@@ -189,7 +189,7 @@ export class OrderService {
             product: true,
           },
         },
-        giftCard: {product: true},
+        giftCard: { product: true },
       },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -197,8 +197,21 @@ export class OrderService {
     return order;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async cancelOrder(id: string, cancelByUserId: string) {
+    const order = await this.orderRepository.findOne({ where: { id: id } });
+    if (!order) throw new NotFoundException('Order not found');
+    const userCancel = await this.userRepository.findOne({ where: { id: id } });
+    if (!userCancel) throw new NotFoundException('user not found');
+
+    await this.orderRepository.update(
+      { id: order.id },
+      {
+        status: status.CANCELLED,
+        cancelByUserId: userCancel.id,
+      },
+    );
+
+    return `This order ${order.id} has been canceled by ${userCancel.id}`;
   }
 
   async remove(id: string): Promise<string> {
