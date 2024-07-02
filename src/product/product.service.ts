@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from './entities/product.entity';
-import { Repository } from 'typeorm';
+import { Product, statusExp } from './entities/product.entity';
+import { LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ProductService {
@@ -157,5 +158,31 @@ export class ProductService {
     await this.productRepository.remove(findProduct);
 
     return `Se ha eliminado el producto correspondiente`;
+  }
+
+  async findExpiredProducts() {
+    const now = new Date();
+    return this.productRepository.find({
+      where: {
+        expiryDate: LessThan(now),
+        status: statusExp.ACTIVATED,
+      },
+    });
+  }
+
+  async updateProductStatus(
+    productId: string,
+    status: statusExp,
+  ): Promise<void> {
+    await this.productRepository.update(productId, { status });
+  }
+
+  @Cron('0 0 * * *')
+  async handleCron() {
+    const expiredProducts = await this.findExpiredProducts();
+
+    for (const product of expiredProducts) {
+      await this.updateProductStatus(product.id, statusExp.EXPIRED);
+    }
   }
 }

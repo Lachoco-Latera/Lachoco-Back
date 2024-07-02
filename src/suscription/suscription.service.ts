@@ -12,10 +12,13 @@ import MercadoPagoConfig, {
   PreApproval,
   PreApprovalPlan,
 } from 'mercadopago';
+import { category } from 'src/category/entity/category.entity';
 
 import { EmailService } from 'src/email/email.service';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order, status } from 'src/order/entities/order.entity';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { Product, statusExp } from 'src/product/entities/product.entity';
 import { bodypago } from 'src/user/emailBody/bodyPago';
 import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
@@ -30,6 +33,10 @@ export class SuscriptionService {
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(GiftCard)
     private giftcardRepository: Repository<GiftCard>,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+    @InjectRepository(OrderDetailProduct)
+    private orderDetailProductRepository: Repository<OrderDetailProduct>,
   ) {}
   async getSuscriptions() {
     const stripe = new Stripe(process.env.KEY_STRIPE);
@@ -186,6 +193,29 @@ export class SuscriptionService {
               giftCard: { product: { category: true } },
             },
           });
+
+          if (order) {
+            const { orderDetail } = order;
+            if (orderDetail && orderDetail.orderDetailProducts) {
+              for (const orderDetailProduct of orderDetail.orderDetailProducts) {
+                const { product } = orderDetailProduct;
+                if (product && product.category.name === category.CAFES) {
+                  const purchaseDate = new Date();
+                  const expiryDate = new Date(purchaseDate);
+                  expiryDate.setDate(purchaseDate.getDate() + 7);
+
+                  product.purchaseDate = purchaseDate;
+                  product.expiryDate = expiryDate;
+                  product.status = statusExp.ACTIVATED;
+
+                  await this.orderDetailProductRepository.save(
+                    orderDetailProduct,
+                  );
+                }
+              }
+            }
+          }
+
           //*Encaso de que tenga cupo actualizar a usado
           if (order.giftCard !== null) {
             await this.giftcardRepository.update(
