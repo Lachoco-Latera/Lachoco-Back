@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
 import { Repository } from 'typeorm';
@@ -27,11 +31,21 @@ export class CategoryService {
     return allCategories;
   }
 
+  async updateCategory(id: string, icon: string) {
+    const category = await this.categoryRepository.findOne({
+      where: { id: id },
+    });
+    if (!category) throw new NotFoundException('Category not found');
+
+    category.icon = icon; // Actualiza el icono de la categoría
+    return this.categoryRepository.save(category);
+  }
+
   async deleteCategory(id: string) {
     const findCategory = await this.categoryRepository.findOne({
       where: { id: id },
     });
-    if (!findCategory) throw new ConflictException('Category already exists');
+    if (!findCategory) throw new NotFoundException('Category not found');
 
     await this.categoryRepository.remove(findCategory);
     return `Category ${findCategory.id} deleted`;
