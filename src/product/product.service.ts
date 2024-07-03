@@ -160,6 +160,15 @@ export class ProductService {
     return `Se ha eliminado el producto correspondiente`;
   }
 
+  async update(id, updateProductDto) {
+    const product = await this.productRepository.findOne({ where: { id: id } });
+    if (!product) throw new NotFoundException(`Product not foun`, id);
+
+    await this.productRepository.update(id, { ...updateProductDto });
+
+    return 'Product updated';
+  }
+
   async findExpiredProducts() {
     const now = new Date();
     return this.productRepository.find({
@@ -186,4 +195,3 @@ export class ProductService {
     }
   }
 }
-
