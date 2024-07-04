@@ -62,7 +62,7 @@ export class ProductService {
     const endIndex = startIndex + defaultLimit;
 
     const products = await this.productRepository.find({
-      relations: { flavors: true, images: true },
+      relations: { flavors: true, images: true,category: true },
     });
     const sliceUsers = products.slice(startIndex, endIndex);
     return sliceUsers;
@@ -71,7 +71,7 @@ export class ProductService {
   async findOne(id: string) {
     const findProdut = await this.productRepository.findOne({
       where: { id: id },
-      relations: ['flavors', 'images'],
+      relations: ['flavors', 'images','category'],
     });
     if (!findProdut) throw new NotFoundException('Product not found');
 
