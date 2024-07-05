@@ -15,6 +15,7 @@ import { PagosModule } from './pagos/pagos.module';
 import { GitfcardsModule } from './gitfcards/gitfcards.module';
 import { RedesModule } from './redes/redes.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ShipmentsModule } from './shipments/shipments.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PagosModule,
     GitfcardsModule,
     RedesModule,
+    ShipmentsModule,
   ],
 })
 export class AppModule {}

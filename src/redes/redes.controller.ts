@@ -3,10 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseUUIDPipe,
+  Put,
 } from '@nestjs/common';
 import { RedesService } from './redes.service';
 import { CreateRedeDto } from './dto/create-rede.dto';
@@ -31,7 +31,7 @@ export class RedesController {
     return this.redesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateRedeDto: UpdateRedeDto,
