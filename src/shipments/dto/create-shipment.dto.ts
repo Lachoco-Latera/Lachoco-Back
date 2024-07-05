@@ -38,4 +38,7 @@ export class CreateShipmentDto {
 
   @IsString()
   country: string;
+
+  @IsString()
+  carrier: string;
 }

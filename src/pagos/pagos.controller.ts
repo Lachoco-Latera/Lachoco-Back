@@ -1,12 +1,13 @@
 import { Body, Controller, Get, Post, Query, Request } from '@nestjs/common';
 import { PagosService } from './pagos.service';
+import { checkoutOrder } from './dto/checkout.dto';
 
 @Controller('pagos')
 export class PagosController {
   constructor(private readonly pagosService: PagosService) {}
 
   @Post('create-checkout-session')
-  checkoutSession(@Body() order: any) {
+  checkoutSession(@Body() order: checkoutOrder) {
     return this.pagosService.checkoutSession(order);
   }
 

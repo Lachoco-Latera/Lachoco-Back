@@ -48,5 +48,8 @@ export class Order {
   cancelByUserId: string = uuid();
 
   @Column({ type: 'varchar', nullable: true })
-  trakingNumber: string;
+  trackingNumber: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  label: string;
 }

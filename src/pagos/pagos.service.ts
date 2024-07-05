@@ -51,46 +51,49 @@ export class PagosService {
         giftCard: true,
       },
     });
-
+    if (orderById.status === status.FINISHED)
+      throw new BadRequestException('order is Finished');
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
     let discount = 0;
 
     //*buscar si usuario tiene giftcard
-    const findGitCard = await this.giftCardRepository.findOne({
-      where: { id: order.giftCardId },
-      relations: { product: true },
-    });
+    if (order.giftCardId !== null) {
+      const findGitCard = await this.giftCardRepository.findOne({
+        where: { id: order.giftCardId },
+        relations: { product: true },
+      });
 
-    if (findGitCard.isUsed === true)
-      throw new BadRequestException('GiftCard is Used');
+      if (findGitCard && findGitCard.isUsed === true)
+        throw new BadRequestException('GiftCard is Used');
 
-    const hasGiftCardCode = orderById.user.giftcards.find(
-      (g) => g.code === findGitCard.code,
-    );
-    if (hasGiftCardCode) {
-      //*si giftcardId no undefined, buscar producto
-      if (findGitCard.product !== null) {
-        //*agregar giftcard a orden
-        await this.orderRepository.update(
-          { id: orderById.id },
-          { giftCard: findGitCard },
-        );
-        updateOrder = await this.orderRepository.findOne({
-          where: { id: orderById.id },
-          relations: {
-            orderDetail: {
-              orderDetailProducts: {
-                product: { category: true },
-                orderDetailFlavors: true,
+      const hasGiftCardCode = orderById.user.giftcards.find(
+        (g) => g.code === findGitCard.code,
+      );
+      if (hasGiftCardCode) {
+        //*si giftcardId no undefined, buscar producto
+        if (findGitCard.product !== null) {
+          //*agregar giftcard a orden
+          await this.orderRepository.update(
+            { id: orderById.id },
+            { giftCard: findGitCard },
+          );
+          updateOrder = await this.orderRepository.findOne({
+            where: { id: orderById.id },
+            relations: {
+              orderDetail: {
+                orderDetailProducts: {
+                  product: { category: true },
+                  orderDetailFlavors: true,
+                },
               },
+              user: { giftcards: true },
+              giftCard: true,
             },
-            user: { giftcards: true },
-            giftCard: true,
-          },
-        });
-        orderById = updateOrder;
+          });
+          orderById = updateOrder;
+        }
       }
       discount = hasGiftCardCode.discount;
     }
@@ -120,7 +123,12 @@ export class PagosService {
               email: orderById.user.email,
             },
             statement_descriptor: 'Chocolatera',
-            metadata: { order: orderById },
+            metadata: {
+              order: orderById,
+              label: order.label,
+              trackingNumber: order.trackingNumber,
+              priceShipment: order.totalPrice,
+            },
             back_urls: {
               success: 'http://localhost:3000/pagos/success',
               failure: 'http://localhost:3000/pagos/failure',
@@ -131,7 +139,8 @@ export class PagosService {
                 id: orderById.id,
                 title: 'Productos',
                 quantity: 1,
-                unit_price: totalPriceProducts - discount,
+                unit_price:
+                  totalPriceProducts - discount + Number(order.totalPrice),
               },
             ],
             notification_url:
@@ -188,11 +197,25 @@ export class PagosService {
             },
             quantity: 1,
           },
+          {
+            price_data: {
+              product_data: {
+                name: 'Envio',
+                description: 'Envio',
+              },
+              currency: 'EUR',
+              unit_amount: Number(order.totalPrice) * 100,
+            },
+            quantity: 1,
+          },
         ],
         invoice_creation: { enabled: true },
         metadata: {
           order: orderById.id,
           user: orderById.user.id,
+          label: order.label,
+          trackingNumber: order.trackingNumber,
+          priceShipment: order.totalPrice,
         },
         mode: 'payment',
         payment_method_types: ['card'],
@@ -225,7 +248,6 @@ export class PagosService {
         });
 
         const payments = mercharOrderBody.payments;
-        console.log('*******', payments, '****');
 
         const orderById = await this.orderRepository.findOne({
           where: { id: data.metadata.order.id },
@@ -258,7 +280,11 @@ export class PagosService {
           {
             id: orderById.id,
           },
-          { status: status.FINISHED },
+          {
+            status: status.FINISHED,
+            trackingNumber: data.metadata.trackingNumber,
+            label: data.metadata.label,
+          },
         );
 
         const template = bodyPagoMP(
@@ -267,6 +293,7 @@ export class PagosService {
           orderById.user, //*user
           payments,
           orderById, //*order
+          data.metadata.priceShipment,
         );
 
         const mail = {

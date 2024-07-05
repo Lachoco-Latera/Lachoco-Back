@@ -180,6 +180,7 @@ export class SuscriptionService {
           const invoice = await stripe.invoices.retrieve(
             checkoutSessionCompleted.invoice,
           );
+          console.log(checkoutSessionCompleted.metadata.label);
           const order = await this.orderRepository.findOne({
             where: { id: checkoutSessionCompleted.metadata.order },
             relations: {
@@ -223,12 +224,15 @@ export class SuscriptionService {
               { isUsed: true },
             );
           }
-
           await this.orderRepository.update(
             {
               id: checkoutSessionCompleted.metadata.order,
             },
-            { status: status.FINISHED },
+            {
+              status: status.FINISHED,
+              trackingNumber: checkoutSessionCompleted.metadata.trackingNumber,
+              label: checkoutSessionCompleted.metadata.label,
+            },
           );
 
           const template = bodypago(
@@ -237,6 +241,7 @@ export class SuscriptionService {
             userEmail,
             invoice.hosted_invoice_url,
             order,
+            checkoutSessionCompleted.metadata.priceShipment,
           );
 
           const mail = {
