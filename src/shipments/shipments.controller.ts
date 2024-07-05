@@ -1,13 +1,17 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { ShipmentsService } from './shipments.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import { CancelShipmentDto } from './dto/cancel-shipments.dto';
-import { TrackingShipmentDto } from './dto/tracking.dto';
+import { GetCarriers, TrackingShipmentDto } from './dto/tracking.dto';
 
 @Controller('shipments')
 export class ShipmentsController {
   constructor(private readonly shipmentsService: ShipmentsService) {}
+  @Get('carriers')
+  getCarriers(@Body() country: GetCarriers) {
+    return this.shipmentsService.carriesByCountry(country.countryCode);
+  }
 
   @Post('/rate')
   quoteShipments(@Body() createShipmentDto: CreateShipmentDto) {

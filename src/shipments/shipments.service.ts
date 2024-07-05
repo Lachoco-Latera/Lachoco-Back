@@ -6,6 +6,26 @@ import { CancelShipmentDto } from './dto/cancel-shipments.dto';
 
 @Injectable()
 export class ShipmentsService {
+  async carriesByCountry(country: string) {
+    const config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `https://queries-test.envia.com/service?country_code=${country}`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.ENVIOS_API_KEY}`,
+      },
+    };
+
+    try {
+      const response = await axios(config);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching country data:', error);
+      throw error;
+    }
+  }
+
   async allCountries() {
     const config = {
       method: 'get',
