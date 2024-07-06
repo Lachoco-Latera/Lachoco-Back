@@ -6,6 +6,7 @@ export const bodyPagoMP = (
   user: User,
   payments: any,
   order: any,
+  priceShipment,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -405,22 +406,20 @@ export const bodyPagoMP = (
       </li>`,
     )}
     </ul>
-    <p>Total ${order.orderDetail.price}$</p>
+    <p>Total ${Number(order.orderDetail.price) + Number(priceShipment)}$</p>
     
 
-    <p>Tu pago fue ${payments[0].status} 
+    <p>Tu pago fue ${payments[0].status}
     </p>
    
-    <p> Obtuvo gracias a su cupon
-    ${order.giftCard.code}
-    </p>
-    <p>
+   ${order.giftCard && order.giftCard.code ? `<p> Obtuvo gracias a su cupon ${order.giftCard.code}</p>` : ''}
+    
+    
   ${
     order.giftCard && order.giftCard.product
-      ? `${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}`
-      : order.giftCard?.discount
+      ? `<p>${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}</p>`
+      : `<p>${order.giftCard?.discount || 'No discount'}</p>`
   }
-</p>
    
     </div>
   </body>

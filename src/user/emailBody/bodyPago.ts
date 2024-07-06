@@ -6,6 +6,7 @@ export const bodypago = (
   user: User,
   invoice: string,
   order: any,
+  priceShipment,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -398,23 +399,23 @@ export const bodypago = (
       (p) =>
         `<li>
       <h3>${p.product.category.name}</h3>
-      <p>Presentacion${p.product.presentacion}</p>
+      <p>Presentacion ${p.product.presentacion}</p>
       <p>${p.cantidad}</p>
       <p>${p.product.price}</p>
       </li>`,
     )}
     </ul>
-    <p>Total ${order.orderDetail.price}$</p>
-    <p> Obtuvo gracias a su cupon
-    ${order.giftCard.code}
-    </p>
-    <p>
+    <p>Total ${Number(order.orderDetail.price) + Number(priceShipment)}$</p>
+
+    ${order.giftCard && order.giftCard.code ? `<p> Obtuvo gracias a su cupon ${order.giftCard.code}</p>` : ''}
+    
+    
   ${
     order.giftCard && order.giftCard.product
-      ? `${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}`
-      : order.giftCard?.discount
+      ? `<p>${order.giftCard.product.category.name} ${order.giftCard.product.name} ${order.giftCard.product.name}:Cantidad ${order.giftCard.cantidad}</p>`
+      : `<p>${order.giftCard?.discount || 'No discount'}</p>`
   }
-</p>
+
 
     </h2>
 

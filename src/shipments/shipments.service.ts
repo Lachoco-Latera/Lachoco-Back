@@ -67,6 +67,7 @@ export class ShipmentsService {
   }
 
   async getCoordinates(countryCode, zipCode) {
+    console.log(countryCode, zipCode);
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -105,26 +106,28 @@ export class ShipmentsService {
       country.code,
       createShipmentDto.user.state,
     );
-    const coordinates = await this.getCoordinates(country.code, 6600);
-
+    // const coordinates = await this.getCoordinates(
+    //   country.code,
+    //   createShipmentDto.user.postalCode,
+    // );
     const data = JSON.stringify({
       origin: {
-        name: 'Christian Gordillo',
-        company: 'chocolatera',
-        email: 'carlos_molin@hotmail.com',
-        phone: '8182000536',
-        street: `${createShipmentDto.country === 'CO' ? 'calle 33' : "calle de l'Escorial"}`,
-        number: `${createShipmentDto.country === 'CO' ? '626' : '173'}`,
+        name: 'Lachoco Latera',
+        company: 'Tiempo de Chocolatear SL',
+        email: 'ventas@lachoco-latera.com',
+        phone: '+34634089473',
+        street: `${createShipmentDto.country === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
+        number: `${createShipmentDto.country === 'CO' ? '12' : '18'}`,
         district: 'other',
-        city: `${createShipmentDto.country === 'CO' ? 'mercedes' : 'gràcia'}`,
-        state: `${createShipmentDto.country === 'CO' ? 'ba' : 'B'}`,
-        country: `${createShipmentDto.country === 'CO' ? 'AR' : 'ES'}`,
-        postalCode: `${createShipmentDto.country === 'CO' ? '6600' : '08024'}`,
+        city: `${createShipmentDto.country === 'CO' ? 'cundinamarca' : 'Castilla y León'}`,
+        state: `${createShipmentDto.country === 'CO' ? 'dc' : 'SG'}`,
+        country: `${createShipmentDto.country === 'CO' ? 'co' : 'ES'}`,
+        postalCode: `${createShipmentDto.country === 'CO' ? '110311' : '40196'}`,
         reference: '',
-        coordinates: {
-          latitude: `${createShipmentDto.country === 'CO' ? '-34.698311' : '41.384247'}`,
-          longitude: `${createShipmentDto.country === 'CO' ? '-59.432132' : '2.176349'}`,
-        },
+        // coordinates: {
+        //   latitude: `${createShipmentDto.country === 'CO' ? '4.601612' : '40.968668'}`,
+        //   longitude: `${createShipmentDto.country === 'CO' ? '-74.026441' : '-4.102751'}`,
+        // },
       },
       destination: {
         name: createShipmentDto.user.name,
@@ -139,10 +142,10 @@ export class ShipmentsService {
         country: country.code,
         postalCode: createShipmentDto.user.postalCode,
         reference: '',
-        coordinates: {
-          latitude: coordinates.coordinates.latitute,
-          longitude: coordinates.coordinates.longitude,
-        },
+        // coordinates: {
+        //   latitude: coordinates.coordinates.latitute,
+        //   longitude: coordinates.coordinates.longitude,
+        // },
       },
       packages: [
         {
@@ -155,18 +158,18 @@ export class ShipmentsService {
           weightUnit: 'LB',
           lengthUnit: 'IN',
           dimensions: {
-            length: 11,
-            width: 15,
-            height: 20,
+            length: 10,
+            width: 10,
+            height: 10,
           },
         },
       ],
       shipment: {
-        carrier: `${createShipmentDto.country === 'CO' ? 'correoArgentino' : '41.384247'}`,
+        carrier: createShipmentDto.carrier,
         type: 1,
       },
       settings: {
-        currency: 'ARS',
+        currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
     const config = {
@@ -179,7 +182,6 @@ export class ShipmentsService {
       },
       data: data,
     };
-
     return axios(config)
       .then(function (response) {
         return JSON.stringify(response.data);
@@ -198,17 +200,17 @@ export class ShipmentsService {
 
     const data = JSON.stringify({
       origin: {
-        name: 'Christian Gordillo',
-        company: 'chocolatera',
-        email: 'carlos_molin@hotmail.com',
-        phone: '8182000536',
-        street: `${createShipmentDto.country === 'CO' ? 'calle 33' : "calle de l'Escorial"}`,
-        number: `${createShipmentDto.country === 'CO' ? '626' : '173'}`,
+        name: 'Lachoco Latera',
+        company: 'Tiempo de Chocolatear SL',
+        email: 'ventas@lachoco-latera.com',
+        phone: '+34634089473',
+        street: `${createShipmentDto.country === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
+        number: `${createShipmentDto.country === 'CO' ? '12' : '18'}`,
         district: 'other',
-        city: `${createShipmentDto.country === 'CO' ? 'mercedes' : 'gràcia'}`,
-        state: `${createShipmentDto.country === 'CO' ? 'ba' : 'B'}`,
-        country: `${createShipmentDto.country === 'CO' ? 'AR' : 'ES'}`,
-        postalCode: `${createShipmentDto.country === 'CO' ? '6600' : '08024'}`,
+        city: `${createShipmentDto.country === 'CO' ? 'cundinamarca' : 'Castilla y León'}`,
+        state: `${createShipmentDto.country === 'CO' ? 'dc' : 'SG'}`,
+        country: `${createShipmentDto.country === 'CO' ? 'co' : 'ES'}`,
+        postalCode: `${createShipmentDto.country === 'CO' ? '110311' : '40196'}`,
         reference: '',
       },
       destination: {
@@ -243,7 +245,7 @@ export class ShipmentsService {
         },
       ],
       shipment: {
-        carrier: 'correoArgentino',
+        carrier: createShipmentDto.carrier,
         service: createShipmentDto.carrierService,
         type: 1,
       },
@@ -251,7 +253,7 @@ export class ShipmentsService {
         printFormat: 'PDF',
         printSize: 'STOCK_4X6',
         comments: 'comentarios de el envío',
-        currency: 'ARS',
+        currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
 

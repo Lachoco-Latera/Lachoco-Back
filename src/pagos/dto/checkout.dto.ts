@@ -12,4 +12,16 @@ export class checkoutOrder {
   @IsNotEmpty()
   @IsString()
   country: string;
+
+  @IsString()
+  @IsNotEmpty()
+  trackingNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+
+  @IsNotEmpty()
+  @IsString()
+  totalPrice: string;
 }
