@@ -62,7 +62,7 @@ export class ProductService {
     const endIndex = startIndex + defaultLimit;
 
     const products = await this.productRepository.find({
-      relations: { flavors: true, images: true,category: true },
+      relations: { flavors: true, images: true, category: true },
     });
     const sliceUsers = products.slice(startIndex, endIndex);
     return sliceUsers;
@@ -71,11 +71,27 @@ export class ProductService {
   async findOne(id: string) {
     const findProdut = await this.productRepository.findOne({
       where: { id: id },
-      relations: ['flavors', 'images','category'],
+      relations: ['flavors', 'images', 'category'],
     });
     if (!findProdut) throw new NotFoundException('Product not found');
 
     return findProdut;
+  }
+
+  async relatedProducts(productId: string) {
+    const product = await this.productRepository.findOne({
+      where: { id: productId },
+      relations: { category: true },
+    });
+
+    if (!product) throw new NotFoundException(`Product ${productId} not found`);
+    const allProducts = await this.productRepository.find({
+      relations: { category: true },
+    });
+    const relatedProducts = allProducts.filter(
+      (p) => p.category.id === product.category.id,
+    );
+    return relatedProducts;
   }
 
   async updateFlavor(id: string, updateFlavorDto) {
