@@ -1,4 +1,4 @@
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
@@ -16,7 +16,6 @@ import { GitfcardsModule } from './gitfcards/gitfcards.module';
 import { RedesModule } from './redes/redes.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ShipmentsModule } from './shipments/shipments.module';
-import { RedirectMiddleware } from './middlewares/redirect.middleware';
 
 @Module({
   imports: [
@@ -49,8 +48,4 @@ import { RedirectMiddleware } from './middlewares/redirect.middleware';
     ShipmentsModule,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RedirectMiddleware).forRoutes('/');
-  }
-}
+export class AppModule {}
