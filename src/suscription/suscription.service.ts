@@ -106,7 +106,7 @@ export class SuscriptionService {
       metadata: { planId: findPlan.id },
       success_url:
         'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app',
-      cancel_url: 'https://lachoco.onrender.com/pricing',
+      cancel_url: 'https://lachocoback.vercel.app/pricing',
     });
     return { url: session.url };
   }
