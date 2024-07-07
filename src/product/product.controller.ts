@@ -8,6 +8,7 @@ import {
   UsePipes,
   Put,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 
@@ -39,6 +40,11 @@ export class ProductController {
     return this.productService.findOne(id);
   }
 
+  @Get('relatedProducts/:id')
+  relatedProducts(@Param('id',ParseUUIDPipe ) productId: string) {
+    return this.productService.relatedProducts(productId);
+  }
+    
   @Put('/addFlavor/:id')
   updateFlavor(
     @Param('id') id: string,
