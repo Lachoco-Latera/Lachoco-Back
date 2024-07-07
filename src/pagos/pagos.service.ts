@@ -131,11 +131,11 @@ export class PagosService {
             },
             back_urls: {
               success:
-                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app/pagos/success',
+                'https://lachocoback.vercel.app/pagos/success',
               failure:
-                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app/pagos/failure',
+                'https://lachocoback.vercel.app/pagos/failure',
               pending:
-                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.apppagos/pending',
+                'https://lachocoback.vercel.apppagos/pending',
             },
             items: [
               {
