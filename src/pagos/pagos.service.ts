@@ -146,7 +146,7 @@ export class PagosService {
                   totalPriceProducts - discount + Number(order.totalPrice),
               },
             ],
-            notification_url: 'https://lachoco.onrender.com/pagos/webhook',
+            notification_url: 'https://lachocoback.vercel.app/pagos/webhook',
           },
         });
         return res.init_point;
@@ -221,8 +221,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'https://lachoco.onrender.com/pagos/success',
-        cancel_url: 'https://lachoco.onrender.com/pagos/cancel',
+        success_url: 'https://lachocoback.vercel.app/pagos/success',
+        cancel_url: 'https://lachocoback.vercel.app/pagos/cancel',
       });
 
       return { url: session.url };
