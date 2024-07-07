@@ -130,9 +130,12 @@ export class PagosService {
               priceShipment: order.totalPrice,
             },
             back_urls: {
-              success: 'http://localhost:3000/pagos/success',
-              failure: 'http://localhost:3000/pagos/failure',
-              pending: 'http://localhost/3000/pagos/pending',
+              success:
+                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app/pagos/success',
+              failure:
+                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app/pagos/failure',
+              pending:
+                'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.apppagos/pending',
             },
             items: [
               {
@@ -143,8 +146,7 @@ export class PagosService {
                   totalPriceProducts - discount + Number(order.totalPrice),
               },
             ],
-            notification_url:
-              'https://3e58-190-246-136-74.ngrok-free.app/pagos/webhook',
+            notification_url: 'https://lachoco.onrender.com/pagos/webhook',
           },
         });
         return res.init_point;
