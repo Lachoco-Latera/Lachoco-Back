@@ -104,8 +104,9 @@ export class SuscriptionService {
         },
       ],
       metadata: { planId: findPlan.id },
-      success_url: 'http://localhost:5173/',
-      cancel_url: 'http://localhost:3000/pricing',
+      success_url:
+        'https://lachoco-front-git-dev-alhuayoscars-projects.vercel.app',
+      cancel_url: 'https://lachoco.onrender.com/pricing',
     });
     return { url: session.url };
   }

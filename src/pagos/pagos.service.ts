@@ -221,8 +221,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'http://localhost:3000/pagos/success',
-        cancel_url: 'http://localhost:3000/pagos/cancel',
+        success_url: 'https://lachoco.onrender.com/pagos/success',
+        cancel_url: 'https://lachoco.onrender.com/pagos/cancel',
       });
 
       return { url: session.url };
