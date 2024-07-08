@@ -31,6 +31,16 @@ export class OrderController {
     return this.orderService.findAll(pagination);
   }
 
+  @Get('/finished')
+  orderFinished() {
+    return this.orderService.ordersFinished();
+  }
+
+  @Get('/finished/:id')
+  orderFinishedByUser(@Param('id', ParseUUIDPipe) userId: string) {
+    return this.orderService.ordersFinishedByUser(userId);
+  }
+
   @Put('/confirm/:id')
   confirmOrder(@Param('id', ParseUUIDPipe) id: string) {
     return this.orderService.confirmOrder(id);

@@ -9,6 +9,9 @@ import { Category } from 'src/category/entity/category.entity';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { Cron } from '@nestjs/schedule';
+import { Order } from 'src/order/entities/order.entity';
+import { Suscription } from 'src/suscription/entity/suscription.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ProductService {
@@ -20,6 +23,12 @@ export class ProductService {
     private categoryRepository: Repository<Category>,
     @InjectRepository(OrderDetailProduct)
     private readonly orderDetailProductRepository: Repository<OrderDetailProduct>,
+    @InjectRepository(Order)
+    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Suscription)
+    private readonly suscriptionRepository: Repository<Suscription>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -195,16 +204,37 @@ export class ProductService {
     });
   }
 
-  async updateProductStatus(
-    productId: string,
-    status: statusExp,
-  ): Promise<void> {
+  async findExpiredSusbcriptions() {
+    const now = new Date();
+    return this.suscriptionRepository.find({
+      where: {
+        date_finish: LessThan(now),
+      },
+      relations: { user: true },
+    });
+  }
+
+  async updateProductStatus(productId: string, status: statusExp) {
     await this.productRepository.update(productId, { status });
   }
 
   @Cron('0 0 * * *')
   async handleCron() {
     const expiredProducts = await this.findExpiredProducts();
+    const expiredSusbcriptions = await this.findExpiredSusbcriptions();
+
+    for (const susbcriptions of expiredSusbcriptions) {
+      const user = await this.userRepository.findOne({
+        where: { suscription: susbcriptions },
+        relations: { orders: true },
+      });
+
+      //*subscription en order a null
+      await this.orderRepository.update(
+        { anySubscription: user.suscription.id },
+        { anySubscription: 'NoSubscription' },
+      );
+    }
 
     for (const product of expiredProducts) {
       await this.updateProductStatus(product.id, statusExp.EXPIRED);

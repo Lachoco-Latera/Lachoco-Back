@@ -203,6 +203,31 @@ export class OrderService {
     return order;
   }
 
+  async ordersFinished() {
+    const orders = await this.orderRepository.find({
+      relations: {
+        orderDetail: {
+          orderDetailProducts: {
+            product: { category: true },
+            orderDetailFlavors: true,
+          },
+        },
+        user: true,
+        giftCard: true,
+      },
+    });
+
+    return orders.filter((o) => o.status === status.FINISHED);
+  }
+
+  async ordersFinishedByUser(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException(`User ${userId} not found`);
+
+    const getOrdersFinished = await this.ordersFinished();
+    return getOrdersFinished.filter((o) => o.user.id === userId);
+  }
+
   async cancelOrder(id: string, cancelByUserId: string) {
     const order = await this.orderRepository.findOne({ where: { id: id } });
     if (!order) throw new NotFoundException('Order not found');

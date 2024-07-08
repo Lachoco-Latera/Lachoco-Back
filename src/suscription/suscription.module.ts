@@ -8,6 +8,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { Suscription } from './entity/suscription.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
       GiftCard,
       Product,
       OrderDetailProduct,
+      Suscription,
     ]),
   ],
   controllers: [SuscriptionController],

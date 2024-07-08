@@ -10,6 +10,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
+import { Suscription } from 'src/suscription/entity/suscription.entity';
 
 export enum status {
   PENDING = 'PENDING',
@@ -49,6 +50,9 @@ export class Order {
 
   @Column({ type: 'varchar', nullable: true })
   trackingNumber: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  anySubscription: string;
 
   @Column({ type: 'varchar', nullable: true })
   label: string;

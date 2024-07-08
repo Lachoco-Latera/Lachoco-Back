@@ -8,6 +8,10 @@ import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { OrderModule } from 'src/order/order.module'; // Import OrderModule
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { Suscription } from 'src/suscription/entity/suscription.entity';
+import { Order } from 'src/order/entities/order.entity';
+import { User } from 'mercadopago';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -16,6 +20,9 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
       Image,
       Flavor,
       OrderDetailProduct,
+      Suscription,
+      Order,
+      User,
     ]),
     OrderModule,
   ],

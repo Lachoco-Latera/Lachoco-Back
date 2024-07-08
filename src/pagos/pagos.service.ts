@@ -51,6 +51,7 @@ export class PagosService {
         giftCard: true,
       },
     });
+    console.log(orderById);
     if (orderById.status === status.FINISHED)
       throw new BadRequestException('order is Finished');
     if (!orderById) throw new NotFoundException('Order not found');
@@ -130,12 +131,9 @@ export class PagosService {
               priceShipment: order.totalPrice,
             },
             back_urls: {
-              success:
-                'https://lachocoback.vercel.app/pagos/success',
-              failure:
-                'https://lachocoback.vercel.app/pagos/failure',
-              pending:
-                'https://lachocoback.vercel.apppagos/pending',
+              success: 'https://lachocoback.vercel.app/pagos/success',
+              failure: 'https://lachocoback.vercel.app/pagos/failure',
+              pending: 'https://lachocoback.vercel.apppagos/pending',
             },
             items: [
               {
