@@ -51,7 +51,7 @@ export class PagosService {
         giftCard: true,
       },
     });
-    console.log(orderById);
+
     if (orderById.status === status.FINISHED)
       throw new BadRequestException('order is Finished');
     if (!orderById) throw new NotFoundException('Order not found');
@@ -69,9 +69,10 @@ export class PagosService {
       if (findGitCard && findGitCard.isUsed === true)
         throw new BadRequestException('GiftCard is Used');
 
-      const hasGiftCardCode = orderById.user.giftcards.find(
+      const hasGiftCardCode = orderById.user.giftcards?.find(
         (g) => g.code === findGitCard.code,
       );
+      console.log(discount, 'hola');
       if (hasGiftCardCode) {
         //*si giftcardId no undefined, buscar producto
         if (findGitCard.product !== null) {
@@ -95,10 +96,9 @@ export class PagosService {
           });
           orderById = updateOrder;
         }
+        discount = hasGiftCardCode.discount;
       }
-      discount = hasGiftCardCode.discount;
     }
-
     if (order.country === 'COL') {
       const preference = new Preference(client);
 
@@ -154,6 +154,7 @@ export class PagosService {
       }
     }
     if (order.country === 'SPAIN' || order.country === 'GLOBAL') {
+      console.log('hola estoy en espana');
       let customer = orderById.user.customerId;
       if (!orderById.user.customerId) {
         customer = await stripe.customers

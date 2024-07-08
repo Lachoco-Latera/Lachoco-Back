@@ -24,7 +24,7 @@ import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
 import { Stripe } from 'stripe';
 import { DataSource, Repository } from 'typeorm';
-import { Suscription } from './entity/suscription.entity';
+import { SuscriptionPro } from './entity/suscription.entity';
 import { EntityManager } from 'typeorm';
 
 @Injectable()
@@ -33,8 +33,8 @@ export class SuscriptionService {
     private dataSource: DataSource,
     private readonly emailService: EmailService,
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Suscription)
-    private suscriptionRepository: Repository<Suscription>,
+    @InjectRepository(SuscriptionPro)
+    private suscriptionPropRepository: Repository<SuscriptionPro>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(GiftCard)
     private giftcardRepository: Repository<GiftCard>,
@@ -211,7 +211,7 @@ export class SuscriptionService {
                   product.expiryDate = expiryDate;
                   product.status = statusExp.ACTIVATED;
 
-                  const subscription = new Suscription();
+                  const subscription = new SuscriptionPro();
                   subscription.createdAt = purchaseDate;
                   subscription.date_finish = expiryDate;
                   subscription.user = order.user;
@@ -223,7 +223,7 @@ export class SuscriptionService {
                       async (manager: EntityManager) => {
                         // Guardar la suscripción
                         const newSubscription = await manager.save(
-                          Suscription,
+                          SuscriptionPro,
                           subscription,
                         );
                         console.log('Subscription guardada:', newSubscription);

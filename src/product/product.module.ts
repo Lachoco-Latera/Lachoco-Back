@@ -8,9 +8,9 @@ import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Category } from 'src/category/entity/category.entity';
 import { OrderModule } from 'src/order/order.module'; // Import OrderModule
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
-import { Suscription } from 'src/suscription/entity/suscription.entity';
+import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
 import { Order } from 'src/order/entities/order.entity';
-import { User } from 'mercadopago';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
   imports: [
@@ -20,7 +20,7 @@ import { User } from 'mercadopago';
       Image,
       Flavor,
       OrderDetailProduct,
-      Suscription,
+      SuscriptionPro,
       Order,
       User,
     ]),
