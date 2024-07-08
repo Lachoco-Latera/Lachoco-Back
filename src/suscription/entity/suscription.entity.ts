@@ -3,10 +3,15 @@ import { User } from 'src/user/entities/user.entity';
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
+export enum statusSubs {
+  ACTIVATED = 'activated',
+  EXPIRED = 'expired',
+}
+
 @Entity({
   name: 'suscriptions',
 })
-export class Suscription {
+export class SuscriptionPro {
   @PrimaryGeneratedColumn('uuid')
   id: string = uuid();
 
@@ -16,6 +21,9 @@ export class Suscription {
   @Column({ type: 'timestamp', nullable: true })
   date_finish: Date;
 
-  @OneToOne(() => User, (user) => user.suscription)
+  @OneToOne(() => User, (user) => user.suscriptionPro)
   user: User;
+
+  @Column({ type: 'enum', enum: statusSubs, default: statusSubs.ACTIVATED })
+  status: statusSubs;
 }

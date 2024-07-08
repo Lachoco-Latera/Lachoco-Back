@@ -1,7 +1,7 @@
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
-import { Suscription } from 'src/suscription/entity/suscription.entity';
+import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
 import {
   Column,
   Entity,
@@ -64,7 +64,7 @@ export class User {
   @JoinColumn({ name: 'giftcards_id' })
   giftcards: GiftCard[];
 
-  @OneToOne(() => Suscription, (suscription) => suscription.user)
-  @JoinColumn({ name: 'suscription_id' })
-  suscription: Suscription;
+  @OneToOne(() => SuscriptionPro, (suscriptionPro) => suscriptionPro.user)
+  @JoinColumn({ name: 'suscriptionPro_id' })
+  suscriptionPro: SuscriptionPro;
 }
