@@ -23,13 +23,18 @@ import { bodypago } from 'src/user/emailBody/bodyPago';
 import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
 import { Stripe } from 'stripe';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Suscription } from './entity/suscription.entity';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class SuscriptionService {
   constructor(
+    private dataSource: DataSource,
     private readonly emailService: EmailService,
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Suscription)
+    private suscriptionRepository: Repository<Suscription>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(GiftCard)
     private giftcardRepository: Repository<GiftCard>,
@@ -180,7 +185,6 @@ export class SuscriptionService {
           const invoice = await stripe.invoices.retrieve(
             checkoutSessionCompleted.invoice,
           );
-          console.log(checkoutSessionCompleted.metadata.label);
           const order = await this.orderRepository.findOne({
             where: { id: checkoutSessionCompleted.metadata.order },
             relations: {
@@ -194,7 +198,6 @@ export class SuscriptionService {
               giftCard: { product: { category: true } },
             },
           });
-
           if (order) {
             const { orderDetail } = order;
             if (orderDetail && orderDetail.orderDetailProducts) {
@@ -204,19 +207,53 @@ export class SuscriptionService {
                   const purchaseDate = new Date();
                   const expiryDate = new Date(purchaseDate);
                   expiryDate.setDate(purchaseDate.getDate() + 7);
-
                   product.purchaseDate = purchaseDate;
                   product.expiryDate = expiryDate;
                   product.status = statusExp.ACTIVATED;
 
-                  await this.orderDetailProductRepository.save(
-                    orderDetailProduct,
-                  );
+                  const subscription = new Suscription();
+                  subscription.createdAt = purchaseDate;
+                  subscription.date_finish = expiryDate;
+                  subscription.user = order.user;
+
+                  console.log(subscription, 'holaaaaaa');
+                  //*Guardar suscripcion
+                  try {
+                    await this.dataSource.transaction(
+                      async (manager: EntityManager) => {
+                        // Guardar la suscripción
+                        const newSubscription = await manager.save(
+                          Suscription,
+                          subscription,
+                        );
+                        console.log('Subscription guardada:', newSubscription);
+
+                        // Actualizar estado suscripción en order
+                        await manager.update(
+                          Order,
+                          { id: order.id },
+                          { anySubscription: newSubscription.id },
+                        );
+
+                        // Guardar el detalle del producto del pedido
+                        await manager.save(
+                          OrderDetailProduct,
+                          orderDetailProduct,
+                        );
+
+                        console.log(
+                          'Operaciones después de guardar la suscripción completadas',
+                        );
+                      },
+                    );
+                  } catch (error) {
+                    console.error('Error al guardar la suscripción:', error);
+                    // Manejar el error según sea necesario
+                  }
                 }
               }
             }
           }
-
           //*Encaso de que tenga cupo actualizar a usado
           if (order.giftCard !== null) {
             await this.giftcardRepository.update(

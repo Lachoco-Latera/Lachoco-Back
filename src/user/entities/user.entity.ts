@@ -1,6 +1,7 @@
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { Suscription } from 'src/suscription/entity/suscription.entity';
 import {
   Column,
   Entity,
@@ -8,6 +9,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -61,4 +63,8 @@ export class User {
   @OneToMany(() => GiftCard, (giftcard) => giftcard.user)
   @JoinColumn({ name: 'giftcards_id' })
   giftcards: GiftCard[];
+
+  @OneToOne(() => Suscription, (suscription) => suscription.user)
+  @JoinColumn({ name: 'suscription_id' })
+  suscription: Suscription;
 }
