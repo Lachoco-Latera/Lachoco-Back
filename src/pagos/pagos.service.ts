@@ -72,7 +72,7 @@ export class PagosService {
       const hasGiftCardCode = orderById.user.giftcards?.find(
         (g) => g.code === findGitCard.code,
       );
-      console.log(discount, 'hola');
+
       if (hasGiftCardCode) {
         //*si giftcardId no undefined, buscar producto
         if (findGitCard.product !== null) {
@@ -154,7 +154,6 @@ export class PagosService {
       }
     }
     if (order.country === 'SPAIN' || order.country === 'GLOBAL') {
-      console.log('hola estoy en espana');
       let customer = orderById.user.customerId;
       if (!orderById.user.customerId) {
         customer = await stripe.customers
@@ -193,7 +192,7 @@ export class PagosService {
                 name: 'Productos',
                 description: 'Productos',
               },
-              currency: 'EUR',
+              currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
               unit_amount: Number(totalPriceProducts * 100 - discount * 100),
             },
             quantity: 1,
@@ -204,7 +203,7 @@ export class PagosService {
                 name: 'Envio',
                 description: 'Envio',
               },
-              currency: 'EUR',
+              currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
               unit_amount: Number(order.totalPrice) * 100,
             },
             quantity: 1,
