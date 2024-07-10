@@ -33,6 +33,6 @@ export class FlavorController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.flavorService.remove(+id);
+    return this.flavorService.remove(id);
   }
 }
