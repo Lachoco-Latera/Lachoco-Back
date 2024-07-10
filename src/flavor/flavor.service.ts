@@ -30,13 +30,17 @@ export class FlavorService {
   }
 
   async remove(id: string) {
-    const flavorToRemove = await this.flavorRepository.findOneOrFail({
-      where: { id: id },
-    });
-    if (!flavorToRemove) {
-      throw new NotFoundException(`Flavor with ID ${id} not found`);
+    try {
+      const flavorToRemove = await this.flavorRepository.findOneOrFail({
+        where: { id: id },
+      });
+      await this.flavorRepository.remove(flavorToRemove);
+      return `Flavor with ID ${id} has been successfully removed`;
+    } catch (error) {
+      if (error.name === 'EntityNotFoundError') {
+        throw new NotFoundException(`Flavor with ID ${id} not found`);
+      }
+      throw error; // throw other unexpected errors
     }
-    await this.flavorRepository.remove(flavorToRemove);
-    return `Flavor with ID ${id} has been successfully removed`;
   }
 }
