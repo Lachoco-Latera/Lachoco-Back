@@ -28,7 +28,14 @@ export class FlavorService {
     return findFlavor;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} flavor`;
+  async remove(id: string) {
+    const flavorToRemove = await this.flavorRepository.findOneOrFail({
+      where: { id },
+    });
+    if (!flavorToRemove) {
+      throw new NotFoundException(`Flavor with ID ${id} not found`);
+    }
+    await this.flavorRepository.remove(flavorToRemove);
+    return `Flavor with ID ${id} has been successfully removed`;
   }
 }
