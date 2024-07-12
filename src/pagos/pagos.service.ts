@@ -19,6 +19,7 @@ import { checkoutOrder } from './dto/checkout.dto';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetail } from 'src/order/entities/orderDetail.entity';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -28,6 +29,8 @@ export class PagosService {
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(Order)
     private orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(OrderLabel)
+    private orderLabelRepository: Repository<OrderLabel>,
     @InjectRepository(GiftCard)
     private giftCardRepository: Repository<GiftCard>,
     @InjectRepository(Product)
@@ -52,9 +55,9 @@ export class PagosService {
       },
     });
 
+    if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.status === status.FINISHED)
       throw new BadRequestException('order is Finished');
-    if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.orderDetail.orderDetailProducts.length === 0)
       throw new BadRequestException('Order without products');
     let discount = 0;
@@ -92,6 +95,7 @@ export class PagosService {
               },
               user: { giftcards: true },
               giftCard: true,
+              labels: true,
             },
           });
           orderById = updateOrder;
@@ -129,6 +133,7 @@ export class PagosService {
               label: order.label,
               trackingNumber: order.trackingNumber,
               priceShipment: order.totalPrice,
+              frecuency: order.frecuency,
             },
             back_urls: {
               success: 'https://lachocoback.vercel.app/pagos/success',
@@ -216,6 +221,7 @@ export class PagosService {
           label: order.label,
           trackingNumber: order.trackingNumber,
           priceShipment: order.totalPrice,
+          frecuency: order.frecuency,
         },
         mode: 'payment',
         payment_method_types: ['card'],
@@ -276,14 +282,18 @@ export class PagosService {
           );
         }
 
+        const orderLabel = new OrderLabel();
+        orderLabel.trackingNumber = data.metadata.trackingNumber;
+        orderLabel.label = data.metadata.label;
+        orderLabel.order = orderById;
+        await this.orderLabelRepository.save(orderLabel);
+
         await this.orderRepository.update(
           {
             id: orderById.id,
           },
           {
             status: status.FINISHED,
-            trackingNumber: data.metadata.trackingNumber,
-            label: data.metadata.label,
           },
         );
 

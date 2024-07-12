@@ -13,6 +13,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
+import { Address } from './address.entity';
 
 export enum Role {
   SUPERADMIN = 'SUPERADMIN',
@@ -67,4 +68,8 @@ export class User {
   @OneToOne(() => SuscriptionPro, (suscriptionPro) => suscriptionPro.user)
   @JoinColumn({ name: 'suscriptionPro_id' })
   suscriptionPro: SuscriptionPro;
+
+  @OneToOne(() => Address, (address) => address.user)
+  @JoinColumn({ name: 'order_id' })
+  address: Address;
 }
