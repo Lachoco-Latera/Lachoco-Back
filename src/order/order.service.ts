@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Order, status } from './entities/order.entity';
 import { EntityManager, Repository } from 'typeorm';
@@ -14,8 +13,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
-import { OrderDetailFlavor } from './entities/flavorDetail.entity';
-import { Category, category } from 'src/category/entity/category.entity';
+import { category } from 'src/category/entity/category.entity';
 
 @Injectable()
 export class OrderService {
@@ -173,7 +171,7 @@ export class OrderService {
       relations: {
         orderDetail: {
           orderDetailProducts: {
-            product: { category: true },
+            product: { category: true, images: true },
             orderDetailFlavors: true,
           },
         },
@@ -192,7 +190,7 @@ export class OrderService {
       relations: {
         orderDetail: {
           orderDetailProducts: {
-            product: true,
+            product: {category:true,images:true}
           },
         },
         giftCard: { product: true },

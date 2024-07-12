@@ -1,11 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateShipmentDto } from './dto/update-shipment.dto';
 import axios from 'axios';
 import { CancelShipmentDto } from './dto/cancel-shipments.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
+import { Order } from 'src/order/entities/order.entity';
+import { Address } from 'src/user/entities/address.entity';
 
 @Injectable()
 export class ShipmentsService {
+  constructor(
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Order) private orderRespository: Repository<Order>,
+    @InjectRepository(Address) private addressRespository: Repository<Address>,
+  ) {}
   async carriesByCountry(country: string) {
     const config = {
       method: 'get',
@@ -67,7 +77,6 @@ export class ShipmentsService {
   }
 
   async getCoordinates(countryCode, zipCode) {
-    console.log(countryCode, zipCode);
     const config = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -192,6 +201,11 @@ export class ShipmentsService {
   }
 
   async createlable(createShipmentDto: UpdateShipmentDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: createShipmentDto.user.email },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
     const country = await this.getcountry(createShipmentDto.user.country);
     const state = await this.getStateBytCountry(
       country.code,
@@ -217,7 +231,7 @@ export class ShipmentsService {
         name: createShipmentDto.user.name,
         company: '',
         email: createShipmentDto.user.email,
-        phone: '1138516604',
+        phone: createShipmentDto.user.phone,
         street: createShipmentDto.user.street,
         number: createShipmentDto.user.number,
         district: 'other',
@@ -267,6 +281,21 @@ export class ShipmentsService {
       },
       data: data,
     };
+
+    const userAddress = new Address();
+    userAddress.city = createShipmentDto.user.city;
+    userAddress.street = createShipmentDto.user.street;
+    userAddress.number = createShipmentDto.user.number;
+    userAddress.state = createShipmentDto.user.state;
+    userAddress.country = createShipmentDto.user.country;
+    userAddress.postalCode = createShipmentDto.user.postalCode;
+    userAddress.phone = createShipmentDto.user.phone;
+    userAddress.carrier = createShipmentDto.carrier;
+    userAddress.carrierService = createShipmentDto.carrierService;
+    userAddress.carrierCountry = createShipmentDto.country;
+    userAddress.user = user;
+
+    await this.addressRespository.save(userAddress);
 
     return axios(config)
       .then(function (response) {

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product, statusExp } from './entities/product.entity';
+import { label, Product, statusExp } from './entities/product.entity';
 import { LessThan, Repository } from 'typeorm';
 import { Image } from './entities/image.entity';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -11,10 +11,15 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
 import { Cron } from '@nestjs/schedule';
 import { Order } from 'src/order/entities/order.entity';
 import {
+  frecuency,
   statusSubs,
   SuscriptionPro,
 } from 'src/suscription/entity/suscription.entity';
 import { User } from 'src/user/entities/user.entity';
+import { ShipmentsService } from 'src/shipments/shipments.service';
+import { CreateShipmentDto } from 'src/shipments/dto/create-shipment.dto';
+import { UpdateShipmentDto } from 'src/shipments/dto/update-shipment.dto';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Injectable()
 export class ProductService {
@@ -32,6 +37,9 @@ export class ProductService {
     private readonly suscriptionProRepository: Repository<SuscriptionPro>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(OrderLabel)
+    private readonly orderLabelRepository: Repository<OrderLabel>,
+    private shipmentsService: ShipmentsService,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -230,7 +238,7 @@ export class ProductService {
     for (const susbcriptions of expiredSusbcriptions) {
       const user = await this.userRepository.findOne({
         where: { id: susbcriptions.user.id },
-        relations: { orders: true, suscriptionPro: true },
+        relations: { orders: true, suscriptionPro: true, address: true },
       });
       await this.suscriptionProRepository.update(
         { id: susbcriptions.id },
@@ -245,6 +253,135 @@ export class ProductService {
 
     for (const product of expiredProducts) {
       await this.updateProductStatus(product.id, statusExp.EXPIRED);
+    }
+  }
+
+  @Cron('0 8 * * *')
+  async montly() {
+    console.log('mensual');
+    const users = await this.userRepository.find({
+      relations: {
+        suscriptionPro: true,
+        address: true,
+        orders: { labels: true },
+      },
+    });
+    const frecuencyUsers = users
+      .filter((u) => u.suscriptionPro.frecuency === frecuency.MONTHLY)
+      .filter((subs) => subs.suscriptionPro.status === statusSubs.ACTIVATED);
+
+    for (const user of frecuencyUsers) {
+      const orders = user.orders;
+      if (!orders || orders.length === 0) continue;
+
+      for (const order of orders) {
+        const currentDate = new Date().toISOString();
+        const date7_days = new Date(order.date_7days).toISOString();
+        const date14_days = new Date(order.date_14days).toISOString();
+        const date21_days = new Date(order.date_21days).toISOString();
+        const date28_days = new Date(order.date_28days).toISOString();
+
+        if (
+          date7_days === currentDate ||
+          date14_days === currentDate ||
+          date21_days === currentDate ||
+          date28_days === currentDate
+        ) {
+          if (order && order.labels.length < 5) {
+            const dateShipments: UpdateShipmentDto = {
+              user: {
+                name: user.name,
+                email: user.email,
+                phone: user.address.phone,
+                street: user.address.street,
+                number: user.address.number,
+                city: user.address.city,
+                state: user.address.state,
+                country: user.address.country,
+                postalCode: user.address.postalCode,
+              },
+              carrier: user.address.carrier,
+              country: user.address.carrierCountry,
+              carrierService: user.address.carrierService,
+            };
+
+            const newlabel =
+              await this.shipmentsService.createlable(dateShipments);
+            const parseLabel = JSON.parse(newlabel);
+            const { label, trackingNumber } = parseLabel.data[0];
+
+            const saveLabel = new OrderLabel();
+            saveLabel.label = label;
+            saveLabel.trackingNumber = trackingNumber;
+            saveLabel.order = order;
+            await this.orderLabelRepository.save(saveLabel);
+          }
+        }
+      }
+    }
+  }
+
+  @Cron('0 7 * * *')
+  async weekly() {
+    console.log('semanal');
+    const users = await this.userRepository.find({
+      relations: {
+        suscriptionPro: true,
+        address: true,
+        orders: { labels: true },
+      },
+    });
+    const frecuencyUsers = users
+      .filter((u) => u.suscriptionPro.frecuency === frecuency.WEEKLY)
+      .filter((subs) => subs.suscriptionPro.status === statusSubs.ACTIVATED);
+    for (const user of frecuencyUsers) {
+      const orders = user.orders;
+      if (!orders || orders.length === 0) continue;
+      console.log(orders);
+      for (const order of orders) {
+        const currentDate = new Date().toISOString();
+        const date2_days = new Date(order.date_2days).toISOString();
+        const date4_days = new Date(order.date_4days).toISOString();
+        const date6_days = new Date(order.date_6days).toISOString();
+        const date8_days = new Date(order.date_8days).toISOString();
+
+        if (
+          date2_days === currentDate ||
+          date4_days === currentDate ||
+          date6_days === currentDate ||
+          date8_days === currentDate
+        ) {
+          if (order && order.labels.length < 5) {
+            const dateShipments: UpdateShipmentDto = {
+              user: {
+                name: user.name,
+                email: user.email,
+                phone: user.address.phone,
+                street: user.address.street,
+                number: user.address.number,
+                city: user.address.city,
+                state: user.address.state,
+                country: user.address.country,
+                postalCode: user.address.postalCode,
+              },
+              carrier: user.address.carrier,
+              country: user.address.carrierCountry,
+              carrierService: user.address.carrierService,
+            };
+
+            const newlabel =
+              await this.shipmentsService.createlable(dateShipments);
+            const parseLabel = JSON.parse(newlabel);
+            const { label, trackingNumber } = parseLabel.data[0];
+
+            const saveLabel = new OrderLabel();
+            saveLabel.label = label;
+            saveLabel.trackingNumber = trackingNumber;
+            saveLabel.order = order;
+            await this.orderLabelRepository.save(saveLabel);
+          }
+        }
+      }
     }
   }
 }

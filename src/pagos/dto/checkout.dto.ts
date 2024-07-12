@@ -21,6 +21,10 @@ export class checkoutOrder {
   @IsNotEmpty()
   label: string;
 
+  @IsString()
+  @IsOptional()
+  frecuency?: string;
+
   @IsNotEmpty()
   @IsString()
   totalPrice: string;

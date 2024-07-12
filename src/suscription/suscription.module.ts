@@ -9,6 +9,7 @@ import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { SuscriptionPro } from './entity/suscription.entity';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { SuscriptionPro } from './entity/suscription.entity';
       Product,
       OrderDetailProduct,
       SuscriptionPro,
+      OrderLabel,
     ]),
   ],
   controllers: [SuscriptionController],

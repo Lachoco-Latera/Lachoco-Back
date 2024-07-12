@@ -11,6 +11,9 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
 import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { User } from 'src/user/entities/user.entity';
+import { ShipmentsService } from 'src/shipments/shipments.service';
+import { Address } from 'src/user/entities/address.entity';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Module({
   imports: [
@@ -23,10 +26,12 @@ import { User } from 'src/user/entities/user.entity';
       SuscriptionPro,
       Order,
       User,
+      Address,
+      OrderLabel,
     ]),
     OrderModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, ShipmentsService],
 })
 export class ProductModule {}
