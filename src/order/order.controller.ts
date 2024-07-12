@@ -52,7 +52,7 @@ export class OrderController {
   }
 
   @Put('/cancel/:id')
-  @Roles(Role.ADMIN, Role.CLIENT)
+  @Roles(Role.ADMIN)
   @UseGuards(GuardToken, GuardRoles)
   cancelOrder(
     @Param('id', ParseUUIDPipe) id: string,
