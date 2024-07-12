@@ -69,6 +69,7 @@ export class UserService {
 
     const emailUser = await this.userRepository.findOne({
       where: { email: login.email },
+      relations: { suscriptionPro: true },
     });
 
     if (!emailUser) {
@@ -105,7 +106,11 @@ export class UserService {
     //   };
 
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token };
+    return {
+      success: 'Login Success',
+      token,
+      subscription: emailUser.suscriptionPro,
+    };
   }
 
   async findAll(pagination?: PaginationQuery) {
@@ -116,7 +121,12 @@ export class UserService {
     const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
-      relations: { orders: true, address: true, giftcards: { product: true } },
+      relations: {
+        orders: true,
+        address: true,
+        giftcards: { product: true },
+        suscriptionPro: true,
+      },
     });
 
     const usersNotPassword = users.map((user) => {
