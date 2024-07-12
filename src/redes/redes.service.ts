@@ -39,7 +39,7 @@ export class RedesService {
     const red = await this.redesRepository.findOne({ where: { id: id } });
     if (!red) throw new NotFoundException('Redes not found');
 
-    await this.redesRepository.delete(id);
+    await this.redesRepository.delete(red);
     return `This action removes a #${id} rede`;
   }
 }

@@ -61,7 +61,7 @@ export class OrderService {
           productInfo.cantidad = product.cantidad;
           total += Number(findProduct.price * product.cantidad);
 
-          const filterFlavors = product.flavors.map((pf) =>
+          const filterFlavors = product.flavors?.map((pf) =>
             flavors.find((f) => f.id === pf.flavorId),
           );
 
@@ -231,7 +231,9 @@ export class OrderService {
   async cancelOrder(id: string, cancelByUserId: string) {
     const order = await this.orderRepository.findOne({ where: { id: id } });
     if (!order) throw new NotFoundException('Order not found');
-    const userCancel = await this.userRepository.findOne({ where: { id: id } });
+    const userCancel = await this.userRepository.findOne({
+      where: { id: cancelByUserId },
+    });
     if (!userCancel) throw new NotFoundException('user not found');
 
     await this.orderRepository.update(
