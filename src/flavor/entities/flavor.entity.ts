@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from 'src/product/entities/product.entity';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 @Entity({
@@ -13,4 +14,7 @@ export class Flavor {
 
   @Column({ type: 'integer', default: 0 })
   stock: number;
+
+  @ManyToMany(() => Product, (product) => product.flavors)
+  products: Product[];
 }

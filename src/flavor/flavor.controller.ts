@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { FlavorService } from './flavor.service';
 import { CreateFlavorDto } from './dto/create-flavor.dto';
@@ -34,14 +35,14 @@ export class FlavorController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.flavorService.findOne(id);
   }
 
   @Delete(':id')
   @Roles(Role.ADMIN)
   @UseGuards(GuardToken, GuardRoles)
-  remove(@Param('id') id: string) {
-    return this.flavorService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.flavorService.remove(id);
   }
 }

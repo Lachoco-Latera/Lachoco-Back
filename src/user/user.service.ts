@@ -162,6 +162,18 @@ export class UserService {
     });
     return `User ${id} change to admin`;
   }
+
+  async createClient(id) {
+    //const prueba = Object.values(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException('user not found');
+
+    await this.userRepository.update(user.id, {
+      role: Role.CLIENT,
+    });
+    return `User ${id} change to client`;
+  }
+
   async inactiveUser(id: string) {
     const user = await this.userRepository.findOneBy({ id: id });
     if (!user) throw new NotFoundException('user not found');

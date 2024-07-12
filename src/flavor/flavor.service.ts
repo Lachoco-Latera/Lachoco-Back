@@ -28,7 +28,15 @@ export class FlavorService {
     return findFlavor;
   }
 
-  remove(id: number) {
+  async remove(id: string) {
+    const findFlavor = await this.flavorRepository.findOne({
+      where: { id: id },
+      relations: { products: true },
+    });
+    if (!findFlavor) throw new NotFoundException('Flavor not found');
+
+    await this.flavorRepository.remove(findFlavor);
+
     return `This action removes a #${id} flavor`;
   }
 }
