@@ -177,6 +177,7 @@ export class OrderService {
         },
         user: true,
         giftCard: true,
+        labels: true,
       },
     });
 
@@ -190,10 +191,11 @@ export class OrderService {
       relations: {
         orderDetail: {
           orderDetailProducts: {
-            product: {category:true,images:true}
+            product: { category: true, images: true },
           },
         },
         giftCard: { product: true },
+        labels: true,
       },
     });
     if (!order) throw new NotFoundException('Order not found');
