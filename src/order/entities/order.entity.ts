@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
+import { OrderLabel } from './label.entity';
 
 export enum status {
   PENDING = 'PENDING',
@@ -26,6 +28,30 @@ export class Order {
 
   @Column({ type: 'date', nullable: false })
   date: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_2days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_4days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_6days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_8days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_7days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_14days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_21days: Date;
+
+  @Column({ type: 'date', nullable: true })
+  date_28days: Date;
 
   @Column({ type: 'enum', enum: status, default: status.PENDING })
   status: status;
@@ -48,11 +74,11 @@ export class Order {
   cancelByUserId: string = uuid();
 
   @Column({ type: 'varchar', nullable: true })
-  trackingNumber: string;
-
-  @Column({ type: 'varchar', nullable: true })
   anySubscription: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  label: string;
+  @OneToMany(() => OrderLabel, (orderLabel) => orderLabel.order, {
+    cascade: true,
+  })
+  @JoinColumn({ name: 'orderLabels_id' })
+  labels: OrderLabel[];
 }

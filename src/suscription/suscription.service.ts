@@ -24,8 +24,9 @@ import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
 import { Stripe } from 'stripe';
 import { DataSource, Repository } from 'typeorm';
-import { SuscriptionPro } from './entity/suscription.entity';
+import { frecuency, SuscriptionPro } from './entity/suscription.entity';
 import { EntityManager } from 'typeorm';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Injectable()
 export class SuscriptionService {
@@ -40,6 +41,8 @@ export class SuscriptionService {
     private giftcardRepository: Repository<GiftCard>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @InjectRepository(OrderLabel)
+    private orderLabelRepository: Repository<OrderLabel>,
     @InjectRepository(OrderDetailProduct)
     private orderDetailProductRepository: Repository<OrderDetailProduct>,
   ) {}
@@ -196,6 +199,7 @@ export class SuscriptionService {
               },
               user: true,
               giftCard: { product: { category: true } },
+              labels: true,
             },
           });
           if (order) {
@@ -206,17 +210,24 @@ export class SuscriptionService {
                 if (product && product.category.name === category.CAFES) {
                   const purchaseDate = new Date();
                   const expiryDate = new Date(purchaseDate);
-                  expiryDate.setDate(purchaseDate.getDate() + 7);
+                  expiryDate.setDate(purchaseDate.getDate() + 30);
                   product.purchaseDate = purchaseDate;
                   product.expiryDate = expiryDate;
                   product.status = statusExp.ACTIVATED;
 
                   const subscription = new SuscriptionPro();
+                  if (
+                    checkoutSessionCompleted.metadata.frecuency ===
+                    frecuency.WEEKLY
+                  ) {
+                    subscription.frecuency = frecuency.WEEKLY;
+                    expiryDate.setDate(purchaseDate.getDate() + 7);
+                    product.purchaseDate = purchaseDate;
+                    subscription.date_finish = expiryDate;
+                  }
                   subscription.createdAt = purchaseDate;
                   subscription.date_finish = expiryDate;
                   subscription.user = order.user;
-
-                  console.log(subscription, 'holaaaaaa');
                   //*Guardar suscripcion
                   try {
                     await this.dataSource.transaction(
@@ -227,13 +238,57 @@ export class SuscriptionService {
                           subscription,
                         );
                         console.log('Subscription guardada:', newSubscription);
-
+                        if (
+                          checkoutSessionCompleted.metadata.frecuency ===
+                          frecuency.MONTHLY
+                        ) {
+                          const purchaseDate = new Date();
+                          const expiryDate7Days = new Date(purchaseDate);
+                          expiryDate7Days.setDate(purchaseDate.getDate() + 7);
+                          const expiryDate14Days = new Date(purchaseDate);
+                          expiryDate14Days.setDate(purchaseDate.getDate() + 14);
+                          const expiryDate21Days = new Date(purchaseDate);
+                          expiryDate21Days.setDate(purchaseDate.getDate() + 21);
+                          const expiryDate28Days = new Date(purchaseDate);
+                          expiryDate28Days.setDate(purchaseDate.getDate() + 28);
+                          await manager.update(
+                            Order,
+                            { id: order.id },
+                            {
+                              anySubscription: newSubscription.id,
+                              date_7days: expiryDate7Days,
+                              date_14days: expiryDate14Days,
+                              date_21days: expiryDate21Days,
+                              date_28days: expiryDate28Days
+                            },
+                          );
+                        }
+                        if (
+                          checkoutSessionCompleted.metadata.frecuency ===
+                          frecuency.WEEKLY
+                        ) {
+                          const purchaseDate = new Date();
+                          const expiryDate2Days = new Date(purchaseDate);
+                          expiryDate2Days.setDate(purchaseDate.getDate() + 2);
+                          const expiryDate4Days = new Date(purchaseDate);
+                          expiryDate4Days.setDate(purchaseDate.getDate() + 4);
+                          const expiryDate6Days = new Date(purchaseDate);
+                          expiryDate6Days.setDate(purchaseDate.getDate() + 6);
+                          const expiryDate8Days = new Date(purchaseDate);
+                          expiryDate8Days.setDate(purchaseDate.getDate() + 8);
+                          await manager.update(
+                            Order,
+                            { id: order.id },
+                            {
+                              anySubscription: newSubscription.id,
+                              date_2days: expiryDate2Days,
+                              date_4days: expiryDate4Days,
+                              date_6days: expiryDate6Days,
+                              date_8days: expiryDate8Days,
+                            },
+                          );
+                        }
                         // Actualizar estado suscripción en order
-                        await manager.update(
-                          Order,
-                          { id: order.id },
-                          { anySubscription: newSubscription.id },
-                        );
 
                         // Guardar el detalle del producto del pedido
                         await manager.save(
@@ -261,14 +316,20 @@ export class SuscriptionService {
               { isUsed: true },
             );
           }
+
+          const orderLabel = new OrderLabel();
+          orderLabel.trackingNumber =
+            checkoutSessionCompleted.metadata.trackingNumber;
+          orderLabel.label = checkoutSessionCompleted.metadata.label;
+          orderLabel.order = order;
+          await this.orderLabelRepository.save(orderLabel);
+
           await this.orderRepository.update(
             {
               id: checkoutSessionCompleted.metadata.order,
             },
             {
               status: status.FINISHED,
-              trackingNumber: checkoutSessionCompleted.metadata.trackingNumber,
-              label: checkoutSessionCompleted.metadata.label,
             },
           );
 

@@ -8,6 +8,7 @@ import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { OrderDetail } from 'src/order/entities/orderDetail.entity';
+import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { OrderDetail } from 'src/order/entities/orderDetail.entity';
       Product,
       OrderDetail,
       OrderDetailProduct,
+      OrderLabel,
     ]),
   ],
   controllers: [PagosController],
