@@ -9,7 +9,9 @@ import {
   IsInt,
   Min,
   ValidateNested,
+  Validate,
 } from 'class-validator';
+import { PickedFlavorsConditional } from 'src/decorators/requireFlavor.decorator';
 
 export class FlavorOrderDTO {
   @IsUUID()
@@ -46,6 +48,13 @@ export class ProductOrder {
   })
   cantidad: number;
 
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Category of the product',
+    example: 'tabletas',
+  })
+  category: string;
+
   @IsArray()
   @ArrayNotEmpty()
   @ArrayMinSize(1)
@@ -59,8 +68,7 @@ export class ProductOrder {
   flavors: FlavorOrderDTO[];
 
   @IsArray()
-  @ArrayNotEmpty()
-  @ArrayMinSize(1)
+  @Validate(PickedFlavorsConditional)
   @ApiProperty({
     description: 'Array of picked flavor IDs',
     example:

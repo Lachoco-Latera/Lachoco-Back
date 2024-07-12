@@ -89,18 +89,23 @@ export class UserService {
       role: [emailUser.role],
     };
 
-    const suscription = await stripe.subscriptions.retrieve(
-      emailUser.suscriptionId,
-    );
+    //   let subscription;
 
-    const sendSuscription = {
-      start: suscription.current_period_start,
-      end: suscription.current_period_end,
-      plan: suscription.items.data[0].plan.nickname,
-    };
+    //   if (emailUser.suscriptionId === null) {
+    //     subscription = null;
+    //   } else {
+    //     subscription = await stripe.subscriptions.retrieve(
+    //       emailUser.suscriptionId,
+    //     );
+    //   }
+    // const sendSubscription = {
+    //   start: subscription?.current_period_start || null,
+    //   end: subscription?.current_period_end || null,
+    //   plan: subscription?.items.data[0]?.plan?.nickname || null,
+    //   };
 
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token, sendSuscription };
+    return { success: 'Login Success', token };
   }
 
   async findAll(pagination?: PaginationQuery) {

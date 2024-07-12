@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseUUIDPipe,
@@ -11,8 +10,7 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { DeleteOrderDto } from './dto/delete-order.dto';
+
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 

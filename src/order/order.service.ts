@@ -61,7 +61,7 @@ export class OrderService {
           productInfo.cantidad = product.cantidad;
           total += Number(findProduct.price * product.cantidad);
 
-          const filterFlavors = product.flavors.map((pf) =>
+          const filterFlavors = product.flavors?.map((pf) =>
             flavors.find((f) => f.id === pf.flavorId),
           );
 
