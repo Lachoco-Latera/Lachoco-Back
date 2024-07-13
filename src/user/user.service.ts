@@ -69,6 +69,7 @@ export class UserService {
 
     const emailUser = await this.userRepository.findOne({
       where: { email: login.email },
+      relations: { suscriptionPro: true },
     });
 
     if (!emailUser) {
@@ -89,18 +90,27 @@ export class UserService {
       role: [emailUser.role],
     };
 
-    const suscription = await stripe.subscriptions.retrieve(
-      emailUser.suscriptionId,
-    );
+    //   let subscription;
 
-    const sendSuscription = {
-      start: suscription.current_period_start,
-      end: suscription.current_period_end,
-      plan: suscription.items.data[0].plan.nickname,
-    };
+    //   if (emailUser.suscriptionId === null) {
+    //     subscription = null;
+    //   } else {
+    //     subscription = await stripe.subscriptions.retrieve(
+    //       emailUser.suscriptionId,
+    //     );
+    //   }
+    // const sendSubscription = {
+    //   start: subscription?.current_period_start || null,
+    //   end: subscription?.current_period_end || null,
+    //   plan: subscription?.items.data[0]?.plan?.nickname || null,
+    //   };
 
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token, sendSuscription };
+    return {
+      success: 'Login Success',
+      token,
+      subscription: emailUser.suscriptionPro,
+    };
   }
 
   async findAll(pagination?: PaginationQuery) {
@@ -111,7 +121,12 @@ export class UserService {
     const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
-      relations: { orders: true, address: true, giftcards: { product: true } },
+      relations: {
+        orders: true,
+        address: true,
+        giftcards: { product: true },
+        suscriptionPro: true,
+      },
     });
 
     const usersNotPassword = users.map((user) => {
@@ -147,6 +162,18 @@ export class UserService {
     });
     return `User ${id} change to admin`;
   }
+
+  async createClient(id) {
+    //const prueba = Object.values(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException('user not found');
+
+    await this.userRepository.update(user.id, {
+      role: Role.CLIENT,
+    });
+    return `User ${id} change to client`;
+  }
+
   async inactiveUser(id: string) {
     const user = await this.userRepository.findOneBy({ id: id });
     if (!user) throw new NotFoundException('user not found');

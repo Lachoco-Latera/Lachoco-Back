@@ -7,10 +7,15 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryName } from './dto/category.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Roles } from 'src/decorators/userRole.decorator';
+import { Role } from 'src/user/entities/user.entity';
+import { GuardToken } from 'src/guards/token.guard';
+import { GuardRoles } from 'src/guards/role.guard';
 
 @Controller('category')
 @ApiTags('category')
@@ -23,11 +28,15 @@ export class CategoryController {
   }
 
   @Post()
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   addCategory(@Body() nameCategory: CategoryName) {
     return this.categoryService.createCategory(nameCategory.name);
   }
 
   @Put(':id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   updateCategory(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateData: { icon: string },
@@ -36,6 +45,8 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoryService.deleteCategory(id);
   }

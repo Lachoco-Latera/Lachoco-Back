@@ -3,18 +3,21 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   ParseUUIDPipe,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
-import { DeleteOrderDto } from './dto/delete-order.dto';
+
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationQuery } from 'src/dto/pagination.dto';
+import { GuardRoles } from 'src/guards/role.guard';
+import { GuardToken } from 'src/guards/token.guard';
+import { Role } from 'src/user/entities/user.entity';
+import { Roles } from 'src/decorators/userRole.decorator';
 
 @Controller('orders')
 @ApiTags('orders')
@@ -37,6 +40,8 @@ export class OrderController {
   }
 
   @Get('/finished/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   orderFinishedByUser(@Param('id', ParseUUIDPipe) userId: string) {
     return this.orderService.ordersFinishedByUser(userId);
   }
@@ -46,17 +51,19 @@ export class OrderController {
     return this.orderService.confirmOrder(id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.orderService.findOne(id);
-  }
-
-  @Put(':id')
+  @Put('/cancel/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   cancelOrder(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() cancelByUserId: string,
   ) {
     return this.orderService.cancelOrder(id, cancelByUserId);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.orderService.findOne(id);
   }
 
   @Delete(':id')
