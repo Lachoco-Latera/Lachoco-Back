@@ -20,6 +20,7 @@ import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetail } from 'src/order/entities/orderDetail.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
+import { Console } from 'console';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -118,7 +119,7 @@ export class PagosService {
         },
         0,
       );
-
+      console.log(order.totalPrice);
       try {
         const res = await preference.create({
           body: {
@@ -138,7 +139,7 @@ export class PagosService {
             back_urls: {
               success: 'https://lachocoback.vercel.app/pagos/success',
               failure: 'https://lachocoback.vercel.app/pagos/failure',
-              pending: 'https://lachocoback.vercel.apppagos/pending',
+              pending: 'https://lachocoback.vercel.app/pagos/pending',
             },
             items: [
               {
@@ -243,6 +244,7 @@ export class PagosService {
 
   //*mp webhook
   async receiveWebhook(query: any) {
+    console.log(query);
     const payment = query;
     const searchPayment = new Payment(client);
     const searchMercharOrder = new MerchantOrder(client);
@@ -283,11 +285,10 @@ export class PagosService {
         }
 
         const orderLabel = new OrderLabel();
-        orderLabel.trackingNumber = data.metadata.trackingNumber;
+        orderLabel.trackingNumber = data.metadata.tracking_number;
         orderLabel.label = data.metadata.label;
         orderLabel.order = orderById;
         await this.orderLabelRepository.save(orderLabel);
-
         await this.orderRepository.update(
           {
             id: orderById.id,
@@ -296,14 +297,13 @@ export class PagosService {
             status: status.FINISHED,
           },
         );
-
         const template = bodyPagoMP(
           orderById.user.email, //*email
           'Compra Exitosa',
           orderById.user, //*user
           payments,
           orderById, //*order
-          data.metadata.priceShipment,
+          data.metadata.price_shipment,
         );
 
         const mail = {
