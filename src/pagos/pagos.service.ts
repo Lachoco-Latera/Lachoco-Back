@@ -104,22 +104,23 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
+    console.log(typeof Number(orderById.orderDetail.price));
     if (order.country === 'COL') {
       const preference = new Preference(client);
 
-      totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
-        id: p.id,
-        title: p.product.category.name,
-        quantity: p.cantidad,
-        unit_price: Number(p.product.price),
-      }));
-      const totalPriceProducts = totalProducts.reduce(
-        (accumulator, currentProduct) => {
-          return accumulator + Number(currentProduct.unit_price);
-        },
-        0,
-      );
-      console.log(order.totalPrice);
+      // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
+      //   id: p.id,
+      //   title: p.product.category.name,
+      //   quantity: p.cantidad,
+      //   unit_price: Number(p.product.price),
+      // }));
+      // const totalPriceProducts = totalProducts.reduce(
+      //   (accumulator, currentProduct) => {
+      //     return accumulator + Number(currentProduct.unit_price);
+      //   },
+      //   0,
+      // );
+      // console.log(order.totalPrice);
       try {
         const res = await preference.create({
           body: {
@@ -147,7 +148,9 @@ export class PagosService {
                 title: 'Productos',
                 quantity: 1,
                 unit_price:
-                  totalPriceProducts - discount + Number(order.totalPrice),
+                  Number(orderById.orderDetail.price) -
+                  discount +
+                  Number(order.totalPrice),
               },
             ],
             notification_url: 'https://lachocoback.vercel.app/pagos/webhook',
@@ -168,26 +171,26 @@ export class PagosService {
           })
           .then((customer) => customer.id);
       }
-      totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
-        price_data: {
-          product_data: {
-            name: p.product.category.name,
-            description: p.product.description,
-          },
-          currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
-          unit_amount: Number(p.product.price) * p.cantidad,
-        },
-        quantity: p.cantidad,
-      }));
+      // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
+      //   price_data: {
+      //     product_data: {
+      //       name: p.product.category.name,
+      //       description: p.product.description,
+      //     },
+      //     currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
+      //     unit_amount: Number(p.product.price) * p.cantidad,
+      //   },
+      //   quantity: p.cantidad,
+      // }));
 
-      const totalPriceProducts = totalProducts.reduce(
-        (accumulator, currentProduct) => {
-          return (
-            Number(accumulator) + Number(currentProduct.price_data.unit_amount)
-          );
-        },
-        0,
-      );
+      // const totalPriceProducts = totalProducts.reduce(
+      //   (accumulator, currentProduct) => {
+      //     return (
+      //       Number(accumulator) + Number(currentProduct.price_data.unit_amount)
+      //     );
+      //   },
+      //   0,
+      // );
 
       const session = await stripe.checkout.sessions.create({
         customer: customer,
@@ -199,7 +202,9 @@ export class PagosService {
                 description: 'Productos',
               },
               currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
-              unit_amount: Number(totalPriceProducts * 100 - discount * 100),
+              unit_amount:
+                Number(orderById.orderDetail.price) * 100 -
+                Number(discount) * 100,
             },
             quantity: 1,
           },
