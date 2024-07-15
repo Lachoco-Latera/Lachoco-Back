@@ -240,33 +240,11 @@ export class PagosService {
   }
 
   async success() {
-    return `
-      <html>
-        <body>
-          <h1>Pago realizado! Ya puedes cerrar esto</h1>
-          <script>
-            setTimeout(() => {
-              window.close();
-            }, 3000); // Cierra la ventana después de 3 segundos
-          </script>
-        </body>
-      </html>
-    `;
+    return 'success';
   }
 
   async cancel() {
-    return `
-      <html>
-        <body>
-          <h1>Pago cancelado, se volvera a la página:</h1>
-          <script>
-            setTimeout(() => {
-              window.location.href = 'https://lachoco-front.vercel.app';
-            }, 3000); // Redirige a la página después de 3 segundos
-          </script>
-        </body>
-      </html>
-    `;
+    return 'cancel';
   }
 
   //*mp webhook
