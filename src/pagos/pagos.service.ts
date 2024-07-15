@@ -2,6 +2,9 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Controller,
+  Get,
+  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order, status } from 'src/order/entities/order.entity';
@@ -240,11 +243,33 @@ export class PagosService {
   }
 
   async success() {
-    return 'success';
+    return `
+      <html>
+        <body>
+          <h1>Pago realizado! Ya puedes cerrar esto</h1>
+          <script>
+            setTimeout(() => {
+              window.close();
+            }, 3000); // Cierra la ventana después de 3 segundos
+          </script>
+        </body>
+      </html>
+    `;
   }
 
   async cancel() {
-    return 'cancel';
+    return `
+      <html>
+        <body>
+          <h1>Pago cancelado, se volvera a la página:</h1>
+          <script>
+            setTimeout(() => {
+              window.location.href = 'https://lachoco-front.vercel.app';
+            }, 3000); // Redirige a la página después de 3 segundos
+          </script>
+        </body>
+      </html>
+    `;
   }
 
   //*mp webhook
