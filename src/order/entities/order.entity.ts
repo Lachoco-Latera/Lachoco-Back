@@ -81,4 +81,7 @@ export class Order {
   })
   @JoinColumn({ name: 'orderLabels_id' })
   labels: OrderLabel[];
+
+  @Column({ type: 'text', nullable: true })
+  additionalInfo: string;
 }

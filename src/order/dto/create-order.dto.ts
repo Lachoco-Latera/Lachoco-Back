@@ -10,6 +10,8 @@ import {
   Min,
   ValidateNested,
   Validate,
+  IsString,
+  IsOptional,
 } from 'class-validator';
 import { PickedFlavorsConditional } from 'src/decorators/requireFlavor.decorator';
 
@@ -96,4 +98,8 @@ export class CreateOrderDto {
     example: '[{"id":"887a8887-598b-4240-a7da-4c751a9ab2d3", "cantidad":3}]',
   })
   products: ProductOrder[];
+
+  @IsString()
+  @IsOptional()
+  additionalInfo?: string;
 }
