@@ -2,9 +2,6 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  Controller,
-  Get,
-  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order, status } from 'src/order/entities/order.entity';
