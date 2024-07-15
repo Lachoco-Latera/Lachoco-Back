@@ -401,8 +401,8 @@ export const bodyPagoMP = (
         `<li>
       <h3>${p.product.category.name}</h3>
       <p>Presentacion${p.product.presentacion}</p>
-      <p>${p.cantidad}</p>
-      <p>${p.product.price}</p>
+      <p>Cantidad:${p.cantidad}</p>
+      <p>Precio:${p.product.price}</p>
       </li>`,
     )}
     </ul>
