@@ -89,6 +89,7 @@ export class OrderService {
     const order = {
       date: new Date(),
       user: user,
+      additionalInfo: createOrderDto.additionalInfo,
     };
 
     const newOrder = await this.orderRepository.save(order);
