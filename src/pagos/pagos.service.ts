@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order, status } from 'src/order/entities/order.entity';
 import { Stripe } from 'stripe';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import {
   MercadoPagoConfig,
   MerchantOrder,
@@ -17,16 +17,25 @@ import { EmailService } from 'src/email/email.service';
 import { bodyPagoMP } from 'src/user/emailBody/bodyPagoMP';
 import { checkoutOrder } from './dto/checkout.dto';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
-import { Product } from 'src/product/entities/product.entity';
+import { Product, statusExp } from 'src/product/entities/product.entity';
 import { OrderDetail } from 'src/order/entities/orderDetail.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
-import { Console } from 'console';
+import { Address } from 'src/order/entities/address.entity';
+import { category } from 'src/category/entity/category.entity';
+import {
+  frecuency,
+  SuscriptionPro,
+} from 'src/suscription/entity/suscription.entity';
+import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 @Injectable()
 export class PagosService {
   constructor(
+    private dataSource: DataSource,
+    @InjectRepository(SuscriptionPro)
+    private suscriptionProRepository: Repository<SuscriptionPro>,
     @InjectRepository(Order) private orderRepository: Repository<Order>,
     @InjectRepository(Order)
     private orderDetailRepository: Repository<OrderDetail>,
@@ -36,11 +45,12 @@ export class PagosService {
     private giftCardRepository: Repository<GiftCard>,
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+    @InjectRepository(Address)
+    private addressRepository: Repository<Address>,
     private emailService: EmailService,
   ) {}
 
   async checkoutSession(order: checkoutOrder) {
-    let totalProducts;
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
       where: { id: order.orderId },
@@ -53,6 +63,7 @@ export class PagosService {
         },
         user: { giftcards: true },
         giftCard: true,
+        address: true,
       },
     });
 
@@ -97,6 +108,7 @@ export class PagosService {
               user: { giftcards: true },
               giftCard: true,
               labels: true,
+              address: true,
             },
           });
           orderById = updateOrder;
@@ -104,7 +116,6 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    console.log(typeof Number(orderById.orderDetail.price));
     if (order.country === 'COL') {
       const preference = new Preference(client);
 
@@ -132,9 +143,9 @@ export class PagosService {
             statement_descriptor: 'Chocolatera',
             metadata: {
               order: orderById,
-              label: order.label,
-              trackingNumber: order.trackingNumber,
-              priceShipment: order.totalPrice,
+              // label: order.label,
+              //  trackingNumber: order.trackingNumber,
+              // priceShipment: order.totalPrice,
               frecuency: order.frecuency,
             },
             back_urls: {
@@ -147,15 +158,23 @@ export class PagosService {
                 id: orderById.id,
                 title: 'Productos',
                 quantity: 1,
-                unit_price:
-                  Number(orderById.orderDetail.price) -
-                  discount +
-                  Number(order.totalPrice),
+                unit_price: Number(orderById.orderDetail.price) - discount,
               },
             ],
             notification_url: 'https://lachocoback.vercel.app/pagos/webhook',
           },
         });
+        const addAddress = new Address();
+        addAddress.city = order.city;
+        addAddress.country = order.shipmentCountry;
+        addAddress.street = order.street;
+        addAddress.state = order.state;
+        addAddress.number = order.number;
+        addAddress.postalCode = order.postalCode;
+        addAddress.phone = order.phone;
+        addAddress.order = orderById;
+
+        await this.addressRepository.save(addAddress);
         return res.init_point;
       } catch (error) {
         console.log(error);
@@ -208,25 +227,14 @@ export class PagosService {
             },
             quantity: 1,
           },
-          {
-            price_data: {
-              product_data: {
-                name: 'Envio',
-                description: 'Envio',
-              },
-              currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
-              unit_amount: Number(order.totalPrice) * 100,
-            },
-            quantity: 1,
-          },
         ],
         invoice_creation: { enabled: true },
         metadata: {
           order: orderById.id,
           user: orderById.user.id,
-          label: order.label,
-          trackingNumber: order.trackingNumber,
-          priceShipment: order.totalPrice,
+          // label: order.label,
+          //trackingNumber: order.trackingNumber,
+          //priceShipment: order.totalPrice,
           frecuency: order.frecuency,
         },
         mode: 'payment',
@@ -234,6 +242,18 @@ export class PagosService {
         success_url: 'https://lachocoback.vercel.app/pagos/success',
         cancel_url: 'https://lachocoback.vercel.app/pagos/cancel',
       });
+
+      const addAddress = new Address();
+      addAddress.city = order.city;
+      addAddress.country = order.shipmentCountry;
+      addAddress.street = order.street;
+      addAddress.state = order.state;
+      addAddress.number = order.number;
+      addAddress.postalCode = order.postalCode;
+      addAddress.phone = order.phone;
+      addAddress.order = orderById;
+
+      await this.addressRepository.save(addAddress);
 
       return { url: session.url };
     }
@@ -303,6 +323,105 @@ export class PagosService {
         if (orderById.orderDetail.orderDetailProducts.length === 0)
           throw new BadRequestException('Order without products');
 
+        if (orderById) {
+          const { orderDetail } = orderById;
+          if (orderDetail && orderDetail.orderDetailProducts) {
+            for (const orderDetailProduct of orderDetail.orderDetailProducts) {
+              const { product } = orderDetailProduct;
+              if (product && product.category.name === category.CAFES) {
+                const purchaseDate = new Date();
+                const expiryDate = new Date(purchaseDate);
+                expiryDate.setDate(purchaseDate.getDate() + 30);
+                product.purchaseDate = purchaseDate;
+                product.expiryDate = expiryDate;
+                product.status = statusExp.ACTIVATED;
+
+                const subscription = new SuscriptionPro();
+                if (data.metadata.frecuency === frecuency.WEEKLY) {
+                  subscription.frecuency = frecuency.WEEKLY;
+                  expiryDate.setDate(purchaseDate.getDate() + 7);
+                  product.purchaseDate = purchaseDate;
+                  subscription.date_finish = expiryDate;
+                }
+                subscription.createdAt = purchaseDate;
+                subscription.date_finish = expiryDate;
+                subscription.user = orderById.user;
+                //*Guardar suscripcion
+                try {
+                  await this.dataSource.transaction(
+                    async (manager: EntityManager) => {
+                      // Guardar la suscripción
+                      const newSubscription = await manager.save(
+                        SuscriptionPro,
+                        subscription,
+                      );
+                      console.log('Subscription guardada:', newSubscription);
+                      if (data.metadata.frecuency === frecuency.MONTHLY) {
+                        const purchaseDate = new Date();
+                        const expiryDate7Days = new Date(purchaseDate);
+                        expiryDate7Days.setDate(purchaseDate.getDate() + 7);
+                        const expiryDate14Days = new Date(purchaseDate);
+                        expiryDate14Days.setDate(purchaseDate.getDate() + 14);
+                        const expiryDate21Days = new Date(purchaseDate);
+                        expiryDate21Days.setDate(purchaseDate.getDate() + 21);
+                        const expiryDate28Days = new Date(purchaseDate);
+                        expiryDate28Days.setDate(purchaseDate.getDate() + 28);
+                        await manager.update(
+                          Order,
+                          { id: orderById.id },
+                          {
+                            anySubscription: newSubscription.id,
+                            date_7days: expiryDate7Days,
+                            date_14days: expiryDate14Days,
+                            date_21days: expiryDate21Days,
+                            date_28days: expiryDate28Days,
+                          },
+                        );
+                      }
+                      if (data.metadata.frecuency === frecuency.WEEKLY) {
+                        const purchaseDate = new Date();
+                        const expiryDate2Days = new Date(purchaseDate);
+                        expiryDate2Days.setDate(purchaseDate.getDate() + 2);
+                        const expiryDate4Days = new Date(purchaseDate);
+                        expiryDate4Days.setDate(purchaseDate.getDate() + 4);
+                        const expiryDate6Days = new Date(purchaseDate);
+                        expiryDate6Days.setDate(purchaseDate.getDate() + 6);
+                        const expiryDate8Days = new Date(purchaseDate);
+                        expiryDate8Days.setDate(purchaseDate.getDate() + 8);
+                        await manager.update(
+                          Order,
+                          { id: orderById.id },
+                          {
+                            anySubscription: newSubscription.id,
+                            date_2days: expiryDate2Days,
+                            date_4days: expiryDate4Days,
+                            date_6days: expiryDate6Days,
+                            date_8days: expiryDate8Days,
+                          },
+                        );
+                      }
+                      // Actualizar estado suscripción en order
+
+                      // Guardar el detalle del producto del pedido
+                      await manager.save(
+                        OrderDetailProduct,
+                        orderDetailProduct,
+                      );
+
+                      console.log(
+                        'Operaciones después de guardar la suscripción completadas',
+                      );
+                    },
+                  );
+                } catch (error) {
+                  console.error('Error al guardar la suscripción:', error);
+                  // Manejar el error según sea necesario
+                }
+              }
+            }
+          }
+        }
+
         //*Encaso de que tenga cupo actualizar a usado
         if (orderById.giftCard !== null) {
           await this.giftCardRepository.update(
@@ -311,11 +430,11 @@ export class PagosService {
           );
         }
 
-        const orderLabel = new OrderLabel();
-        orderLabel.trackingNumber = data.metadata.tracking_number;
-        orderLabel.label = data.metadata.label;
-        orderLabel.order = orderById;
-        await this.orderLabelRepository.save(orderLabel);
+        // const orderLabel = new OrderLabel();
+        // orderLabel.trackingNumber = data.metadata.tracking_number;
+        // orderLabel.label = data.metadata.label;
+        // orderLabel.order = orderById;
+        // await this.orderLabelRepository.save(orderLabel);
         await this.orderRepository.update(
           {
             id: orderById.id,
@@ -330,7 +449,7 @@ export class PagosService {
           orderById.user, //*user
           payments,
           orderById, //*order
-          data.metadata.price_shipment,
+          // data.metadata.price_shipment,
         );
 
         const mail = {

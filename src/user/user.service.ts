@@ -123,7 +123,6 @@ export class UserService {
     const users = await this.userRepository.find({
       relations: {
         orders: true,
-        address: true,
         giftcards: { product: true },
         suscriptionPro: true,
       },

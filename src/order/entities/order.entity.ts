@@ -12,6 +12,7 @@ import { v4 as uuid } from 'uuid';
 import { OrderDetail } from './orderDetail.entity';
 import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { OrderLabel } from './label.entity';
+import { Address } from './address.entity';
 
 export enum status {
   PENDING = 'PENDING',
@@ -84,4 +85,8 @@ export class Order {
 
   @Column({ type: 'text', nullable: true })
   additionalInfo: string;
+
+  @OneToOne(() => Address, (address) => address.order)
+  @JoinColumn({ name: 'address_id' })
+  address: Address;
 }

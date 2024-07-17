@@ -238,7 +238,7 @@ export class ProductService {
     for (const susbcriptions of expiredSusbcriptions) {
       const user = await this.userRepository.findOne({
         where: { id: susbcriptions.user.id },
-        relations: { orders: true, suscriptionPro: true, address: true },
+        relations: { orders: true, suscriptionPro: true },
       });
       await this.suscriptionProRepository.update(
         { id: susbcriptions.id },
@@ -262,8 +262,7 @@ export class ProductService {
     const users = await this.userRepository.find({
       relations: {
         suscriptionPro: true,
-        address: true,
-        orders: { labels: true },
+        orders: true,
       },
     });
     const frecuencyUsers = users
@@ -288,33 +287,23 @@ export class ProductService {
           date28_days === currentDate
         ) {
           if (order && order.labels.length < 5) {
-            const dateShipments: UpdateShipmentDto = {
+            const dateShipments = {
               user: {
                 name: user.name,
                 email: user.email,
-                phone: user.address.phone,
-                street: user.address.street,
-                number: user.address.number,
-                city: user.address.city,
-                state: user.address.state,
-                country: user.address.country,
-                postalCode: user.address.postalCode,
               },
-              carrier: user.address.carrier,
-              country: user.address.carrierCountry,
-              carrierService: user.address.carrierService,
             };
 
-            const newlabel =
-              await this.shipmentsService.createlable(dateShipments);
-            const parseLabel = JSON.parse(newlabel);
-            const { label, trackingNumber } = parseLabel.data[0];
+            // const newlabel =
+            //await this.shipmentsService.createlable(dateShipments);
+            // const parseLabel = JSON.parse(newlabel);
+            // const { label, trackingNumber } = parseLabel.data[0];
 
-            const saveLabel = new OrderLabel();
-            saveLabel.label = label;
-            saveLabel.trackingNumber = trackingNumber;
-            saveLabel.order = order;
-            await this.orderLabelRepository.save(saveLabel);
+            // const saveLabel = new OrderLabel();
+            // saveLabel.label = label;
+            // saveLabel.trackingNumber = trackingNumber;
+            // saveLabel.order = order;
+            // await this.orderLabelRepository.save(saveLabel);
           }
         }
       }
@@ -327,7 +316,6 @@ export class ProductService {
     const users = await this.userRepository.find({
       relations: {
         suscriptionPro: true,
-        address: true,
         orders: { labels: true },
       },
     });
@@ -352,33 +340,23 @@ export class ProductService {
           date8_days === currentDate
         ) {
           if (order && order.labels.length < 5) {
-            const dateShipments: UpdateShipmentDto = {
+            const dateShipments = {
               user: {
                 name: user.name,
                 email: user.email,
-                phone: user.address.phone,
-                street: user.address.street,
-                number: user.address.number,
-                city: user.address.city,
-                state: user.address.state,
-                country: user.address.country,
-                postalCode: user.address.postalCode,
               },
-              carrier: user.address.carrier,
-              country: user.address.carrierCountry,
-              carrierService: user.address.carrierService,
             };
 
-            const newlabel =
-              await this.shipmentsService.createlable(dateShipments);
-            const parseLabel = JSON.parse(newlabel);
-            const { label, trackingNumber } = parseLabel.data[0];
+            // const newlabel =
+            //  // await this.shipmentsService.createlable(dateShipments);
+            // const parseLabel = JSON.parse(newlabel);
+            // const { label, trackingNumber } = parseLabel.data[0];
 
-            const saveLabel = new OrderLabel();
-            saveLabel.label = label;
-            saveLabel.trackingNumber = trackingNumber;
-            saveLabel.order = order;
-            await this.orderLabelRepository.save(saveLabel);
+            // const saveLabel = new OrderLabel();
+            // saveLabel.label = label;
+            // saveLabel.trackingNumber = trackingNumber;
+            // saveLabel.order = order;
+            // await this.orderLabelRepository.save(saveLabel);
           }
         }
       }

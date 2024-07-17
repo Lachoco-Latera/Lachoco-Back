@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
-import { User } from './user.entity';
+import { Order } from './order.entity';
 
 @Entity({ name: 'addresses' })
 export class Address {
@@ -15,9 +15,6 @@ export class Address {
   @Column({ type: 'varchar', length: 10 })
   number: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  district: string;
-
   @Column({ type: 'varchar', length: 100 })
   city: string;
 
@@ -30,15 +27,6 @@ export class Address {
   @Column({ type: 'varchar', length: 10 })
   postalCode: string;
 
-  @OneToOne(() => User, (user) => user.address)
-  user: User;
-
-  @Column({ type: 'varchar', length: 100 })
-  carrierCountry: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  carrier: string;
-
-  @Column({ type: 'varchar', length: 100 })
-  carrierService: string;
+  @OneToOne(() => Order, (order) => order.address)
+  order: Order;
 }

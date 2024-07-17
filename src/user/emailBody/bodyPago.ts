@@ -6,7 +6,6 @@ export const bodypago = (
   user: User,
   invoice: string,
   order: any,
-  priceShipment,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -405,7 +404,7 @@ export const bodypago = (
       </li>`,
     )}
     </ul>
-    <p>Total ${Number(order.orderDetail.price) + Number(priceShipment)}$</p>
+    <p>Total ${Number(order.orderDetail.price)}$</p>
 
     ${order.giftCard && order.giftCard.code ? `<p> Obtuvo gracias a su cupon ${order.giftCard.code}</p>` : ''}
     

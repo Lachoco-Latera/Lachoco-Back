@@ -12,6 +12,7 @@ import {
   Validate,
   IsString,
   IsOptional,
+  Length,
 } from 'class-validator';
 import { PickedFlavorsConditional } from 'src/decorators/requireFlavor.decorator';
 
