@@ -9,6 +9,8 @@ import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { OrderDetail } from 'src/order/entities/orderDetail.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
+import { Address } from 'src/order/entities/address.entity';
+import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { OrderLabel } from 'src/order/entities/label.entity';
       OrderDetail,
       OrderDetailProduct,
       OrderLabel,
+      Address,
+      SuscriptionPro,
     ]),
   ],
   controllers: [PagosController],

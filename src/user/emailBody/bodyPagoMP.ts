@@ -6,7 +6,6 @@ export const bodyPagoMP = (
   user: User,
   payments: any,
   order: any,
-  priceShipment,
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -406,7 +405,7 @@ export const bodyPagoMP = (
       </li>`,
     )}
     </ul>
-    <p>Total ${Number(order.orderDetail.price) + Number(priceShipment)}$</p>
+    <p>Total ${Number(order.orderDetail.price)}$</p>
     
 
     <p>Tu pago fue ${payments[0].status}

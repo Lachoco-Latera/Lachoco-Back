@@ -7,14 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Order } from 'src/order/entities/order.entity';
-import { Address } from 'src/user/entities/address.entity';
 
 @Injectable()
 export class ShipmentsService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Order) private orderRespository: Repository<Order>,
-    @InjectRepository(Address) private addressRespository: Repository<Address>,
   ) {}
   async carriesByCountry(country: string) {
     const config = {
@@ -282,20 +280,20 @@ export class ShipmentsService {
       data: data,
     };
 
-    const userAddress = new Address();
-    userAddress.city = createShipmentDto.user.city;
-    userAddress.street = createShipmentDto.user.street;
-    userAddress.number = createShipmentDto.user.number;
-    userAddress.state = createShipmentDto.user.state;
-    userAddress.country = createShipmentDto.user.country;
-    userAddress.postalCode = createShipmentDto.user.postalCode;
-    userAddress.phone = createShipmentDto.user.phone;
-    userAddress.carrier = createShipmentDto.carrier;
-    userAddress.carrierService = createShipmentDto.carrierService;
-    userAddress.carrierCountry = createShipmentDto.country;
-    userAddress.user = user;
+    // const userAddress = new Address();
+    // userAddress.city = createShipmentDto.user.city;
+    // userAddress.street = createShipmentDto.user.street;
+    // userAddress.number = createShipmentDto.user.number;
+    // userAddress.state = createShipmentDto.user.state;
+    // userAddress.country = createShipmentDto.user.country;
+    // userAddress.postalCode = createShipmentDto.user.postalCode;
+    // userAddress.phone = createShipmentDto.user.phone;
+    // userAddress.carrier = createShipmentDto.carrier;
+    // userAddress.carrierService = createShipmentDto.carrierService;
+    // userAddress.carrierCountry = createShipmentDto.country;
+    // userAddress.user = user;
 
-    await this.addressRespository.save(userAddress);
+    // await this.addressRespository.save(userAddress);
 
     return axios(config)
       .then(function (response) {
