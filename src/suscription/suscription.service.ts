@@ -24,8 +24,8 @@ import { bodySuscription } from 'src/user/emailBody/bodysuscripcion';
 import { User } from 'src/user/entities/user.entity';
 import { Stripe } from 'stripe';
 import { DataSource, Repository } from 'typeorm';
-import { frecuency, SuscriptionPro } from './entity/suscription.entity';
 import { EntityManager } from 'typeorm';
+import { frecuency, SuscriptionPro } from './entity/suscription.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
 
 @Injectable()
@@ -259,7 +259,7 @@ export class SuscriptionService {
                               date_7days: expiryDate7Days,
                               date_14days: expiryDate14Days,
                               date_21days: expiryDate21Days,
-                              date_28days: expiryDate28Days
+                              date_28days: expiryDate28Days,
                             },
                           );
                         }
@@ -317,12 +317,12 @@ export class SuscriptionService {
             );
           }
 
-          const orderLabel = new OrderLabel();
-          orderLabel.trackingNumber =
-            checkoutSessionCompleted.metadata.trackingNumber;
-          orderLabel.label = checkoutSessionCompleted.metadata.label;
-          orderLabel.order = order;
-          await this.orderLabelRepository.save(orderLabel);
+          // const orderLabel = new OrderLabel();
+          // orderLabel.trackingNumber =
+          //   checkoutSessionCompleted.metadata.trackingNumber;
+          // orderLabel.label = checkoutSessionCompleted.metadata.label;
+          // orderLabel.order = order;
+          // await this.orderLabelRepository.save(orderLabel);
 
           await this.orderRepository.update(
             {
@@ -339,7 +339,7 @@ export class SuscriptionService {
             userEmail,
             invoice.hosted_invoice_url,
             order,
-            checkoutSessionCompleted.metadata.priceShipment,
+            //checkoutSessionCompleted.metadata.priceShipment,
           );
 
           const mail = {
