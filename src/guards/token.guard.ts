@@ -20,7 +20,7 @@ export class GuardToken implements CanActivate {
     if (!token) throw new UnauthorizedException('bearer token is required');
 
     try {
-      const secret = process.env.SECRET_KEY;
+      const secret = process.env.JWT_SECRET;
 
       const payload = this.jwtService.verify(token, { secret });
       payload.iat = new Date(payload.iat * 1000);
