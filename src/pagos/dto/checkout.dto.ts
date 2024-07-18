@@ -14,7 +14,7 @@ export class checkoutOrder {
 
   @IsUUID()
   @IsOptional()
-  giftCardId: string;
+  giftCardId?: string;
 
   @IsNotEmpty()
   @IsString()
