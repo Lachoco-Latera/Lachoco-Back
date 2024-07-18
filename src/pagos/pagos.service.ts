@@ -28,6 +28,8 @@ import {
 } from 'src/suscription/entity/suscription.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
 import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
+import { transporter } from 'src/utils/transportNodemailer';
+import { bodypagoMP2 } from 'src/user/emailBody/bodyPagoMP2';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -150,9 +152,9 @@ export class PagosService {
               frecuency: order.frecuency,
             },
             back_urls: {
-              success: 'https://lachoco-latera.com/pagos/success',
-              failure: 'https://lachoco-latera.com/pagos/failure',
-              pending: 'https://lachoco-latera.com/pagos/pending',
+              success: 'https://lachoco-latera.com/success',
+              failure: 'https://lachoco-latera.com/failure',
+              pending: 'https://lachoco-latera.com/pending',
             },
             items: [
               {
@@ -240,8 +242,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'https://lachoco-latera.com/pagos/success',
-        cancel_url: 'https://lachoco-latera.com/pagos/cancel',
+        success_url: 'https://lachoco-latera.com/success',
+        cancel_url: 'https://lachoco-latera.com/cancel',
       });
 
       const addAddress = new Address();
@@ -444,7 +446,8 @@ export class PagosService {
             status: status.FINISHED,
           },
         );
-        const template = bodyPagoMP(
+
+        const template = bodypagoMP2(
           orderById.user.email, //*email
           'Compra Exitosa',
           orderById.user, //*user
@@ -453,28 +456,45 @@ export class PagosService {
           // data.metadata.price_shipment,
         );
 
-        const mail = {
-          to: orderById.user.email,
-          subject: 'Compra Exitosa',
-          text: 'Compra Exitosa',
-          template: template,
-        };
-        await this.emailService.sendPostulation(mail);
+        const info = await transporter.sendMail({
+          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+          to: orderById.user.email, // list of receivers
+          subject: 'Compra Exitosa', // Subject line
+          text: 'Gracias por su Compra', // plain text body
+          html: template, // html body
+        });
+        console.log('Message sent: %s', info.messageId);
+        // const mail = {
+        //   to: orderById.user.email,
+        //   subject: 'Compra Exitosa',
+        //   text: 'Compra Exitosa',
+        //   template: template,
+        // };
+        // await this.emailService.sendPostulation(mail);
 
         const template2 = bodyOrderAdmin(
-          'ventas@lachoco-latera.com',
+          'ventas_lachoco_latera@hotmail.com',
           'Orden de envio',
           orderById,
           orderById.date.toDateString(),
         );
 
-        const mail2 = {
-          to: 'ventas@lachoco-latera.com',
-          subject: 'Orden de envio',
-          text: 'Nueva Orden de envio',
-          template: template2,
-        };
-        await this.emailService.sendPostulation(mail2);
+        const info2 = await transporter.sendMail({
+          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+          to: 'ventas_lachoco_latera@hotmail.com', // list of receivers
+          subject: 'Orden de envio', // Subject line
+          text: 'Nueva Orden de envio', // plain text body
+          html: template2, // html body
+        });
+        console.log('Message sent: %s', info2.messageId);
+
+        // const mail2 = {
+        //   to: 'ventas@lachoco-latera.com',
+        //   subject: 'Orden de envio',
+        //   text: 'Nueva Orden de envio',
+        //   template: template2,
+        // };
+        // await this.emailService.sendPostulation(mail2);
       }
     } catch (error) {
       console.log(error);
