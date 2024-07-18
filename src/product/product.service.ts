@@ -22,6 +22,7 @@ import { UpdateShipmentDto } from 'src/shipments/dto/update-shipment.dto';
 import { OrderLabel } from 'src/order/entities/label.entity';
 import { EmailService } from 'src/email/email.service';
 import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
+import { transporter } from 'src/utils/transportNodemailer';
 
 @Injectable()
 export class ProductService {
@@ -333,19 +334,26 @@ export class ProductService {
           date8_days === currentDate
         ) {
           const template = bodyOrderAdmin(
-            'ventas@lachoco-latera.com',
+            'ventas_lachoco_latera@hotmail.com',
             'Orden de envio',
             order,
             currentDate,
           );
-
-          const mail = {
-            to: 'ventas@lachoco-latera.com',
-            subject: 'Orden de envio',
-            text: 'Nueva Orden de envio',
-            template: template,
-          };
-          await this.emailService.sendPostulation(mail);
+          const info = await transporter.sendMail({
+            from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+            to: 'ventas_lachoco_latera@hotmail.com', // list of receivers
+            subject: 'Envios pendientes por subscripcion', // Subject line
+            text: 'Nueva Orden de envio', // plain text body
+            html: template, // html body
+          });
+          console.log('Message sent: %s', info.messageId);
+          // const mail = {
+          //   to: 'ventas@lachoco-latera.com',
+          //   subject: 'Orden de envio',
+          //   text: 'Nueva Orden de envio',
+          //   template: template,
+          // };
+          // await this.emailService.sendPostulation(mail);
           // const newlabel =
           //  // await this.shipmentsService.createlable(dateShipments);
           // const parseLabel = JSON.parse(newlabel);

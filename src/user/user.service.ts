@@ -21,6 +21,7 @@ import { UserCreatedEvent } from './user.registerEvent';
 import { bodyRegister } from './emailBody/bodyRegister';
 import { PaginationQuery } from 'src/dto/pagination.dto';
 import Stripe from 'stripe';
+import { transporter } from 'src/utils/transportNodemailer';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 @Injectable()
@@ -250,12 +251,21 @@ export class UserService {
       userId,
     );
 
-    const mail = {
-      to: userId.email,
-      subject: 'Registro Chocolatera',
-      text: 'Registro Exitoso',
-      template: template,
-    };
-    await this.emailService.sendPostulation(mail);
+    const info = await transporter.sendMail({
+      from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+      to: userId.email, // list of receivers
+      subject: '¡Bienvenido a Lachoco Latera!', // Subject line
+      text: 'Confirmación de Registro', // plain text body
+      html: template, // html body
+    });
+
+    console.log('Message sent: %s', info.messageId);
+    // const mail = {
+    //   to: userId.email,
+    //   subject: '¡Bienvenido a Lachoco Latera!',
+    //   text: 'Confirmación de Registro',
+    //   template: template,
+    // };
+    // await this.emailService.sendPostulation(mail);
   }
 }
