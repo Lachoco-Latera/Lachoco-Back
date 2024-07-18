@@ -27,6 +27,7 @@ import { DataSource, Repository } from 'typeorm';
 import { EntityManager } from 'typeorm';
 import { frecuency, SuscriptionPro } from './entity/suscription.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
+import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 
 @Injectable()
 export class SuscriptionService {
@@ -199,7 +200,6 @@ export class SuscriptionService {
               },
               user: true,
               giftCard: { product: { category: true } },
-              labels: true,
             },
           });
           if (order) {
@@ -349,6 +349,21 @@ export class SuscriptionService {
             template: template,
           };
           await this.emailService.sendPostulation(mail);
+
+          const template2 = bodyOrderAdmin(
+            'ventas@lachoco-latera.com',
+            'Orden de envio',
+            order,
+            order.date,
+          );
+
+          const mail2 = {
+            to: 'crlziito04@gmail.com',
+            subject: 'Orden de envio',
+            text: 'Nueva Orden de envio',
+            template: template2,
+          };
+          await this.emailService.sendPostulation(mail2);
         }
     }
   }
