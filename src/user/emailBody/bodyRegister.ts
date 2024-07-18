@@ -369,6 +369,24 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
           width: 414px !important;
         }
       }
+         .icon-link {
+            text-decoration: none;
+            display: block;
+            font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+            color: #999999;
+            font-size: 12px;
+            text-align: center;
+        }
+        .icon-img {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+        }
+            .icon2-img {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
     </style>
   </head>
   <body
@@ -377,6 +395,7 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
       font-family: arial, 'helvetica neue', helvetica, sans-serif;
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
+      color: black;
       padding: 0;
       margin: 0;
     "
@@ -518,7 +537,7 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                         text-align: center;
                                       "
                                     >
-                                      ${subject}
+                                     
                                     </h1>
                                   </td>
                                 </tr>
@@ -618,7 +637,7 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                     "
                                   >
                                     <img
-                                      src="https://ehlajom.stripocdn.email/content/guids/CABINET_f3fc38cf551f5b08f70308b6252772b8/images/96671618383886503.png"
+                                      src="https://lachoco-latera.com/assets/logo-CQb0lVW3.png"
                                       alt
                                       style="
                                         display: block;
@@ -655,10 +674,25 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                         color: #333333;
                                       "
                                     >
-                                      Registro Exitoso!
+                                      ¡Registro Exitoso!
                                     </h1>
-                                    <h2>${user.name} </h2>
-                                    <p>Email: ${user.email}</p>
+                                    <h2>Hola ${user.name} </h2>
+                                    <p>¡Gracias por registrarte en Lachoco Latera!
+Estamos encantados de tenerte con nosotros. Tu cuenta ha sido creada exitosamente y ahora puedes disfrutar de todas las ventajas que ofrecemos:</p>
+<ul>
+	<li>	Compra de Productos Premium: Accede a nuestra selección de chocolate y café colombiano de la más alta calidad.</li>
+
+	<li>	Personalización de Suscripciones: Ajusta tus preferencias y frecuencia de entrega de nuestros productos.</li>
+
+	<li>	Acceso Exclusivo: Recibe contenido especial, ofertas exclusivas y la oportunidad de probar nuevos productos antes que nadie.</li>
+
+	<li>	Monetización Directa: Apoya a nuestros agricultores colombianos con cada compra, asegurando un impacto positivo y sostenible.</li>
+</ul>
+<p>Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos en ventas@lachoco-latera.com o visita nuestra sección de ayuda en nuestro sitio web.
+Gracias por unirte a nuestra comunidad. Juntos, estamos transformando el futuro del cacao y café colombiano.</p>
+<p>Saludos cordiales,</p>
+<p>El equipo de Lachoco Latera</p>
+
                                   </td>
                                 </tr>
                                 <tr>
@@ -684,8 +718,10 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                         font-size: 16px;
                                       "
                                     >
-                                      Registro Completado! Ya puedes comunicarte con el tecnico que prefieras para arreglas tus problemas en casa!
-                                    </p>
+                                   <p style="text-align: center;">https://lachoco-latera.com</p>
+<p style="text-align: center;">Nota: Si no te registraste en nuestra web, por favor ignora este correo.
+Esta es una comunicación transaccional y no puedes darte de baja de estos correos.</p>
+                                   
                                   </td>
                                 </tr>
                               </table>
@@ -861,7 +897,7 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                         font-size: 14px;
                                       "
                                     >
-                                      My App rinDoor ©. All rights reserved.
+                                      Lachoco Latera ©. All rights reserved.
                                     </p>
                                   </td>
                                 </tr>
@@ -1011,9 +1047,9 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                             border-left: 1px solid #cccccc;
                                           "
                                         >
-                                          <a
+                                          <a class="icon-link"
                                             target="_blank"
-                                            href=""
+                                            href="https://www.instagram.com/lachoco_latera"
                                             style="
                                               -webkit-text-size-adjust: none;
                                               -ms-text-size-adjust: none;
@@ -1026,7 +1062,9 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                               color: #999999;
                                               font-size: 12px;
                                             "
-                                            >Privacy Policy</a
+                                            > <img src="https://w7.pngwing.com/pngs/1003/904/png-transparent-computer-icons-logo-instagram-logo-instagram-logo-miscellaneous-text-symbol-thumbnail.png" alt="Instagram" class="icon-img">
+        Follow us on Instagram
+</a
                                           >
                                         </td>
                                         <td
@@ -1043,9 +1081,9 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                             border-left: 1px solid #cccccc;
                                           "
                                         >
-                                          <a
+                                          <a  class="icon-link"
                                             target="_blank"
-                                            href=""
+                                            href="https://www.facebook.com/LachocoLateraChocolateria/"
                                             style="
                                               -webkit-text-size-adjust: none;
                                               -ms-text-size-adjust: none;
@@ -1058,7 +1096,8 @@ export const bodyRegister = (to: string, subject: string, user: User) => {
                                               color: #999999;
                                               font-size: 12px;
                                             "
-                                            >Terms of Use</a
+                                            ><img src="https://w7.pngwing.com/pngs/434/247/png-transparent-fb-social-icons-circular-black-icon-thumbnail.png" alt="face" class="icon2-img"> Follow us on Facebook
+        </a
                                           >
                                         </td>
                                       </tr>

@@ -394,20 +394,47 @@ export const bodyOrderAdmin = (
     a la fecha ${currentDate}
     </h2>
   
-    <ul>
-    ${order.orderDetail.orderDetailProducts.map(
-      (p) =>
-        `<li>
-      <h3>${p.product.category.name}</h3>
-      <p>Presentacion ${p.product.presentacion}</p>
-      <p>${p.cantidad}</p>
-      <p>${p.product.price}</p>
-      </li>`,
-    )}
-    </ul>
-    <p>Total ${Number(order.orderDetail.price)}$</p>
+    <table>
+  <thead>
+    <tr>
+      <th>Categoria</th>
+      <th>Presentacion</th>
+      <th>Cantidad</th>
+      <th>Precio</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${order.orderDetail.orderDetailProducts
+      .map(
+        (p) => `
+      <tr>
+        <td>${p.product.category.name}</td>
+        <td>${p.product.presentacion}</td>
+        <td>${p.cantidad}</td>
+        <td>${p.product.price}</td>
+      </tr>`,
+      )
+      .join('')}
+  </tbody>
+</table>
 
-    ${order.giftCard && order.giftCard.code ? `<p> Obtuvo gracias a su cupon ${order.giftCard.code}</p>` : ''}
+    <p>Total ${order.giftCard?.discount ? Number(order.orderDetail.price) - Number(order.giftCard?.discount) : order.orderDetail.price}$</p>
+
+    <p>
+    Direccion de envio:
+    </p>
+    <ul>
+    <li>${order.address.postalCode}</li>
+    <li>${order.address.street}</li>
+    <li>${order.address.number}</li>
+    <li>${order.address.city}</li>
+    <li>${order.address.state}</li>
+    <li>${order.address.country}</li>
+    <li>${order.address.phone}</li>
+    </ul>
+
+
+    ${order.giftCard && order.giftCard.code ? `<p> Cupon GiftCard ${order.giftCard.code}</p>` : ''}
     
     
   ${

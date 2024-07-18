@@ -28,6 +28,8 @@ import { EntityManager } from 'typeorm';
 import { frecuency, SuscriptionPro } from './entity/suscription.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
 import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
+import { bodypago2 } from 'src/user/emailBody/bodyPago2';
+import { transporter } from 'src/utils/transportNodemailer';
 
 @Injectable()
 export class SuscriptionService {
@@ -194,14 +196,16 @@ export class SuscriptionService {
             relations: {
               orderDetail: {
                 orderDetailProducts: {
-                  product: { category: true },
+                  product: { category: true, images: true },
                   orderDetailFlavors: true,
                 },
               },
+              address: true,
               user: true,
               giftCard: { product: { category: true } },
             },
           });
+
           if (order) {
             const { orderDetail } = order;
             if (orderDetail && orderDetail.orderDetailProducts) {
@@ -333,7 +337,7 @@ export class SuscriptionService {
             },
           );
 
-          const template = bodypago(
+          const template = bodypago2(
             userEmail.email,
             'Compra Exitosa',
             userEmail,
@@ -341,29 +345,44 @@ export class SuscriptionService {
             order,
             //checkoutSessionCompleted.metadata.priceShipment,
           );
+          const info = await transporter.sendMail({
+            from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+            to: userEmail.email, // list of receivers
+            subject: 'Compra Exitosa', // Subject line
+            text: 'Compra Exitosa', // plain text body
+            html: template, // html body
+          });
+          console.log('Message sent: %s', info.messageId);
+          // const mail = {
+          //   to: userEmail.email,
+          //   subject: 'Compra Exitosa',
+          //   text: 'Compra Exitosa',
+          //   template: template,
+          // };
+          // await this.emailService.sendPostulation(mail);
 
-          const mail = {
-            to: userEmail.email,
-            subject: 'Compra Exitosa',
-            text: 'Compra Exitosa',
-            template: template,
-          };
-          await this.emailService.sendPostulation(mail);
-
+          //*correo al admin
           const template2 = bodyOrderAdmin(
-            'ventas@lachoco-latera.com',
+            'ventas_lachoco_latera@hotmail.com',
             'Orden de envio',
             order,
             order.date,
           );
-
-          const mail2 = {
-            to: 'crlziito04@gmail.com',
-            subject: 'Orden de envio',
-            text: 'Nueva Orden de envio',
-            template: template2,
-          };
-          await this.emailService.sendPostulation(mail2);
+          // const mail2 = {
+          //   to: 'ventas@lachoco-latera.com',
+          //   subject: 'Orden de envio',
+          //   text: 'Nueva Orden de envio',
+          //   template: template2,
+          // };
+          // await this.emailService.sendPostulation(mail2);
+          const info2 = await transporter.sendMail({
+            from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+            to: 'ventas_lachoco_latera@hotmail.com', // list of receivers
+            subject: 'Orden de envio', // Subject line
+            text: 'Nueva Orden de envio', // plain text body
+            html: template2, // html body
+          });
+          console.log('Message sent: %s', info2.messageId);
         }
     }
   }
