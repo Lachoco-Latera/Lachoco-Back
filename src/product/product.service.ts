@@ -20,6 +20,8 @@ import { ShipmentsService } from 'src/shipments/shipments.service';
 import { CreateShipmentDto } from 'src/shipments/dto/create-shipment.dto';
 import { UpdateShipmentDto } from 'src/shipments/dto/update-shipment.dto';
 import { OrderLabel } from 'src/order/entities/label.entity';
+import { EmailService } from 'src/email/email.service';
+import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 
 @Injectable()
 export class ProductService {
@@ -40,6 +42,7 @@ export class ProductService {
     @InjectRepository(OrderLabel)
     private readonly orderLabelRepository: Repository<OrderLabel>,
     private shipmentsService: ShipmentsService,
+    private emailService: EmailService,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -262,7 +265,7 @@ export class ProductService {
     const users = await this.userRepository.find({
       relations: {
         suscriptionPro: true,
-        orders: true,
+        orders: { address: true },
       },
     });
     const frecuencyUsers = users
@@ -286,25 +289,15 @@ export class ProductService {
           date21_days === currentDate ||
           date28_days === currentDate
         ) {
-          if (order && order.labels.length < 5) {
-            const dateShipments = {
-              user: {
-                name: user.name,
-                email: user.email,
-              },
-            };
-
-            // const newlabel =
-            //await this.shipmentsService.createlable(dateShipments);
-            // const parseLabel = JSON.parse(newlabel);
-            // const { label, trackingNumber } = parseLabel.data[0];
-
-            // const saveLabel = new OrderLabel();
-            // saveLabel.label = label;
-            // saveLabel.trackingNumber = trackingNumber;
-            // saveLabel.order = order;
-            // await this.orderLabelRepository.save(saveLabel);
-          }
+          // const newlabel =
+          //await this.shipmentsService.createlable(dateShipments);
+          // const parseLabel = JSON.parse(newlabel);
+          // const { label, trackingNumber } = parseLabel.data[0];
+          // const saveLabel = new OrderLabel();
+          // saveLabel.label = label;
+          // saveLabel.trackingNumber = trackingNumber;
+          // saveLabel.order = order;
+          // await this.orderLabelRepository.save(saveLabel);
         }
       }
     }
@@ -339,25 +332,29 @@ export class ProductService {
           date6_days === currentDate ||
           date8_days === currentDate
         ) {
-          if (order && order.labels.length < 5) {
-            const dateShipments = {
-              user: {
-                name: user.name,
-                email: user.email,
-              },
-            };
+          const template = bodyOrderAdmin(
+            'ventas@lachoco-latera.com',
+            'Orden de envio',
+            order,
+            currentDate,
+          );
 
-            // const newlabel =
-            //  // await this.shipmentsService.createlable(dateShipments);
-            // const parseLabel = JSON.parse(newlabel);
-            // const { label, trackingNumber } = parseLabel.data[0];
-
-            // const saveLabel = new OrderLabel();
-            // saveLabel.label = label;
-            // saveLabel.trackingNumber = trackingNumber;
-            // saveLabel.order = order;
-            // await this.orderLabelRepository.save(saveLabel);
-          }
+          const mail = {
+            to: 'ventas@lachoco-latera.com',
+            subject: 'Orden de envio',
+            text: 'Nueva Orden de envio',
+            template: template,
+          };
+          await this.emailService.sendPostulation(mail);
+          // const newlabel =
+          //  // await this.shipmentsService.createlable(dateShipments);
+          // const parseLabel = JSON.parse(newlabel);
+          // const { label, trackingNumber } = parseLabel.data[0];
+          // const saveLabel = new OrderLabel();
+          // saveLabel.label = label;
+          // saveLabel.trackingNumber = trackingNumber;
+          // saveLabel.order = order;
+          // await this.orderLabelRepository.save(saveLabel);
         }
       }
     }

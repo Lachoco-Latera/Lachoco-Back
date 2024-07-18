@@ -13,6 +13,7 @@ import { Order } from 'src/order/entities/order.entity';
 import { User } from 'src/user/entities/user.entity';
 import { ShipmentsService } from 'src/shipments/shipments.service';
 import { OrderLabel } from 'src/order/entities/label.entity';
+import { EmailService } from 'src/email/email.service';
 
 @Module({
   imports: [
@@ -30,6 +31,6 @@ import { OrderLabel } from 'src/order/entities/label.entity';
     OrderModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService, ShipmentsService],
+  providers: [ProductService, ShipmentsService, EmailService],
 })
 export class ProductModule {}

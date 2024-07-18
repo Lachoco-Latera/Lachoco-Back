@@ -27,6 +27,7 @@ import {
   SuscriptionPro,
 } from 'src/suscription/entity/suscription.entity';
 import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
+import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -149,9 +150,9 @@ export class PagosService {
               frecuency: order.frecuency,
             },
             back_urls: {
-              success: 'https://lachocoback.vercel.app/pagos/success',
-              failure: 'https://lachocoback.vercel.app/pagos/failure',
-              pending: 'https://lachocoback.vercel.app/pagos/pending',
+              success: 'https://lachoco-latera.com/pagos/success',
+              failure: 'https://lachoco-latera.com/pagos/failure',
+              pending: 'https://lachoco-latera.com/pagos/pending',
             },
             items: [
               {
@@ -239,8 +240,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'https://lachocoback.vercel.app/pagos/success',
-        cancel_url: 'https://lachocoback.vercel.app/pagos/cancel',
+        success_url: 'https://lachoco-latera.com/pagos/success',
+        cancel_url: 'https://lachoco-latera.com/pagos/cancel',
       });
 
       const addAddress = new Address();
@@ -437,6 +438,21 @@ export class PagosService {
           template: template,
         };
         await this.emailService.sendPostulation(mail);
+
+        const template2 = bodyOrderAdmin(
+          'ventas@lachoco-latera.com',
+          'Orden de envio',
+          orderById,
+          orderById.date.toDateString(),
+        );
+
+        const mail2 = {
+          to: 'ventas@lachoco-latera.com',
+          subject: 'Orden de envio',
+          text: 'Nueva Orden de envio',
+          template: template2,
+        };
+        await this.emailService.sendPostulation(mail2);
       }
     } catch (error) {
       console.log(error);
