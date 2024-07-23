@@ -203,15 +203,16 @@ export class ProductService {
   async update(id: string, updateProductDto): Promise<Product> {
     const product = await this.productRepository.findOne({
       where: { id: id },
-      relations: { flavors: true },
+      relations: { flavors: true, images: true }, // Asegúrate de incluir las imágenes en la consulta
     });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    // Clear existing flavors
-    product.flavors = [];
+    console.log(product);
 
+    // Limpiar sabores existentes
+    product.flavors = [];
     if (updateProductDto.flavors) {
       const flavors = await this.flavorRepository.findByIds(
         updateProductDto.flavors.map((flavor) => flavor.id),
@@ -219,7 +220,7 @@ export class ProductService {
       product.flavors.push(...flavors);
     }
 
-    // Update other properties
+    // Actualizar otras propiedades
     Object.assign(product, updateProductDto);
 
     return this.productRepository.save(product);
