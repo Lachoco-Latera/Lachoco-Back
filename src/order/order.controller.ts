@@ -1,26 +1,19 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  ParseUUIDPipe,
-  Put,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-
-import { ApiTags } from '@nestjs/swagger';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import { PaginationQuery } from 'src/dto/pagination.dto';
-import { GuardRoles } from 'src/guards/role.guard';
-import { GuardToken } from 'src/guards/token.guard';
-import { Role } from 'src/user/entities/user.entity';
-import { Roles } from 'src/decorators/userRole.decorator';
 
 @Controller('orders')
-@ApiTags('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
@@ -29,32 +22,14 @@ export class OrderController {
     return this.orderService.create(createOrderDto);
   }
 
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.orderService.update(id, updateOrderDto);
+  }
+
   @Get()
-  findAll(pagination?: PaginationQuery) {
+  findAll(@Query() pagination: PaginationQuery) {
     return this.orderService.findAll(pagination);
-  }
-
-  @Get('/finished')
-  orderFinished() {
-    return this.orderService.ordersFinished();
-  }
-
-  @Get('/finished/:id')
-  orderFinishedByUser(@Param('id', ParseUUIDPipe) userId: string) {
-    return this.orderService.ordersFinishedByUser(userId);
-  }
-
-  @Put('/confirm/:id')
-  confirmOrder(@Param('id', ParseUUIDPipe) id: string) {
-    return this.orderService.confirmOrder(id);
-  }
-
-  @Put('/cancel/:id')
-  cancelOrder(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() cancelByUserId: string,
-  ) {
-    return this.orderService.cancelOrder(id, cancelByUserId);
   }
 
   @Get(':id')
@@ -62,11 +37,13 @@ export class OrderController {
     return this.orderService.findOne(id);
   }
 
+  @Patch(':id/confirm')
+  confirmOrder(@Param('id') id: string) {
+    return this.orderService.confirmOrder(id);
+  }
+
   @Delete(':id')
-  async remove(
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<{ message: string }> {
-    const message = await this.orderService.remove(id);
-    return { message };
+  remove(@Param('id') id: string) {
+    return this.orderService.remove(id);
   }
 }

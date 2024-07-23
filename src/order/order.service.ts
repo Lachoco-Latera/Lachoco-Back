@@ -229,7 +229,98 @@ export class OrderService {
     const getOrdersFinished = await this.ordersFinished();
     return getOrdersFinished.filter((o) => o.user.id === userId);
   }
+  async update(id: string, updateOrderDto) {
+    const order = await this.orderRepository.findOne({
+      where: { id: id },
+      relations: ['orderDetail', 'orderDetail.orderDetailProducts'],
+    });
+    if (!order) throw new NotFoundException('Order not found');
 
+    const { userId, products, additionalInfo } = updateOrderDto;
+
+    if (userId) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) throw new NotFoundException('User not found');
+      order.user = user;
+    }
+
+    if (additionalInfo) {
+      order.additionalInfo = additionalInfo;
+    }
+
+    if (products) {
+      let total = 0;
+      const errors = [];
+      const flavors = await this.flavorRepository.find();
+
+      const productsArr = await Promise.all(
+        products.map(async (product) => {
+          const findProduct = await this.productRepository.findOne({
+            where: { id: product.productId },
+            relations: { category: true },
+          });
+
+          if (
+            findProduct.category.name === category.CAFES &&
+            product.cantidad >= 4
+          ) {
+            errors.push(`Cannot choose more than 4 CAFES`);
+          }
+          const productInfo = { product: null, cantidad: 0 };
+
+          if (!findProduct) {
+            errors.push(`Product ${product.productId} not found`);
+          } else {
+            productInfo.product = findProduct;
+            productInfo.cantidad = product.cantidad;
+            total += Number(findProduct.price * product.cantidad);
+
+            const filterFlavors = product.flavors?.map((pf) =>
+              flavors.find((f) => f.id === pf.flavorId),
+            );
+
+            if (
+              filterFlavors.includes(undefined) ||
+              filterFlavors.length !== product.flavors.length
+            ) {
+              errors.push(`Un sabor seleccionado no disponible`);
+            } else {
+              await this.productRepository.save({
+                ...findProduct,
+                flavors: filterFlavors,
+                orderDetailFlavors: product.flavors,
+              });
+              return { ...productInfo, pickedFlavors: product.pickedFlavors };
+            }
+          }
+        }),
+      );
+
+      if (errors.length > 0) {
+        throw new BadRequestException(errors);
+      }
+
+      order.orderDetail.price = Number(total.toFixed(2));
+      await this.orderDetailRepository.save(order.orderDetail);
+
+      await this.OrderDetailProductRepository.remove(
+        order.orderDetail.orderDetailProducts,
+      );
+
+      for (const { product, cantidad, pickedFlavors } of productsArr) {
+        const orderDetailProduct = {
+          orderDetail: order.orderDetail,
+          product,
+          cantidad,
+          orderDetailFlavors: product.flavors,
+          pickedFlavors,
+        };
+        await this.OrderDetailProductRepository.save(orderDetailProduct);
+      }
+    }
+
+    return this.orderRepository.save(order);
+  }
   async cancelOrder(id: string, cancelByUserId: string) {
     const order = await this.orderRepository.findOne({ where: { id: id } });
     if (!order) throw new NotFoundException('Order not found');
