@@ -19,17 +19,12 @@ import { GuardRoles } from 'src/guards/role.guard';
 @Controller('gitfcards')
 export class GitfcardsController {
   constructor(private readonly gitfcardsService: GitfcardsService) {}
-
   @Post()
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
   create(@Body() createGitfcardDto: CreateGitfcardDto) {
     return this.gitfcardsService.create(createGitfcardDto);
   }
 
   @Post('cafe')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
   giftCoffe(@Body() createGitfcardCoffeeDto: CreateGitfcardCoffeeDto) {
     return this.gitfcardsService.giftCoffe(createGitfcardCoffeeDto);
   }
@@ -45,8 +40,6 @@ export class GitfcardsController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
   remove(@Param('id') id: string) {
     return this.gitfcardsService.remove(id);
   }
