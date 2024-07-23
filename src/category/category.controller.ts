@@ -28,15 +28,13 @@ export class CategoryController {
   }
 
   @Post()
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
+ 
   addCategory(@Body() nameCategory: CategoryName) {
     return this.categoryService.createCategory(nameCategory.name);
   }
 
   @Put(':id')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
+ 
   updateCategory(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateData: { icon: string },
@@ -45,8 +43,7 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
+ 
   deleteCategory(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoryService.deleteCategory(id);
   }

@@ -40,8 +40,6 @@ export class OrderController {
   }
 
   @Get('/finished/:id')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
   orderFinishedByUser(@Param('id', ParseUUIDPipe) userId: string) {
     return this.orderService.ordersFinishedByUser(userId);
   }
@@ -52,8 +50,6 @@ export class OrderController {
   }
 
   @Put('/cancel/:id')
-  @Roles(Role.ADMIN)
-  @UseGuards(GuardToken, GuardRoles)
   cancelOrder(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() cancelByUserId: string,
