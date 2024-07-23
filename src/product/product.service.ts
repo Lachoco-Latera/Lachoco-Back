@@ -200,13 +200,29 @@ export class ProductService {
     return `Se ha eliminado el producto correspondiente`;
   }
 
-  async update(id, updateProductDto) {
-    const product = await this.productRepository.findOne({ where: { id: id } });
-    if (!product) throw new NotFoundException(`Product not foun`, id);
+  async update(id: string, updateProductDto): Promise<Product> {
+    const product = await this.productRepository.findOne({
+      where: { id: id },
+      relations: { flavors: true },
+    });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
 
-    await this.productRepository.update(id, { ...updateProductDto });
+    // Clear existing flavors
+    product.flavors = [];
 
-    return 'Product updated';
+    if (updateProductDto.flavors) {
+      const flavors = await this.flavorRepository.findByIds(
+        updateProductDto.flavors.map((flavor) => flavor.id),
+      );
+      product.flavors.push(...flavors);
+    }
+
+    // Update other properties
+    Object.assign(product, updateProductDto);
+
+    return this.productRepository.save(product);
   }
 
   async findExpiredProducts() {
