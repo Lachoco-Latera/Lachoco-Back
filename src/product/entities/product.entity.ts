@@ -68,7 +68,7 @@ export class Product {
   @JoinColumn({ name: 'img_id' })
   images: Image[];
 
-  @ManyToMany(() => Flavor, { cascade: true })
+  @ManyToMany(() => Flavor, (flavor) => flavor.products)
   @JoinTable()
   flavors: Flavor[];
 

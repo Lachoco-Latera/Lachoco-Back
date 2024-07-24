@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Param,
   Delete,
@@ -10,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { GitfcardsService } from './gitfcards.service';
 import { CreateGitfcardDto } from './dto/create-gitfcard.dto';
+import { UpdateGitfcardDto } from './dto/update-gitfcard.dto';
 import { CreateGitfcardCoffeeDto } from './dto/create-gitfcardCoffe.dto';
 import { Roles } from 'src/decorators/userRole.decorator';
 import { Role } from 'src/user/entities/user.entity';
@@ -19,6 +21,7 @@ import { GuardRoles } from 'src/guards/role.guard';
 @Controller('gitfcards')
 export class GitfcardsController {
   constructor(private readonly gitfcardsService: GitfcardsService) {}
+
   @Post()
   create(@Body() createGitfcardDto: CreateGitfcardDto) {
     return this.gitfcardsService.create(createGitfcardDto);
@@ -37,6 +40,14 @@ export class GitfcardsController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.gitfcardsService.findOne(id);
+  }
+
+  @Put(':id')
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateGitfcardDto: UpdateGitfcardDto,
+  ) {
+    return this.gitfcardsService.update(id, updateGitfcardDto);
   }
 
   @Delete(':id')

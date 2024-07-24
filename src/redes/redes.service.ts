@@ -10,6 +10,7 @@ export class RedesService {
   constructor(
     @InjectRepository(Redes) private redesRepository: Repository<Redes>,
   ) {}
+
   async create(createRedeDto: CreateRedeDto) {
     const postRede = await this.redesRepository.save(createRedeDto);
     return postRede;
@@ -20,26 +21,24 @@ export class RedesService {
   }
 
   async findOne(id: string) {
-    const red = await this.redesRepository.findOne({ where: { id: id } });
-    if (!red) throw new NotFoundException('Redes not found');
-
+    const red = await this.redesRepository.findOne({ where: { id } });
+    if (!red) throw new NotFoundException('Red not found');
     return red;
   }
 
   async update(id: string, updateRedeDto: UpdateRedeDto) {
-    const red = await this.redesRepository.findOne({ where: { id: id } });
-    if (!red) throw new NotFoundException('Redes not found');
+    const red = await this.redesRepository.findOne({ where: { id } });
+    if (!red) throw new NotFoundException('Red not found');
 
-    await this.redesRepository.update({ id: id }, { ...updateRedeDto });
-
-    return `This action updates a #${id} rede`;
+    await this.redesRepository.update(id, updateRedeDto);
+    return this.findOne(id);
   }
 
   async remove(id: string) {
-    const red = await this.redesRepository.findOne({ where: { id: id } });
-    if (!red) throw new NotFoundException('Redes not found');
+    const red = await this.redesRepository.findOne({ where: { id } });
+    if (!red) throw new NotFoundException('Red not found');
 
-    await this.redesRepository.delete(red);
+    await this.redesRepository.delete(id);
     return `This action removes a #${id} rede`;
   }
 }
