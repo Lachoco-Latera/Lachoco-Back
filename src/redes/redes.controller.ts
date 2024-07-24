@@ -7,7 +7,6 @@ import {
   Delete,
   ParseUUIDPipe,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { RedesService } from './redes.service';
 import { CreateRedeDto } from './dto/create-rede.dto';
