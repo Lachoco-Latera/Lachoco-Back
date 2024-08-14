@@ -8,7 +8,7 @@ import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
-import { OrderDetailFlavor } from './entities/flavorDetail.entity';
+import { Address } from './entities/address.entity';
 
 @Module({
   imports: [
@@ -18,8 +18,8 @@ import { OrderDetailFlavor } from './entities/flavorDetail.entity';
       Product,
       User,
       OrderDetailProduct,
-      OrderDetailFlavor,
       Flavor,
+      Address,
     ]),
   ],
   controllers: [OrderController],

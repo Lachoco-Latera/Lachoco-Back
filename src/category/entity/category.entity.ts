@@ -6,14 +6,35 @@ export enum category {
   BOMBAS = 'bombas',
   TABLETAS = 'tabletas',
   BOMBONES = 'bombones',
+  CAFES = 'cafes',
+  DELICIAS = 'delicias',
 }
-
+export enum CategoryIcon {
+  TB_BEACH = 'TbBeach',
+  TB_MOUNTAIN = 'TbMountain',
+  TB_MILKSHAKE = 'TbMilkshake',
+  GI_BOAT_FISHING = 'GiBoatFishing',
+  GI_FIELD = 'GiField',
+  GI_FOREST_CAMP = 'GiForestCamp',
+  GI_DONUT = 'GiDonut',
+  GI_CUPCAKE = 'GiCupcake',
+  GI_PIE_SLICE = 'GiPieSlice',
+  MD_OUTLINE_VILLA = 'MdOutlineVilla',
+  MD_SNOWMOBILE = 'MdSnowmobile',
+  MD_OUTLINE_WB_SUNNY = 'MdOutlineWbSunny',
+  MD_OUTLINE_COOKIE = 'MdOutlineCookie',
+  FA_TREE_CITY = 'FaTreeCity',
+  FA_ICE_CREAM = 'FaIceCream',
+}
 @Entity({
   name: 'categories',
 })
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string = uuid();
+
+  @Column({ type: 'enum', enum: CategoryIcon, nullable: true })
+  icon: string;
 
   @Column({ type: 'enum', enum: category, nullable: true })
   name: string;

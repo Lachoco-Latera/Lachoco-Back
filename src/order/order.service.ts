@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { Order, status } from './entities/order.entity';
 import { EntityManager, Repository } from 'typeorm';
@@ -14,7 +13,8 @@ import { User } from 'src/user/entities/user.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
-import { OrderDetailFlavor } from './entities/flavorDetail.entity';
+import { category } from 'src/category/entity/category.entity';
+import { Address } from './entities/address.entity';
 
 @Injectable()
 export class OrderService {
@@ -26,8 +26,6 @@ export class OrderService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(OrderDetailProduct)
     private OrderDetailProductRepository: Repository<OrderDetailProduct>,
-    @InjectRepository(OrderDetailFlavor)
-    private orderDetailFlavorRepository: Repository<OrderDetailFlavor>,
     @InjectRepository(Flavor)
     private flavorRepository: Repository<Flavor>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
@@ -44,10 +42,17 @@ export class OrderService {
 
     const productsArr = await Promise.all(
       products.map(async (product) => {
-        const findProduct = await this.productRepository.findOneBy({
-          id: product.productId,
+        const findProduct = await this.productRepository.findOne({
+          where: { id: product.productId },
+          relations: { category: true },
         });
-
+        //*si tiene 4 o mas productos de esta categoria da error
+        if (
+          findProduct.category.name === category.CAFES &&
+          product.cantidad >= 4
+        ) {
+          errors.push(`Cannot chose more than 4 CAFES`);
+        }
         const productInfo = { product: null, cantidad: 0 };
 
         if (!findProduct) {
@@ -57,7 +62,7 @@ export class OrderService {
           productInfo.cantidad = product.cantidad;
           total += Number(findProduct.price * product.cantidad);
 
-          const filterFlavors = product.flavors.map((pf) =>
+          const filterFlavors = product.flavors?.map((pf) =>
             flavors.find((f) => f.id === pf.flavorId),
           );
 
@@ -85,6 +90,7 @@ export class OrderService {
     const order = {
       date: new Date(),
       user: user,
+      additionalInfo: createOrderDto.additionalInfo,
     };
 
     const newOrder = await this.orderRepository.save(order);
@@ -167,10 +173,13 @@ export class OrderService {
       relations: {
         orderDetail: {
           orderDetailProducts: {
-            product: { category: true },
+            product: { category: true, images: true },
             orderDetailFlavors: true,
           },
         },
+        user: true,
+        giftCard: true,
+        labels: true,
       },
     });
 
@@ -184,9 +193,11 @@ export class OrderService {
       relations: {
         orderDetail: {
           orderDetailProducts: {
-            product: true,
+            product: { category: true, images: true },
           },
         },
+        giftCard: { product: true },
+        labels: true,
       },
     });
     if (!order) throw new NotFoundException('Order not found');
@@ -194,8 +205,139 @@ export class OrderService {
     return order;
   }
 
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
+  async ordersFinished() {
+    const orders = await this.orderRepository.find({
+      relations: {
+        orderDetail: {
+          orderDetailProducts: {
+            product: { category: true },
+            orderDetailFlavors: true,
+          },
+        },
+        user: true,
+        giftCard: true,
+      },
+    });
+
+    return orders.filter((o) => o.status === status.FINISHED);
+  }
+
+  async ordersFinishedByUser(userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException(`User ${userId} not found`);
+
+    const getOrdersFinished = await this.ordersFinished();
+    return getOrdersFinished.filter((o) => o.user.id === userId);
+  }
+  async update(id: string, updateOrderDto) {
+    const order = await this.orderRepository.findOne({
+      where: { id: id },
+      relations: ['orderDetail', 'orderDetail.orderDetailProducts'],
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const { userId, products, additionalInfo } = updateOrderDto;
+
+    if (userId) {
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) throw new NotFoundException('User not found');
+      order.user = user;
+    }
+
+    if (additionalInfo) {
+      order.additionalInfo = additionalInfo;
+    }
+
+    if (products) {
+      let total = 0;
+      const errors = [];
+      const flavors = await this.flavorRepository.find();
+
+      const productsArr = await Promise.all(
+        products.map(async (product) => {
+          const findProduct = await this.productRepository.findOne({
+            where: { id: product.productId },
+            relations: { category: true },
+          });
+
+          if (
+            findProduct.category.name === category.CAFES &&
+            product.cantidad >= 4
+          ) {
+            errors.push(`Cannot choose more than 4 CAFES`);
+          }
+          const productInfo = { product: null, cantidad: 0 };
+
+          if (!findProduct) {
+            errors.push(`Product ${product.productId} not found`);
+          } else {
+            productInfo.product = findProduct;
+            productInfo.cantidad = product.cantidad;
+            total += Number(findProduct.price * product.cantidad);
+
+            const filterFlavors = product.flavors?.map((pf) =>
+              flavors.find((f) => f.id === pf.flavorId),
+            );
+
+            if (
+              filterFlavors.includes(undefined) ||
+              filterFlavors.length !== product.flavors.length
+            ) {
+              errors.push(`Un sabor seleccionado no disponible`);
+            } else {
+              await this.productRepository.save({
+                ...findProduct,
+                flavors: filterFlavors,
+                orderDetailFlavors: product.flavors,
+              });
+              return { ...productInfo, pickedFlavors: product.pickedFlavors };
+            }
+          }
+        }),
+      );
+
+      if (errors.length > 0) {
+        throw new BadRequestException(errors);
+      }
+
+      order.orderDetail.price = Number(total.toFixed(2));
+      await this.orderDetailRepository.save(order.orderDetail);
+
+      await this.OrderDetailProductRepository.remove(
+        order.orderDetail.orderDetailProducts,
+      );
+
+      for (const { product, cantidad, pickedFlavors } of productsArr) {
+        const orderDetailProduct = {
+          orderDetail: order.orderDetail,
+          product,
+          cantidad,
+          orderDetailFlavors: product.flavors,
+          pickedFlavors,
+        };
+        await this.OrderDetailProductRepository.save(orderDetailProduct);
+      }
+    }
+
+    return this.orderRepository.save(order);
+  }
+  async cancelOrder(id: string, cancelByUserId: string) {
+    const order = await this.orderRepository.findOne({ where: { id: id } });
+    if (!order) throw new NotFoundException('Order not found');
+    const userCancel = await this.userRepository.findOne({
+      where: { id: cancelByUserId },
+    });
+    if (!userCancel) throw new NotFoundException('user not found');
+
+    await this.orderRepository.update(
+      { id: order.id },
+      {
+        status: status.CANCELLED,
+        cancelByUserId: userCancel.id,
+      },
+    );
+
+    return `This order ${order.id} has been canceled by ${userCancel.id}`;
   }
 
   async remove(id: string): Promise<string> {

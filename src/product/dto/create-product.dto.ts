@@ -7,12 +7,11 @@ import {
   IsUUID,
 } from 'class-validator';
 import { label, currency } from 'src/product/entities/product.entity';
-
 export class CreateProductDto {
   @IsNotEmpty()
   @IsUUID()
   categoryId: string;
-  
+
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -27,11 +26,8 @@ export class CreateProductDto {
   @IsEnum(currency)
   currency: currency;
 
-  @IsNumber()
-  stock: number;
-
-  @IsEnum(label)
-  label: label;
+  // @IsNumber()
+  // stock: number;
 
   @IsNumber()
   presentacion: number;
@@ -40,5 +36,5 @@ export class CreateProductDto {
   images: string[];
 
   @IsArray()
-  flavors: string[];
+  flavors: { id: string; name: string; stock: number }[];
 }

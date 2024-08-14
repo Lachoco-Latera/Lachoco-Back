@@ -20,7 +20,10 @@ import { EmailService } from 'src/email/email.service';
 import { UserCreatedEvent } from './user.registerEvent';
 import { bodyRegister } from './emailBody/bodyRegister';
 import { PaginationQuery } from 'src/dto/pagination.dto';
+import Stripe from 'stripe';
+import { transporter } from 'src/utils/transportNodemailer';
 
+const stripe = new Stripe(process.env.KEY_STRIPE);
 @Injectable()
 export class UserService {
   constructor(
@@ -39,6 +42,7 @@ export class UserService {
     if (findEmail) throw new ConflictException('Email already exists');
 
     const hashPassword = await bcrypt.hash(user.password, 10);
+
     if (!hashPassword)
       throw new BadRequestException('Password could not be hashed');
 
@@ -66,6 +70,7 @@ export class UserService {
 
     const emailUser = await this.userRepository.findOne({
       where: { email: login.email },
+      relations: { suscriptionPro: true },
     });
 
     if (!emailUser) {
@@ -86,8 +91,27 @@ export class UserService {
       role: [emailUser.role],
     };
 
+    //   let subscription;
+
+    //   if (emailUser.suscriptionId === null) {
+    //     subscription = null;
+    //   } else {
+    //     subscription = await stripe.subscriptions.retrieve(
+    //       emailUser.suscriptionId,
+    //     );
+    //   }
+    // const sendSubscription = {
+    //   start: subscription?.current_period_start || null,
+    //   end: subscription?.current_period_end || null,
+    //   plan: subscription?.items.data[0]?.plan?.nickname || null,
+    //   };
+
     const token = this.jwtService.sign(payload);
-    return { success: 'Login Success', token };
+    return {
+      success: 'Login Success',
+      token,
+      subscription: emailUser.suscriptionPro,
+    };
   }
 
   async findAll(pagination?: PaginationQuery) {
@@ -98,7 +122,11 @@ export class UserService {
     const endIndex = startIndex + defaultLimit;
 
     const users = await this.userRepository.find({
-      relations: { orders: true },
+      relations: {
+        orders: true,
+        giftcards: { product: true },
+        suscriptionPro: true,
+      },
     });
 
     const usersNotPassword = users.map((user) => {
@@ -134,6 +162,18 @@ export class UserService {
     });
     return `User ${id} change to admin`;
   }
+
+  async createClient(id) {
+    //const prueba = Object.values(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
+    if (!user) throw new NotFoundException('user not found');
+
+    await this.userRepository.update(user.id, {
+      role: Role.CLIENT,
+    });
+    return `User ${id} change to client`;
+  }
+
   async inactiveUser(id: string) {
     const user = await this.userRepository.findOneBy({ id: id });
     if (!user) throw new NotFoundException('user not found');
@@ -211,12 +251,21 @@ export class UserService {
       userId,
     );
 
-    const mail = {
-      to: userId.email,
-      subject: 'Registro Chocolatera',
-      text: 'Registro Exitoso',
-      template: template,
-    };
-    await this.emailService.sendPostulation(mail);
+    const info = await transporter.sendMail({
+      from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+      to: userId.email, // list of receivers
+      subject: '¡Bienvenido a Lachoco Latera!', // Subject line
+      text: 'Confirmación de Registro', // plain text body
+      html: template, // html body
+    });
+
+    console.log('Message sent: %s', info.messageId);
+    // const mail = {
+    //   to: userId.email,
+    //   subject: '¡Bienvenido a Lachoco Latera!',
+    //   text: 'Confirmación de Registro',
+    //   template: template,
+    // };
+    // await this.emailService.sendPostulation(mail);
   }
 }

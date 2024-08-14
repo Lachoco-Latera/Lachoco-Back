@@ -7,6 +7,7 @@ import {
   Put,
   Query,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { createUserDto } from './dto/create-user.dto';
@@ -20,6 +21,10 @@ import {
 } from './swagger.user';
 import { userFavorites } from './dto/userFavorite.dto';
 import { updateUserDto } from './dto/updateUser.dto';
+import { GuardRoles } from 'src/guards/role.guard';
+import { GuardToken } from 'src/guards/token.guard';
+import { Role } from './entities/user.entity';
+import { Roles } from 'src/decorators/userRole.decorator';
 
 @Controller('users')
 @ApiTags('Users')
@@ -94,11 +99,22 @@ export class UserController {
   }
 
   @Put('/admin/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   createAdmin(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return this.userService.createAdmin(id);
   }
 
+  @Put('/clien/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
+  createClient(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
+    return this.userService.createAdmin(id);
+  }
+
   @Put('/inactive/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(GuardToken, GuardRoles)
   remove(@Param('id') id: string): Promise<string> {
     return this.userService.inactiveUser(id);
   }

@@ -1,5 +1,7 @@
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
 import {
   Column,
   Entity,
@@ -7,6 +9,7 @@ import {
   JoinTable,
   ManyToMany,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { v4 as uuid } from 'uuid';
@@ -43,6 +46,12 @@ export class User {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  suscriptionId: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  customerId: string;
+
   @OneToMany(() => Order, (order) => order.user)
   @JoinColumn({ name: 'orders_id' })
   orders: Order[];
@@ -50,4 +59,12 @@ export class User {
   @ManyToMany(() => Product)
   @JoinTable()
   favoriteProducts: Product[];
+
+  @OneToMany(() => GiftCard, (giftcard) => giftcard.user)
+  @JoinColumn({ name: 'giftcards_id' })
+  giftcards: GiftCard[];
+
+  @OneToOne(() => SuscriptionPro, (suscriptionPro) => suscriptionPro.user)
+  @JoinColumn({ name: 'suscriptionPro_id' })
+  suscriptionPro: SuscriptionPro;
 }
