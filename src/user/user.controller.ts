@@ -116,7 +116,7 @@ export class UserController {
   @Roles(Role.ADMIN)
   @UseGuards(GuardToken, GuardRoles)
   remove(@Param('id') id: string): Promise<string> {
-    return this.userService.inactiveUser(id);
+    return this.userService.inactiveUser(id) as Promise<string>;
   }
 
   @Post('/favorite')
