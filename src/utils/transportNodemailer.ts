@@ -12,11 +12,11 @@ dotenvConfig({ path: '.env' });
 //   },
 // });
 export const transporter = nodemailer.createTransport({
-  host: 'smtp-mail.outlook.com', // Servidor SMTP de Microsoft 365
-  port: 587, // Puerto para STARTTLS
+  host: process.env.MAIL_HOST, // Servidor SMTP de Microsoft 365
+  port: process.env.MAIL_PORT, // Puerto para STARTTLS
   secure: false, // false para port 587
   auth: {
-    user: process.env.EMAIL_CHOCO2, // tu correo de GoDaddy con Microsoft 365
-    pass: process.env.PASS_EMAIL, // tu contraseña de GoDaddy con Microsoft 365
+    user: process.env.SMTP_USERNAME, // tu correo de GoDaddy con Microsoft 365
+    pass: process.env.SMTP_PASSWORD, // tu contraseña de GoDaddy con Microsoft 365
   },
 });
