@@ -31,6 +31,8 @@ import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 import { transporter } from 'src/utils/transportNodemailer';
 import { bodypagoMP2 } from 'src/user/emailBody/bodyPagoMP2';
 
+const MP_URL = process.env.MP_URL;
+
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 @Injectable()
@@ -152,9 +154,9 @@ export class PagosService {
               frecuency: order.frecuency,
             },
             back_urls: {
-              success: 'https://lachoco-latera.com/success',
-              failure: 'https://lachoco-latera.com/failure',
-              pending: 'https://lachoco-latera.com/pending',
+              success: `${MP_URL}/success`,
+              failure: `${MP_URL}/failure`,
+              pending: `${MP_URL}/pending`,
             },
             items: [
               {
@@ -242,8 +244,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'https://lachoco-latera.com/success',
-        cancel_url: 'https://lachoco-latera.com/cancel',
+        success_url: `${MP_URL}/success`,
+        cancel_url: `${MP_URL}/cancel`,
       });
 
       const addAddress = new Address();
