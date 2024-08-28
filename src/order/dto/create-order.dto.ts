@@ -34,6 +34,41 @@ export class FlavorOrderDTO {
   cantidad: number;
 }
 
+export class GiftCardOrder{
+  @IsUUID()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'GiftCard ID, has to be UUID',
+    example: '887a8887-598b-4240-a7da-4c751a9ab2d3',
+  })
+  giftCardId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Name of the recipient',
+    example: 'John Doe',
+  })
+  nameRecipient: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Email of the recipient',
+    example: 'johndoe@gmail.com',
+  })
+  emailRecipient: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Message of the giftCard',
+    example: 'Gracias por tu compra',
+  })
+  message?: string;
+}
+
 export class ProductOrder {
   @IsUUID()
   @IsNotEmpty()
@@ -89,16 +124,31 @@ export class CreateOrderDto {
   })
   userId: string;
 
+  @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
-  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ProductOrder)
   @ApiProperty({
     description: 'Array of products with ID and quantity',
     example: '[{"id":"887a8887-598b-4240-a7da-4c751a9ab2d3", "cantidad":3}]',
   })
-  products: ProductOrder[];
+  products?: ProductOrder[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => GiftCardOrder)
+  @ApiProperty({
+    example: [
+      {
+        "giftCardId":"123e4567-e89b-12d3-a456-426614174000",
+        "nameRecipient":"John Doe",
+        "emailRecipient":"johndoe@gmail.com",
+        "message":"Gracias por tu compra",
+      }
+    ],
+  })
+  giftCards?: GiftCardOrder[];
 
   @IsString()
   @IsOptional()
