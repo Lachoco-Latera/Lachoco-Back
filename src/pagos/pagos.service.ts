@@ -152,9 +152,9 @@ export class PagosService {
               frecuency: order.frecuency,
             },
             back_urls: {
-              success: 'https://lachoco-latera.com/success',
-              failure: 'https://lachoco-latera.com/failure',
-              pending: 'https://lachoco-latera.com/pending',
+              success: 'http://localhost:5173/success',
+              failure: 'http://localhost:5173/failure',
+              pending: 'http://localhost:5173/pending',
             },
             items: [
               {

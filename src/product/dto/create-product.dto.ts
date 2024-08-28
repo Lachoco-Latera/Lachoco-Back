@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsEnum,
@@ -35,6 +36,7 @@ export class CreateProductDto {
   @IsArray()
   images: string[];
 
+  @ApiProperty({ example: [{ id: '123', name: 'Salsa', stock: 10 }] })
   @IsArray()
   flavors: { id: string; name: string; stock: number }[];
 }
