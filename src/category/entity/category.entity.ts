@@ -8,6 +8,11 @@ export enum category {
   BOMBONES = 'bombones',
   CAFES = 'cafes',
   DELICIAS = 'delicias',
+  CHOCOLATES_DE_ESPECIALIDAD = 'chocolates de especialidad',
+  CAFE_DE_ESPECIALIDAD = 'cafe de especialidad',
+  EN_EL_CAMPO = 'en el campo',
+  REGALOS = 'regalos',
+  SUSCRIPCION = 'suscripcion',
 }
 export enum CategoryIcon {
   TB_BEACH = 'TbBeach',

@@ -17,7 +17,9 @@ import { Roles } from 'src/decorators/userRole.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { GuardToken } from 'src/guards/token.guard';
 import { GuardRoles } from 'src/guards/role.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Gitfcards')
 @Controller('gitfcards')
 export class GitfcardsController {
   constructor(private readonly gitfcardsService: GitfcardsService) {}
