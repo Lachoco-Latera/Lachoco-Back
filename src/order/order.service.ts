@@ -15,6 +15,8 @@ import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { category } from 'src/category/entity/category.entity';
 import { Address } from './entities/address.entity';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
+import { OrderDetailGiftCard } from './entities/orderDetailGiftCard.entity';
 
 @Injectable()
 export class OrderService {
@@ -26,21 +28,37 @@ export class OrderService {
     @InjectRepository(Product) private productRepository: Repository<Product>,
     @InjectRepository(OrderDetailProduct)
     private OrderDetailProductRepository: Repository<OrderDetailProduct>,
+    @InjectRepository(OrderDetailGiftCard) private orderDetailGiftCardRepository: Repository<OrderDetailGiftCard>,
     @InjectRepository(Flavor)
     private flavorRepository: Repository<Flavor>,
+    @InjectRepository(GiftCard) private giftCardRepository: Repository<GiftCard>,
     @InjectEntityManager() private readonly entityManager: EntityManager,
   ) {}
 
   async create(createOrderDto: CreateOrderDto) {
-    const { userId, products } = createOrderDto;
+    const { userId, products, giftCards } = createOrderDto;
     let total = 0;
     const errors = [];
+    let findAllGiftCards: GiftCard[];
+    let productsArr: Record<string, any>[];
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
+
+    if (giftCards && giftCards.length > 0) {
+    findAllGiftCards = await Promise.all(
+      giftCards.map(async (giftCard) => {
+        const findGiftCard = await this.giftCardRepository.findOne({ where: { id: giftCard.giftCardId}})
+        return findGiftCard;
+      })
+    )
+    total += findAllGiftCards.reduce((acc, curr) => acc + curr.discount, 0);
+  }
+
     const flavors = await this.flavorRepository.find();
 
-    const productsArr = await Promise.all(
+    if (products && products.length > 0) {
+    productsArr = await Promise.all(
       products.map(async (product) => {
         const findProduct = await this.productRepository.findOne({
           where: { id: product.productId },
@@ -82,6 +100,7 @@ export class OrderService {
         }
       }),
     );
+  }
 
     if (errors.length > 0) {
       throw new BadRequestException(errors);
@@ -94,23 +113,40 @@ export class OrderService {
     };
 
     const newOrder = await this.orderRepository.save(order);
-
+    
     const orderDetail = {
       price: Number(total.toFixed(2)),
       order: newOrder,
     };
-
+    
     const newOrderDetail = await this.orderDetailRepository.save(orderDetail);
 
-    for (const { product, cantidad, pickedFlavors } of productsArr) {
-      const orderDetailProduct = {
-        orderDetail: newOrderDetail,
-        product,
-        cantidad,
-        orderDetailFlavors: product.flavors,
-        pickedFlavors,
-      };
-      await this.OrderDetailProductRepository.save(orderDetailProduct);
+    if (productsArr && productsArr.length > 0) {
+      for (const { product, cantidad, pickedFlavors } of productsArr) {
+        const orderDetailProduct = {
+          orderDetail: newOrderDetail,
+          product,
+          cantidad,
+          orderDetailFlavors: product.flavors,
+          pickedFlavors,
+        };
+        await this.OrderDetailProductRepository.save(orderDetailProduct);
+      }
+    }
+
+    if (findAllGiftCards && findAllGiftCards.length > 0) {
+      for (const giftcard of findAllGiftCards){
+        for (const data of giftCards) {
+        const orderDetailGiftCard = {
+          orderDetail: newOrderDetail,
+          giftCard: giftcard,
+          nameRecipient: data.nameRecipient,
+          emailRecipient: data.emailRecipient,
+          message: data.message,
+        };
+        await this.orderDetailGiftCardRepository.save(orderDetailGiftCard);
+      }
+      }
     }
 
     return await this.orderRepository.find({
@@ -120,6 +156,9 @@ export class OrderService {
           orderDetailProducts: {
             product: true,
             orderDetailFlavors: true,
+          },
+          orderDetailGiftCards: {
+            giftCard: true,
           },
         },
       },
@@ -176,6 +215,9 @@ export class OrderService {
             product: { category: true, images: true },
             orderDetailFlavors: true,
           },
+          orderDetailGiftCards:{
+            giftCard: true,
+          }
         },
         user: true,
         giftCard: true,
@@ -195,6 +237,9 @@ export class OrderService {
           orderDetailProducts: {
             product: { category: true, images: true },
           },
+          orderDetailGiftCards: {
+            giftCard: true,
+          }
         },
         giftCard: { product: true },
         labels: true,
