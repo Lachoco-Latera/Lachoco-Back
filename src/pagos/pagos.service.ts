@@ -160,7 +160,7 @@ export class PagosService {
               success: `${MP_URL}/success`,
               failure: `${MP_URL}/failure`,
               pending: `${MP_URL}/pending`,
-            },
+           },
             items: [
               {
                 id: orderById.id,
