@@ -61,7 +61,6 @@ export class GiftCardOrder{
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   @ApiProperty({
     description: 'Message of the giftCard',
     example: 'Gracias por tu compra',
