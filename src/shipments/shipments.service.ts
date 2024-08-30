@@ -126,9 +126,9 @@ export class ShipmentsService {
         street: `${createShipmentDto.country === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
         number: `${createShipmentDto.country === 'CO' ? '12' : '18'}`,
         district: 'other',
-        city: `${createShipmentDto.country === 'CO' ? 'cundinamarca' : 'Castilla y León'}`,
-        state: `${createShipmentDto.country === 'CO' ? 'dc' : 'SG'}`,
-        country: `${createShipmentDto.country === 'CO' ? 'co' : 'ES'}`,
+        city: `${createShipmentDto.country === 'CO' ? '11001000' : 'Castilla y León'}`,
+        state: `${createShipmentDto.country === 'CO' ? 'DC' : 'SG'}`,
+        country: `${createShipmentDto.country === 'CO' ? 'CO' : 'ES'}`,
         postalCode: `${createShipmentDto.country === 'CO' ? '110311' : '40196'}`,
         reference: '',
         // coordinates: {
@@ -144,10 +144,10 @@ export class ShipmentsService {
         street: createShipmentDto.user.street,
         number: createShipmentDto.user.number,
         district: 'other',
-        city: createShipmentDto.user.city,
-        state: state.code_2_digits,
-        country: country.code,
-        postalCode: createShipmentDto.user.postalCode,
+        city: "05001000",
+        state: "AN",
+        country: "CO",
+        postalCode: "050031",
         reference: '',
         // coordinates: {
         //   latitude: coordinates.coordinates.latitute,
@@ -173,7 +173,7 @@ export class ShipmentsService {
       ],
       shipment: {
         carrier: createShipmentDto.carrier,
-        type: 1,
+        type: 0,
       },
       settings: {
         currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
