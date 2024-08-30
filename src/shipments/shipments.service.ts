@@ -196,7 +196,6 @@ export class ShipmentsService {
       shipment: {
         carrier: createShipmentDto.carrier,
         type: 0,
-        type: 0,
       },
       settings: {
         currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
