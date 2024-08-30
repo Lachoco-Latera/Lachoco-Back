@@ -214,7 +214,7 @@ export class ShipmentsService {
     };
     return axios(config)
       .then(function (response) {
-        console.log('Shpment 195 envis Respu', response.data);
+        console.log('Shpment 195 envia Respu', response.data);
         if (response.data.meta === 'rate') {
           const filteredCarriers = response.data.data.map(
             ({
