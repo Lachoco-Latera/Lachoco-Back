@@ -13,7 +13,13 @@ const config = {
   password: process.env.DB_PASSWORD,
   autoLoadEntities: true,
   synchronize: true,
+<<<<<<< HEAD
   // logging: false, //['query', 'error'],
+=======
+  logging: ['query', 'error'], // este cuando se sube a git
+  //logging: false, // esto es solo en forma local
+
+>>>>>>> 22820c805c84e0eac62b0be1e9b99a059b17e49d
   dropSchema: false,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],

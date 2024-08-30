@@ -9,6 +9,8 @@ import { User } from 'src/user/entities/user.entity';
 import { OrderDetailProduct } from './entities/orderDetailsProdusct.entity';
 import { Flavor } from 'src/flavor/entities/flavor.entity';
 import { Address } from './entities/address.entity';
+import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
+import { OrderDetailGiftCard } from './entities/orderDetailGiftCard.entity';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { Address } from './entities/address.entity';
       OrderDetailProduct,
       Flavor,
       Address,
+      GiftCard,
+      OrderDetailGiftCard,
     ]),
   ],
   controllers: [OrderController],

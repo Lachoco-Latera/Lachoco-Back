@@ -9,6 +9,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { Order } from './order.entity';
 import { OrderDetailProduct } from './orderDetailsProdusct.entity';
+import { OrderDetailGiftCard } from './orderDetailGiftCard.entity';
 
 @Entity({
   name: 'order_details',
@@ -30,4 +31,11 @@ export class OrderDetail {
     { cascade: true },
   )
   orderDetailProducts: OrderDetailProduct[];
+
+  @OneToMany(
+    () => OrderDetailGiftCard,
+    (orderDetailGiftCard) => orderDetailGiftCard.orderDetail,
+    { cascade: true },
+  )
+  orderDetailGiftCards: OrderDetailGiftCard[];
 }

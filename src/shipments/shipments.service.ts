@@ -7,6 +7,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Order } from 'src/order/entities/order.entity';
+import { codigoCiudades } from 'src/utils/codigoCiudades';
+import { error } from 'console';
 
 @Injectable()
 export class ShipmentsService {
@@ -27,7 +29,10 @@ export class ShipmentsService {
 
     try {
       const response = await axios(config);
-      return response.data.data;
+      console.log('CARRIER', response.data.data);
+      return [
+        ...new Set(response.data.data.map((carrier) => carrier.carrier_name)),
+      ];
     } catch (error) {
       console.error('Error fetching country data:', error);
       throw error;
@@ -113,6 +118,23 @@ export class ShipmentsService {
       country.code,
       createShipmentDto.user.state,
     );
+
+    const ciudadfilter = codigoCiudades.filter(
+      (ciudad) =>
+        ciudad.nombre_ciudad === createShipmentDto.user.city.toUpperCase(),
+    );
+    console.log('Ciudad filter:', ciudadfilter);
+
+    const codigo = ciudadfilter[0].codigo_ciudad;
+    let codigo_ciudad: string;
+    if (codigo.toString().length === 4) {
+      codigo_ciudad = `0${codigo}000`;
+    } else {
+      codigo_ciudad = `${codigo}000`;
+    }
+    // console.log('Codigo ciudad:', codigo_ciudad);
+
+    // console.log('ciudad:', ciudadfilter);
     // const coordinates = await this.getCoordinates(
     //   country.code,
     //   createShipmentDto.user.postalCode,
@@ -144,10 +166,10 @@ export class ShipmentsService {
         street: createShipmentDto.user.street,
         number: createShipmentDto.user.number,
         district: 'other',
-        city: "05001000",
-        state: "AN",
-        country: "CO",
-        postalCode: "050031",
+        city: codigo_ciudad, //createShipmentDto.user.city,
+        state: state.code_2_digits,
+        country: country.code,
+        postalCode: createShipmentDto.user.postalCode,
         reference: '',
         // coordinates: {
         //   latitude: coordinates.coordinates.latitute,
@@ -174,11 +196,13 @@ export class ShipmentsService {
       shipment: {
         carrier: createShipmentDto.carrier,
         type: 0,
+        type: 0,
       },
       settings: {
         currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
+    // console.log('Shipments 182', data);
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
@@ -191,8 +215,39 @@ export class ShipmentsService {
     };
     return axios(config)
       .then(function (response) {
-        return JSON.stringify(response.data);
+        console.log('Shpment 195 envis Respu', response.data);
+        if (response.data.meta === 'rate') {
+          const filteredCarriers = response.data.data.map(
+            ({
+              carrier,
+              insurance,
+              totalPrice,
+              basePrice,
+              deliveryEstimate,
+              carrierId,
+              carrierDescription,
+              serviceId,
+              service,
+              serviceDescription,
+            }) => ({
+              carrier,
+              insurance,
+              totalPrice,
+              basePrice,
+              deliveryEstimate,
+              carrierId,
+              carrierDescription,
+              serviceId,
+              service,
+              serviceDescription,
+            }),
+          );
+          return JSON.stringify(filteredCarriers);
+        } else {
+          return JSON.stringify(response.data.error.message);
+        }
       })
+
       .catch(function (error) {
         console.log(error);
       });
@@ -205,10 +260,12 @@ export class ShipmentsService {
     if (!user) throw new NotFoundException('User not found');
 
     const country = await this.getcountry(createShipmentDto.user.country);
+    // console.log('Estado 262', createShipmentDto.user);
     const state = await this.getStateBytCountry(
       country.code,
       createShipmentDto.user.state,
     );
+    //console.log('Estado 266', state);
 
     const data = JSON.stringify({
       origin: {
@@ -219,11 +276,13 @@ export class ShipmentsService {
         street: `${createShipmentDto.country === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
         number: `${createShipmentDto.country === 'CO' ? '12' : '18'}`,
         district: 'other',
-        city: `${createShipmentDto.country === 'CO' ? 'cundinamarca' : 'Castilla y León'}`,
+        city: `${createShipmentDto.country === 'CO' ? '11001000' : 'Castilla y León'}`,
         state: `${createShipmentDto.country === 'CO' ? 'dc' : 'SG'}`,
-        country: `${createShipmentDto.country === 'CO' ? 'co' : 'ES'}`,
+        country: `${createShipmentDto.country === 'CO' ? 'CO' : 'ES'}`,
         postalCode: `${createShipmentDto.country === 'CO' ? '110311' : '40196'}`,
         reference: '',
+        latitude: '6.246544926420268',
+        longitude: '-75.60054402387485',
       },
       destination: {
         name: createShipmentDto.user.name,
@@ -238,6 +297,8 @@ export class ShipmentsService {
         country: country.code,
         postalCode: createShipmentDto.user.postalCode,
         reference: '',
+        latitude: '6.198688270719081',
+        longitude: '-75.58579903456621',
       },
       packages: [
         {
@@ -268,6 +329,7 @@ export class ShipmentsService {
         currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
+    console.log('Label 325', data);
 
     const config = {
       method: 'post',
