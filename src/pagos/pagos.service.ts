@@ -57,6 +57,8 @@ export class PagosService {
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
     const { order, orderId, country } = checkoutOrder;
+
+    console.log("Shipping Price", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
       where: { id: orderId },
