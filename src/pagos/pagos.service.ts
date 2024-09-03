@@ -330,6 +330,7 @@ export class PagosService {
             },
             user: true,
             giftCard: { product: true },
+            address: true,
           },
         });
         if (orderById.status === status.FINISHED)

@@ -419,20 +419,26 @@ export const bodyOrderAdmin = (
 </table>
 
     <p>Total ${order.giftCard?.discount ? Number(order.orderDetail.price) - Number(order.giftCard?.discount) : order.orderDetail.price}$</p>
+      ${order.orderDetail.orderDetailGiftCards.length > 0 ?
+        order.orderDetail.orderDetailGiftCards.map((giftcard) => {
+          return `<p>Gift Card enviada a : ${giftcard.emailRecipient}</p>`
+        }): ''
+      }
 
-    <p>
-    Direccion de envio:
-    </p>
-    <ul>
-    <li>${order.address.postalCode}</li>
-    <li>${order.address.street}</li>
-    <li>${order.address.number}</li>
-    <li>${order.address.city}</li>
-    <li>${order.address.state}</li>
-    <li>${order.address.country}</li>
-    <li>${order.address.phone}</li>
-    </ul>
-
+      ${order.orderDetail.orderDetailProducts.length > 0 ? 
+        `<p>
+        Direccion de envio:
+        </p>
+        <ul>
+        <li>${order.address.postalCode}</li>
+        <li>${order.address.street}</li>
+        <li>${order.address.number}</li>
+        <li>${order.address.city}</li>
+        <li>${order.address.state}</li>
+        <li>${order.address.country}</li>
+        <li>${order.address.phone}</li>
+        </ul>`: ''
+      }
 
     ${order.giftCard && order.giftCard.code ? `<p> Cupon GiftCard ${order.giftCard.code}</p>` : ''}
     
