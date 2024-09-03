@@ -243,6 +243,7 @@ export class OrderService {
         },
         giftCard: { product: true },
         labels: true,
+        address: true,
       },
     });
     if (!order) throw new NotFoundException('Order not found');
