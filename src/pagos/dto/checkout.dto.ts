@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -53,6 +54,9 @@ export class OrderCheckoutProduct {
   @IsNotEmpty()
   @IsString()
   shipmentCountry: string;
+
+  @IsNumber()
+  shippingPrice: number;
 }
 
 export class checkoutOrder {
