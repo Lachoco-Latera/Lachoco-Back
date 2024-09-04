@@ -12,6 +12,7 @@ dotenvConfig({ path: '.env' });
 //   },
 // });
 export const transporter = nodemailer.createTransport({
+  //@ts-ignore
   host: process.env.MAIL_HOST, // Servidor SMTP de Microsoft 365
   port: process.env.MAIL_PORT, // Puerto para STARTTLS
   secure: false, // false para port 587
