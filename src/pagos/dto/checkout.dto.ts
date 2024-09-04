@@ -56,8 +56,7 @@ export class OrderCheckoutProduct {
   shipmentCountry: string;
 
   @IsNumber()
-  @Length(1, 10)
-  shippingPrice: string;
+  shippingPrice: number;
 }
 
 export class checkoutOrder {

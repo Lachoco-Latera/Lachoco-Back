@@ -56,9 +56,9 @@ export class PagosService {
   ) {}
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
-    const { order, orderId, country } = checkoutOrder;
-
-    console.log("Shipping Price", checkoutOrder);
+    const { order, orderId, country} = checkoutOrder;
+    console.log("Price:",order);
+    // console.log("checkoutOrder", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
       where: { id: orderId },
@@ -168,7 +168,7 @@ export class PagosService {
                 id: orderById.id,
                 title: 'Productos',
                 quantity: 1,
-                unit_price: Number(orderById.orderDetail.price) - discount,
+                unit_price: Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,
               },
             ],
             notification_url: 'https://lachoco-back.vercel.app/pagos/webhook',
