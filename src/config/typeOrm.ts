@@ -27,6 +27,11 @@ const config = {
   //     rejectUnauthorized: false,
   //   },
   // },
+  // extra: {
+  //   ssl: {
+  //     rejectUnauthorized: false,
+  //   },
+  // },
 };
 
 export default registerAs('typeorm', () => config);
