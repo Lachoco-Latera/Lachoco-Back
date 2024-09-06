@@ -25,6 +25,7 @@ import { category } from "src/category/entity/category.entity";
 import {
   frecuency,
   SuscriptionPro,
+
 } from "src/suscription/entity/suscription.entity";
 import { OrderDetailProduct } from "src/order/entities/orderDetailsProdusct.entity";
 import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
@@ -347,6 +348,7 @@ export class PagosService {
             user: true,
             address: true,
             giftCard: { product: true },
+            address: true,
           },
         });
 
