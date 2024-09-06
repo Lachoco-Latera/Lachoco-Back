@@ -322,7 +322,7 @@ export class ProductService {
           date28_days === currentDate
         ) {
           // const newlabel =
-          //await this.shipmentsService.createlable(dateShipments);
+          //await this.shipmentsService.createLabel(dateShipments);
           // const parseLabel = JSON.parse(newlabel);
           // const { label, trackingNumber } = parseLabel.data[0];
           // const saveLabel = new OrderLabel();
@@ -386,7 +386,7 @@ export class ProductService {
           // };
           // await this.emailService.sendPostulation(mail);
           // const newlabel =
-          //  // await this.shipmentsService.createlable(dateShipments);
+          //  // await this.shipmentsService.createLabel(dateShipments);
           // const parseLabel = JSON.parse(newlabel);
           // const { label, trackingNumber } = parseLabel.data[0];
           // const saveLabel = new OrderLabel();
