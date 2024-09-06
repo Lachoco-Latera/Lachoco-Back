@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from './entity/category.entity';
 import { Repository } from 'typeorm';
+import {CategoryName} from "./dto/category.dto"
 
 @Injectable()
 export class CategoryService {
@@ -14,14 +15,15 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async createCategory(categoryName: string) {
+  async createCategory(categoryName: CategoryName) {
     const findCategory = await this.categoryRepository.findOne({
-      where: { name: categoryName },
+      where: { name: categoryName.name },
     });
     if (findCategory) throw new ConflictException('Category already exists');
 
     const saveCategory = await this.categoryRepository.save({
-      name: categoryName,
+      name: categoryName.name,
+      icon: categoryName.icon,
     });
     return saveCategory;
   }
