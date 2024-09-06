@@ -20,11 +20,11 @@ const config = {
   ssl: false,
   cache: true,
   maxQueryExecutionTime: 1000,
-//  extra: {
-//    ssl: {
-//      rejectUnauthorized: false,
-//    },
-//  },
+  extra: {
+   ssl: {
+     rejectUnauthorized: false,
+    },
+  },
 };
 
 export default registerAs('typeorm', () => config);
