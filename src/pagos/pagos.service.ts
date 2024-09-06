@@ -31,6 +31,7 @@ import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
 import { transporter } from "src/utils/transportNodemailer";
 import { bodypagoMP2 } from "src/user/emailBody/bodyPagoMP2";
 import { ShipmentsService } from "src/shipments/shipments.service";
+import { bodyGiftCard } from 'src/user/emailBody/bodyGiftCard';
 
 const MP_URL = process.env.MP_URL;
 
@@ -346,6 +347,7 @@ export class PagosService {
             user: true,
             address: true,
             giftCard: { product: true },
+            address: true,
           },
         });
 
@@ -548,13 +550,33 @@ export class PagosService {
         // };
         // await this.emailService.sendPostulation(mail);
 
+
+        if(orderById.orderDetail.orderDetailGiftCards.length > 0){
+          orderById.orderDetail.orderDetailGiftCards.forEach(async (giftCards) => {
+            const templateToGiftCard = bodyGiftCard(
+              giftCards.nameRecipient, 
+              giftCards.giftCard.discount.toString() , 
+              giftCards.giftCard.code)
+            const infoGiftCard = await transporter.sendMail({
+              from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+              to: giftCards.emailRecipient, // list of receivers
+              subject: 'Nuevo Gift Card', // Subject line
+              text: 'Nuevo Gift Card', // plain text body
+              html: templateToGiftCard, // html body
+            })
+            console.log('Message sent: %s', infoGiftCard.messageId);
+          })
+        }
+
         const template2 = bodyOrderAdmin(
           "ventas_lachoco_latera@hotmail.com",
           "Orden de envio",
           orderById,
-          orderById.date.toDateString()
+          orderById.date,
         );
 
+
+        //no lee postal code
         const info2 = await transporter.sendMail({
           from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
           to: "ventas_lachoco_latera@hotmail.com", // list of receivers
