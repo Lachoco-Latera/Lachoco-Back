@@ -1,24 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
   Length,
+  Min,
+  ValidateNested,
 } from 'class-validator';
 
-export class checkoutOrder {
-  @IsUUID()
-  @IsNotEmpty()
-  orderId: string;
-
+export class OrderCheckoutProduct {
   @IsUUID()
   @IsOptional()
   giftCardId?: string;
-
-  @IsNotEmpty()
-  @IsString()
-  country: string;
 
   @IsString()
   @IsOptional()
@@ -57,4 +54,34 @@ export class checkoutOrder {
   @IsNotEmpty()
   @IsString()
   shipmentCountry: string;
+
+  @IsNumber()
+  shippingPrice: number;
+}
+
+export class checkoutOrder {
+  @IsUUID()
+  @IsNotEmpty()
+  orderId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  country: string;
+
+  @ApiProperty({ example: {
+    "giftCardId":"123e4567-e89b-12d3-a456-426614174000",
+    "coutry":"COL",
+    "frecuency":"WEEKLY",
+    "phone":"1234567890",
+    "street":"123 Main St",
+    "number":"123",
+    "city":"New York",
+    "state":"NY",
+    "postalCode":"10001",
+    "shipmentCountry":"COL",
+  }})
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => OrderCheckoutProduct)
+  order?: OrderCheckoutProduct;
 }

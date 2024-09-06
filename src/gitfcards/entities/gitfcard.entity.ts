@@ -1,4 +1,5 @@
 import { Order } from 'src/order/entities/order.entity';
+import { OrderDetailGiftCard } from 'src/order/entities/orderDetailGiftCard.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -7,6 +8,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -40,4 +42,10 @@ export class GiftCard {
 
   @OneToOne(() => Order, (order) => order.giftCard)
   order: Order;
+
+  @OneToMany(
+    () => OrderDetailGiftCard,
+    (orderDetailGiftCard) => orderDetailGiftCard.giftCard,
+  )
+  orderDetailGiftCards: OrderDetailGiftCard[];
 }

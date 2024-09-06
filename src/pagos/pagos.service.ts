@@ -30,6 +30,9 @@ import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.enti
 import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 import { transporter } from 'src/utils/transportNodemailer';
 import { bodypagoMP2 } from 'src/user/emailBody/bodyPagoMP2';
+import { bodyGiftCard } from 'src/user/emailBody/bodyGiftCard';
+
+const MP_URL = process.env.MP_URL;
 
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
@@ -53,16 +56,20 @@ export class PagosService {
     private emailService: EmailService,
   ) {}
 
-  async checkoutSession(order: checkoutOrder) {
+  async checkoutSession(checkoutOrder: checkoutOrder) {
+    const { order, orderId, country} = checkoutOrder;
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
-      where: { id: order.orderId },
+      where: { id: orderId },
       relations: {
         orderDetail: {
           orderDetailProducts: {
             product: { category: true },
             orderDetailFlavors: true,
           },
+          orderDetailGiftCards: {
+            giftCard: true,
+          }
         },
         user: { giftcards: true },
         giftCard: true,
@@ -73,12 +80,11 @@ export class PagosService {
     if (!orderById) throw new NotFoundException('Order not found');
     if (orderById.status === status.FINISHED)
       throw new BadRequestException('order is Finished');
-    if (orderById.orderDetail.orderDetailProducts.length === 0)
+    if (orderById.orderDetail.orderDetailProducts.length === 0 && orderById.orderDetail.orderDetailGiftCards.length === 0)
       throw new BadRequestException('Order without products');
     let discount = 0;
-
     //*buscar si usuario tiene giftcard
-    if (order.giftCardId !== null) {
+    if (order && order.giftCardId) {
       const findGitCard = await this.giftCardRepository.findOne({
         where: { id: order.giftCardId },
         relations: { product: true },
@@ -119,7 +125,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (order.country === 'COL') {
+    if (country === 'COL') {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
@@ -149,42 +155,45 @@ export class PagosService {
               // label: order.label,
               //  trackingNumber: order.trackingNumber,
               // priceShipment: order.totalPrice,
-              frecuency: order.frecuency,
+              frecuency: order?.frecuency || "",
             },
             back_urls: {
-              success: 'https://lachoco-latera.com/success',
-              failure: 'https://lachoco-latera.com/failure',
-              pending: 'https://lachoco-latera.com/pending',
-            },
+              success: `${MP_URL}/success`,
+              failure: `${MP_URL}/failure`,
+              pending: `${MP_URL}/pending`,
+           },
             items: [
               {
                 id: orderById.id,
                 title: 'Productos',
                 quantity: 1,
-                unit_price: Number(orderById.orderDetail.price) - discount,
+                unit_price: Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,
               },
             ],
-            notification_url: 'https://lachocoback.vercel.app/pagos/webhook',
+            notification_url: 'https://lachoco-back.vercel.app/pagos/webhook',
           },
         });
-        const addAddress = new Address();
-        addAddress.city = order.city;
-        addAddress.country = order.shipmentCountry;
-        addAddress.street = order.street;
-        addAddress.state = order.state;
-        addAddress.number = order.number;
-        addAddress.postalCode = order.postalCode;
-        addAddress.phone = order.phone;
-        addAddress.order = orderById;
+        
+        if (order && Object.keys(order).length > 0) {
+          const addAddress = new Address();
+          addAddress.city = order.city;
+          addAddress.country = order.shipmentCountry;
+          addAddress.street = order.street;
+          addAddress.state = order.state;
+          addAddress.number = order.number;
+          addAddress.postalCode = order.postalCode;
+          addAddress.phone = order.phone;
+          addAddress.order = orderById;
 
-        await this.addressRepository.save(addAddress);
+          await this.addressRepository.save(addAddress);
+        }
         return res.init_point;
       } catch (error) {
         console.log(error);
         throw error;
       }
     }
-    if (order.country === 'SPAIN' || order.country === 'GLOBAL') {
+    if (country === 'SPAIN' || country === 'GLOBAL') {
       let customer = orderById.user.customerId;
       if (!orderById.user.customerId) {
         customer = await stripe.customers
@@ -223,7 +232,7 @@ export class PagosService {
                 name: 'Productos',
                 description: 'Productos',
               },
-              currency: `${order.country === 'SPAIN' ? 'EUR' : 'USD'}`,
+              currency: `${country === 'SPAIN' ? 'EUR' : 'USD'}`,
               unit_amount:
                 Number(orderById.orderDetail.price) * 100 -
                 Number(discount) * 100,
@@ -242,8 +251,8 @@ export class PagosService {
         },
         mode: 'payment',
         payment_method_types: ['card'],
-        success_url: 'https://lachoco-latera.com/success',
-        cancel_url: 'https://lachoco-latera.com/cancel',
+        success_url: `${MP_URL}/success`,
+        cancel_url: `${MP_URL}/cancel`,
       });
 
       const addAddress = new Address();
@@ -315,15 +324,19 @@ export class PagosService {
                 product: { category: true },
                 orderDetailFlavors: true,
               },
+              orderDetailGiftCards:{
+                giftCard: true
+              }
             },
             user: true,
             giftCard: { product: true },
+            address: true,
           },
         });
         if (orderById.status === status.FINISHED)
           throw new BadRequestException('Order Finished');
         if (!orderById) throw new NotFoundException('Order not found');
-        if (orderById.orderDetail.orderDetailProducts.length === 0)
+        if (orderById.orderDetail.orderDetailProducts.length === 0 && orderById.orderDetail.orderDetailGiftCards.length === 0)
           throw new BadRequestException('Order without products');
 
         if (orderById) {
@@ -472,13 +485,33 @@ export class PagosService {
         // };
         // await this.emailService.sendPostulation(mail);
 
+
+        if(orderById.orderDetail.orderDetailGiftCards.length > 0){
+          orderById.orderDetail.orderDetailGiftCards.forEach(async (giftCards) => {
+            const templateToGiftCard = bodyGiftCard(
+              giftCards.nameRecipient, 
+              giftCards.giftCard.discount.toString() , 
+              giftCards.giftCard.code)
+            const infoGiftCard = await transporter.sendMail({
+              from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+              to: giftCards.emailRecipient, // list of receivers
+              subject: 'Nuevo Gift Card', // Subject line
+              text: 'Nuevo Gift Card', // plain text body
+              html: templateToGiftCard, // html body
+            })
+            console.log('Message sent: %s', infoGiftCard.messageId);
+          })
+        }
+
         const template2 = bodyOrderAdmin(
           'ventas_lachoco_latera@hotmail.com',
           'Orden de envio',
           orderById,
-          orderById.date.toDateString(),
+          orderById.date,
         );
 
+
+        //no lee postal code
         const info2 = await transporter.sendMail({
           from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
           to: 'ventas_lachoco_latera@hotmail.com', // list of receivers
