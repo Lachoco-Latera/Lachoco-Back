@@ -20,7 +20,7 @@ export class ShipmentsController {
 
   @Post('/createlabel')
   createLabel(@Body() createLabel: UpdateShipmentDto) {
-    return this.shipmentsService.createlable(createLabel);
+    return this.shipmentsService.createLabel(createLabel);
   }
 
   @Post('cancel')

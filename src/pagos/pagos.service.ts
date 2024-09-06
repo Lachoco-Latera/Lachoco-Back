@@ -2,34 +2,36 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Order, status } from 'src/order/entities/order.entity';
-import { Stripe } from 'stripe';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Order, status } from "src/order/entities/order.entity";
+import { Stripe } from "stripe";
+import { DataSource, EntityManager, Repository } from "typeorm";
 import {
   MercadoPagoConfig,
   MerchantOrder,
   Payment,
   Preference,
-} from 'mercadopago';
-import { EmailService } from 'src/email/email.service';
-import { bodyPagoMP } from 'src/user/emailBody/bodyPagoMP';
-import { checkoutOrder } from './dto/checkout.dto';
-import { GiftCard } from 'src/gitfcards/entities/gitfcard.entity';
-import { Product, statusExp } from 'src/product/entities/product.entity';
-import { OrderDetail } from 'src/order/entities/orderDetail.entity';
-import { OrderLabel } from 'src/order/entities/label.entity';
-import { Address } from 'src/order/entities/address.entity';
-import { category } from 'src/category/entity/category.entity';
+} from "mercadopago";
+import { EmailService } from "src/email/email.service";
+import { bodyPagoMP } from "src/user/emailBody/bodyPagoMP";
+import { checkoutOrder } from "./dto/checkout.dto";
+import { GiftCard } from "src/gitfcards/entities/gitfcard.entity";
+import { Product, statusExp } from "src/product/entities/product.entity";
+import { OrderDetail } from "src/order/entities/orderDetail.entity";
+import { OrderLabel } from "src/order/entities/label.entity";
+import { Address } from "src/order/entities/address.entity";
+import { category } from "src/category/entity/category.entity";
 import {
   frecuency,
   SuscriptionPro,
-} from 'src/suscription/entity/suscription.entity';
-import { OrderDetailProduct } from 'src/order/entities/orderDetailsProdusct.entity';
-import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
-import { transporter } from 'src/utils/transportNodemailer';
-import { bodypagoMP2 } from 'src/user/emailBody/bodyPagoMP2';
+
+} from "src/suscription/entity/suscription.entity";
+import { OrderDetailProduct } from "src/order/entities/orderDetailsProdusct.entity";
+import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
+import { transporter } from "src/utils/transportNodemailer";
+import { bodypagoMP2 } from "src/user/emailBody/bodyPagoMP2";
+import { ShipmentsService } from "src/shipments/shipments.service";
 import { bodyGiftCard } from 'src/user/emailBody/bodyGiftCard';
 
 const MP_URL = process.env.MP_URL;
@@ -54,11 +56,12 @@ export class PagosService {
     @InjectRepository(Address)
     private addressRepository: Repository<Address>,
     private emailService: EmailService,
+    private shipmentsService: ShipmentsService
   ) {}
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
-    const { order, orderId, country} = checkoutOrder;
-    console.log("Price:",order);
+    const { order, orderId, country } = checkoutOrder;
+    console.log("Price:", order);
     // console.log("checkoutOrder", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
@@ -71,7 +74,7 @@ export class PagosService {
           },
           orderDetailGiftCards: {
             giftCard: true,
-          }
+          },
         },
         user: { giftcards: true },
         giftCard: true,
@@ -79,11 +82,14 @@ export class PagosService {
       },
     });
 
-    if (!orderById) throw new NotFoundException('Order not found');
+    if (!orderById) throw new NotFoundException("Order not found");
     if (orderById.status === status.FINISHED)
-      throw new BadRequestException('order is Finished');
-    if (orderById.orderDetail.orderDetailProducts.length === 0 && orderById.orderDetail.orderDetailGiftCards.length === 0)
-      throw new BadRequestException('Order without products');
+      throw new BadRequestException("order is Finished");
+    if (
+      orderById.orderDetail.orderDetailProducts.length === 0 &&
+      orderById.orderDetail.orderDetailGiftCards.length === 0
+    )
+      throw new BadRequestException("Order without products");
     let discount = 0;
     //*buscar si usuario tiene giftcard
     if (order && order.giftCardId) {
@@ -93,10 +99,10 @@ export class PagosService {
       });
 
       if (findGitCard && findGitCard.isUsed === true)
-        throw new BadRequestException('GiftCard is Used');
+        throw new BadRequestException("GiftCard is Used");
 
       const hasGiftCardCode = orderById.user.giftcards?.find(
-        (g) => g.code === findGitCard.code,
+        (g) => g.code === findGitCard.code
       );
 
       if (hasGiftCardCode) {
@@ -105,7 +111,7 @@ export class PagosService {
           //*agregar giftcard a orden
           await this.orderRepository.update(
             { id: orderById.id },
-            { giftCard: findGitCard },
+            { giftCard: findGitCard }
           );
           updateOrder = await this.orderRepository.findOne({
             where: { id: orderById.id },
@@ -127,7 +133,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (country === 'COL') {
+    if (country === "COL") {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
@@ -151,31 +157,37 @@ export class PagosService {
               surname: orderById.user.lastname,
               email: orderById.user.email,
             },
-            statement_descriptor: 'Chocolatera',
+            statement_descriptor: "Chocolatera",
             metadata: {
               order: orderById,
               // label: order.label,
               //  trackingNumber: order.trackingNumber,
               // priceShipment: order.totalPrice,
               frecuency: order?.frecuency || "",
+              shippingCarrier: order?.shippingCarrier,
+              shippingService: order?.shippingService,
             },
             back_urls: {
               success: `${MP_URL}/success`,
               failure: `${MP_URL}/failure`,
               pending: `${MP_URL}/pending`,
-           },
+            },
             items: [
               {
                 id: orderById.id,
-                title: 'Productos',
+                title: "Productos",
                 quantity: 1,
-                unit_price: Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,
+                unit_price:
+                  Number(orderById.orderDetail.price) +
+                  Number(order.shippingPrice) -
+                  discount,
+                
               },
             ],
-            notification_url: 'https://lachoco-back.vercel.app/pagos/webhook',
+            notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
           },
         });
-        
+
         if (order && Object.keys(order).length > 0) {
           const addAddress = new Address();
           addAddress.city = order.city;
@@ -195,7 +207,7 @@ export class PagosService {
         throw error;
       }
     }
-    if (country === 'SPAIN' || country === 'GLOBAL') {
+    if (country === "SPAIN" || country === "GLOBAL") {
       let customer = orderById.user.customerId;
       if (!orderById.user.customerId) {
         customer = await stripe.customers
@@ -231,10 +243,10 @@ export class PagosService {
           {
             price_data: {
               product_data: {
-                name: 'Productos',
-                description: 'Productos',
+                name: "Productos",
+                description: "Productos",
               },
-              currency: `${country === 'SPAIN' ? 'EUR' : 'USD'}`,
+              currency: `${country === "SPAIN" ? "EUR" : "USD"}`,
               unit_amount:
                 Number(orderById.orderDetail.price) * 100 -
                 Number(discount) * 100,
@@ -251,8 +263,8 @@ export class PagosService {
           //priceShipment: order.totalPrice,
           frecuency: order.frecuency,
         },
-        mode: 'payment',
-        payment_method_types: ['card'],
+        mode: "payment",
+        payment_method_types: ["card"],
         success_url: `${MP_URL}/success`,
         cancel_url: `${MP_URL}/cancel`,
       });
@@ -309,15 +321,18 @@ export class PagosService {
     const payment = query;
     const searchPayment = new Payment(client);
     const searchMercharOrder = new MerchantOrder(client);
+    let carrier: string;
+    let shippingService: string;
     try {
-      if (payment.type === 'payment') {
-        const data = await searchPayment.get({ id: payment['data.id'] });
+      if (payment.type === "payment") {
+        const data = await searchPayment.get({ id: payment["data.id"] });
         const mercharOrderBody = await searchMercharOrder.get({
           merchantOrderId: data.order.id,
         });
 
         const payments = mercharOrderBody.payments;
-
+        carrier=data.metadata.shippingCarrier;
+        shippingService=data.metadata.shippingService;
         const orderById = await this.orderRepository.findOne({
           where: { id: data.metadata.order.id },
           relations: {
@@ -326,20 +341,26 @@ export class PagosService {
                 product: { category: true },
                 orderDetailFlavors: true,
               },
-              orderDetailGiftCards:{
-                giftCard: true
-              }
+              orderDetailGiftCards: {
+                giftCard: true,
+              },
             },
             user: true,
+            address: true,
             giftCard: { product: true },
             address: true,
           },
         });
+
+        console.log("ordenwebhook:");
         if (orderById.status === status.FINISHED)
-          throw new BadRequestException('Order Finished');
-        if (!orderById) throw new NotFoundException('Order not found');
-        if (orderById.orderDetail.orderDetailProducts.length === 0 && orderById.orderDetail.orderDetailGiftCards.length === 0)
-          throw new BadRequestException('Order without products');
+          throw new BadRequestException("Order Finished");
+        if (!orderById) throw new NotFoundException("Order not found");
+        if (
+          orderById.orderDetail.orderDetailProducts.length === 0 &&
+          orderById.orderDetail.orderDetailGiftCards.length === 0
+        )
+          throw new BadRequestException("Order without products");
 
         if (orderById) {
           const { orderDetail } = orderById;
@@ -371,9 +392,9 @@ export class PagosService {
                       // Guardar la suscripción
                       const newSubscription = await manager.save(
                         SuscriptionPro,
-                        subscription,
+                        subscription
                       );
-                      console.log('Subscription guardada:', newSubscription);
+                      console.log("Subscription guardada:", newSubscription);
                       if (data.metadata.frecuency === frecuency.MONTHLY) {
                         const purchaseDate = new Date();
                         const expiryDate7Days = new Date(purchaseDate);
@@ -393,7 +414,7 @@ export class PagosService {
                             date_14days: expiryDate14Days,
                             date_21days: expiryDate21Days,
                             date_28days: expiryDate28Days,
-                          },
+                          }
                         );
                       }
                       if (data.metadata.frecuency === frecuency.WEEKLY) {
@@ -415,7 +436,7 @@ export class PagosService {
                             date_4days: expiryDate4Days,
                             date_6days: expiryDate6Days,
                             date_8days: expiryDate8Days,
-                          },
+                          }
                         );
                       }
                       // Actualizar estado suscripción en order
@@ -423,16 +444,16 @@ export class PagosService {
                       // Guardar el detalle del producto del pedido
                       await manager.save(
                         OrderDetailProduct,
-                        orderDetailProduct,
+                        orderDetailProduct
                       );
 
                       console.log(
-                        'Operaciones después de guardar la suscripción completadas',
+                        "Operaciones después de guardar la suscripción completadas"
                       );
-                    },
+                    }
                   );
                 } catch (error) {
-                  console.error('Error al guardar la suscripción:', error);
+                  console.error("Error al guardar la suscripción:", error);
                   // Manejar el error según sea necesario
                 }
               }
@@ -444,41 +465,84 @@ export class PagosService {
         if (orderById.giftCard !== null) {
           await this.giftCardRepository.update(
             { id: orderById.giftCard.id },
-            { isUsed: true },
+            { isUsed: true }
           );
         }
+        let responseLabel;
+        if (orderById) {
+          const { user, address } = orderById;
+          const { name, lastname, email } = user;
+          const {
+            city,
+            country,
+            phone,
+            postalCode,
+            state,
+            street,
+            number,
+          } = address;
+          const labelData = {
+            carrierService: "ground", //`${shippingService}`,
+            user: {
+              name,
+              company: "",
+              email,
+              phone,
+              street,
+              number,
+              city,
+              state,
+              country,
+              postalCode,
+            },
+            country: "COL",
+            carrier: "coordinadora", //`${carrier}`,
+          };
+          try {
+            responseLabel = await this.shipmentsService.createLabel(labelData);
+          } catch (error) {
+            console.log("Error al crear la etiqueta:", error);
+          }
+        }
 
-        // const orderLabel = new OrderLabel();
-        // orderLabel.trackingNumber = data.metadata.tracking_number;
-        // orderLabel.label = data.metadata.label;
-        // orderLabel.order = orderById;
-        // await this.orderLabelRepository.save(orderLabel);
+        const trackUrl= responseLabel?.data[0]?.trackUrl;
+        const label = responseLabel?.data[0]?.label;
+        const trackingNumber =responseLabel?.data[0]?.trackingNumber;
+        const orderLabel = new OrderLabel();
+        orderLabel.trackingNumber = trackingNumber;
+        orderLabel.label = label;
+        orderLabel.order = orderById;
+        await this.orderLabelRepository.save(orderLabel);
+
         await this.orderRepository.update(
           {
             id: orderById.id,
           },
           {
             status: status.FINISHED,
-          },
+          }
         );
 
         const template = bodypagoMP2(
           orderById.user.email, //*email
-          'Compra Exitosa',
+          "Compra Exitosa",
           orderById.user, //*user
           payments,
           orderById, //*order
+          label,
+          trackUrl,
+          trackingNumber
           // data.metadata.price_shipment,
         );
 
         const info = await transporter.sendMail({
           from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
           to: orderById.user.email, // list of receivers
-          subject: 'Compra Exitosa', // Subject line
-          text: 'Gracias por su Compra', // plain text body
+          subject: "Compra Exitosa", // Subject line
+          text: "Gracias por su Compra", // plain text body
           html: template, // html body
         });
-        console.log('Message sent: %s', info.messageId);
+        console.log("Message sent: %s", info.messageId);
         // const mail = {
         //   to: orderById.user.email,
         //   subject: 'Compra Exitosa',
@@ -506,8 +570,8 @@ export class PagosService {
         }
 
         const template2 = bodyOrderAdmin(
-          'ventas_lachoco_latera@hotmail.com',
-          'Orden de envio',
+          "ventas_lachoco_latera@hotmail.com",
+          "Orden de envio",
           orderById,
           orderById.date,
         );
@@ -516,12 +580,12 @@ export class PagosService {
         //no lee postal code
         const info2 = await transporter.sendMail({
           from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
-          to: 'ventas_lachoco_latera@hotmail.com', // list of receivers
-          subject: 'Orden de envio', // Subject line
-          text: 'Nueva Orden de envio', // plain text body
+          to: "ventas_lachoco_latera@hotmail.com", // list of receivers
+          subject: "Orden de envio", // Subject line
+          text: "Nueva Orden de envio", // plain text body
           html: template2, // html body
         });
-        console.log('Message sent: %s', info2.messageId);
+        console.log("Message sent: %s", info2.messageId);
 
         // const mail2 = {
         //   to: 'ventas@lachoco-latera.com',
@@ -538,7 +602,7 @@ export class PagosService {
 
   //*stripeWebhook
   async stripeWebhook(req: any) {
-    console.log('**********', req.body, '***********');
+    console.log("**********", req.body, "***********");
 
     // const invoice = stripe.invoices.create({
     //   customer: 'cus_NeZwdNtLEOXuvB',
