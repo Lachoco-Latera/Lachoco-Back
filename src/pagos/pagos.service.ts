@@ -346,7 +346,6 @@ export class PagosService {
             user: true,
             address: true,
             giftCard: { product: true },
-            address: true,
           },
         });
 
