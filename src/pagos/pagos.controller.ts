@@ -28,7 +28,6 @@ export class PagosController {
 
   @Post('create-checkout-session')
   checkoutSession(@Body() order: checkoutOrder) {
-    console.log('Body checkout',order);
     return this.pagosService.checkoutSession(order);
   }
 
