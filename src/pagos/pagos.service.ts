@@ -132,7 +132,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (country === "COL") {
+    if (country === "Colombia") {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
@@ -183,7 +183,7 @@ export class PagosService {
                 
               },
             ],
-            notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
+            notification_url: "https://f1b1-167-0-186-78.ngrok-free.app/pagos/webhook",
           },
         });
 
@@ -496,8 +496,11 @@ export class PagosService {
             country: "COL",
             carrier: "coordinadora", //`${carrier}`,
           };
+
           try {
+            console.log("DATOS CREAR LABEL pagos services 500:", labelData);
             responseLabel = await this.shipmentsService.createLabel(labelData);
+            console.log("Etiqueta creada pagos services 501:", responseLabel);
           } catch (error) {
             console.log("Error al crear la etiqueta:", error);
           }
@@ -540,7 +543,7 @@ export class PagosService {
           text: "Gracias por su Compra", // plain text body
           html: template, // html body
         });
-        console.log("Message sent: %s", info.messageId);
+        console.log("Message sent: %s", info.messageId, orderById.user.email);
         // const mail = {
         //   to: orderById.user.email,
         //   subject: 'Compra Exitosa',

@@ -13,8 +13,8 @@ const config = {
   password: process.env.DB_PASSWORD,
   autoLoadEntities: true,
   synchronize: true,
-  //logging: ['query', 'error'], // este cuando se sube a git
-  logging: false, // esto es solo en forma local
+//  logging: ['query', 'error'], // este cuando se sube a git
+ logging: false, // esto es solo en forma local
 
   dropSchema: false,
   entities: ['dist/**/*.entity{.ts,.js}'],
@@ -22,16 +22,11 @@ const config = {
   ssl: false,
   cache: true,
   maxQueryExecutionTime: 1000,
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
 };
 
 export default registerAs('typeorm', () => config);
