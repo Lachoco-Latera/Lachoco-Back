@@ -13,13 +13,11 @@ const config = {
   password: process.env.DB_PASSWORD,
   autoLoadEntities: true,
   synchronize: true,
-//  logging: ['query', 'error'], // este cuando se sube a git
- logging: false, // esto es solo en forma local
-
+  logging: ['query', 'error'], 
   dropSchema: false,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  ssl: false,
+  ssl: true,
   cache: true,
   maxQueryExecutionTime: 1000,
   extra: {

@@ -25,6 +25,7 @@ import { category } from "src/category/entity/category.entity";
 import {
   frecuency,
   SuscriptionPro,
+
 } from "src/suscription/entity/suscription.entity";
 import { OrderDetailProduct } from "src/order/entities/orderDetailsProdusct.entity";
 import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
@@ -59,9 +60,7 @@ export class PagosService {
   ) {}
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
-    const { order, orderId, country } = checkoutOrder;
-    console.log("Price:", order);
-    // console.log("checkoutOrder", checkoutOrder);
+    const { order, orderId, country} = checkoutOrder;
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
       where: { id: orderId },

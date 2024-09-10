@@ -23,6 +23,7 @@ import { OrderLabel } from 'src/order/entities/label.entity';
 import { EmailService } from 'src/email/email.service';
 import { bodyOrderAdmin } from 'src/user/emailBody/bodyOrderAdmin';
 import { transporter } from 'src/utils/transportNodemailer';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -75,7 +76,8 @@ export class ProductService {
       flavors: flavorEntities,
     };
 
-    return await this.productRepository.save(newProduct);
+    const product = await this.productRepository.save(newProduct);
+    return {...product, images: savedImages.map((image) => image.img)};
   }
 
   async findAll(pagination?: PaginationQuery) {
@@ -88,7 +90,12 @@ export class ProductService {
     const products = await this.productRepository.find({
       relations: { flavors: true, images: true, category: true },
     });
-    const sliceUsers = products.slice(startIndex, endIndex);
+    const productsMapped = products.map((product) =>({
+      ...product,
+      images: product.images.map((image) => image.img)
+    }))
+
+    const sliceUsers = productsMapped.slice(startIndex, endIndex);
     return sliceUsers;
   }
 
@@ -200,7 +207,7 @@ export class ProductService {
     return `Se ha eliminado el producto correspondiente`;
   }
 
-  async update(id: string, updateProductDto): Promise<Product> {
+  async update(id: string, updateProductDto: UpdateProductDto){
     // Encuentra el producto por su ID y carga las imágenes relacionadas
     const product = await this.productRepository.findOne({
       where: { id },
@@ -209,35 +216,50 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
-
+    
+    if(updateProductDto.categoryId) {
+      const findCategory = await this.categoryRepository.findOne({
+        where: {id: updateProductDto.categoryId}
+      })
+      product.category = findCategory;
+    }
     // Actualiza los detalles del producto (excepto imágenes)
-    if (updateProductDto.name) product.name = updateProductDto.name;
-    if (updateProductDto.price) product.price = updateProductDto.price;
+    product.name = updateProductDto.name || product.name;
+    product.price = updateProductDto.price || product.price;
+    product.description = updateProductDto.description || product.description;
+    product.presentacion = updateProductDto.presentacion || product.presentacion;
     // ...actualiza otros campos según sea necesario
 
     // Maneja las imágenes nuevas
     if (updateProductDto.images) {
       // Primero, guarda las nuevas imágenes
-      const newImageEntities = updateProductDto.images.map((imageUrl) =>
+      const newImageEntities = updateProductDto.images.map( (imageUrl) =>
         this.imageRepository.create({ img: imageUrl }),
       );
-      const savedImages = await this.imageRepository.save(newImageEntities);
+
+      const savedImages = await this.imageRepository.save(newImageEntities)
 
       // Asocia las nuevas imágenes al producto
-      product.images = [...product.images, ...savedImages];
+      product.images = [...savedImages];
     }
 
     // Maneja sabores si es necesario
     if (updateProductDto.flavors) {
-      const flavorEntities = updateProductDto.flavors.map((flavor) => ({
-        id: flavor.id,
-        name: flavor.name,
-        stock: flavor.stock,
-      }));
-      product.flavors = flavorEntities;
+
+      const flavorEntities = updateProductDto.flavors.map(async(flavor) => {
+        const findFlavors = await this.flavorRepository.findOne({
+          where: {id: flavor.id}
+        })
+        
+        return findFlavors
+
+        });
+      const newFlavors = await Promise.all(flavorEntities);
+      product.flavors = newFlavors;
     }
 
-    return this.productRepository.save(product);
+    const productUpdated = await this.productRepository.save(product);
+    return {...productUpdated, images: productUpdated.images.map((images) => images.img)};
   }
 
   async findExpiredProducts() {
