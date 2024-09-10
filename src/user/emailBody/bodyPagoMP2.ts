@@ -7,6 +7,10 @@ export const bodypagoMP2 = (
   user: User,
   payment: any,
   order: any,
+  label:string,
+  trackingNumber:string,
+  trackUrl:string
+
 ) => {
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -147,51 +151,53 @@ a[x-apple-data-detectors],
                </table></td>
              </tr>
              <tr>
-              <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px"><!--[if mso]><table style="width:560px" cellpadding="0" cellspacing="0"><tr><td style="width:280px" valign="top"><![endif]-->
-               <table cellpadding="0" cellspacing="0" align="left" class="es-left" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
-                 <tr>
-                  <td align="center" class="es-m-p20b" style="padding:0;Margin:0;width:280px">
-                   <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                     <tr>
-                      <td align="left" style="padding:0;Margin:0">
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                      Customer: <span>${user.email}</span>
-                      </p>
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                      Order number:&nbsp;
-                      <strong>#${order.id}</strong>
-                      </p>
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                      Fecha de Orden:&nbsp;<strong>${order.date}</strong>
-                      </p>
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Pasarela de pago:&nbsp;<strong>MercadoPago</strong></p>
+                <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px"><!--[if mso]><table style="width:560px" cellpadding="0" cellspacing="0"><tr><td style="width:280px" valign="top"><![endif]-->
+                  <table cellpadding="0" cellspacing="0" align="left" class="es-left" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tr>
+                      <td align="center" class="es-m-p20b" style="padding:0;Margin:0;width:280px">
+                          <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                            <tr>
+                              <td align="left" style="padding:0;Margin:0">
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Customer: <span>${user.email}</span>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Order number:&nbsp;
+                                  <strong>#${order.id}</strong>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Fecha de Orden:&nbsp;<strong>${order.date}</strong>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Pasarela de pago:&nbsp;<strong>MercadoPago</strong></p>
+                              </td>
+                            </tr>
+                          </table>
                       </td>
-                     </tr>
-                   </table></td>
-                 </tr>
-               </table><!--[if mso]></td><td style="width:280px" valign="top"><![endif]-->
-               <table cellpadding="0" cellspacing="0" align="right" class="es-right" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
-                 <tr>
-                  <td align="left" style="padding:0;Margin:0;width:280px">
-                   <table width="100%" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    </tr>
+                 </table><!--[if mso]></td><td style="width:280px" valign="top"><![endif]-->
+                 <table cellpadding="0" cellspacing="0" align="right" class="es-right" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:right">
                    <tr>
-                      <td align="right" style="padding:0;Margin:0">
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Precio de orden&nbsp;<strong>$${order.orderDetail.price}</strong></td>
-                     </tr>
-                     <tr>
-                      <td align="right" style="padding:0;Margin:0">
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Descuento&nbsp;<strong>$ ${order.giftCard?.discount ? order.orderDetail.price : 0}</strong></td>
-                     </tr>
-                     <tr>
-                      <td align="right" style="padding:0;Margin:0">
-                      <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Total&nbsp;<strong>$${order.giftCard?.discount ? order.orderDetail.price - order.giftCard?.discount : order.orderDetail.price}</strong></td>
-                     </tr>
-                   </table></td>
-                 </tr>
-               </table><!--[if mso]></td></tr></table><![endif]--></td>
+                     <td align="left" style="padding:0;Margin:0;width:280px">
+                      <table width="100%" role="presentation" cellpadding="0" cellspacing="0" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                        <tr>
+                         <td align="right" style="padding:0;Margin:0">
+                           <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Precio de orden&nbsp;<strong>$${order.orderDetail.price}</strong></td>
+                        </tr>
+                        <tr>
+                          <td align="right" style="padding:0;Margin:0">
+                             <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Descuento&nbsp;<strong>$ ${order.giftCard?.discount ? order.orderDetail.price : 0}</strong></td>
+                        </tr>
+                        <tr>
+                           <td align="right" style="padding:0;Margin:0">
+                            <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Total&nbsp;<strong>$${order.giftCard?.discount ? order.orderDetail.price - order.giftCard?.discount : order.orderDetail.price}</strong></td>
+                        </tr>
+                      </table>
+                      </td>
+                    </tr>
+                 </table><!--[if mso]></td></tr></table><![endif]--></td>
              </tr>
              <tr>
-              <td align="left" style="Margin:0;padding-bottom:10px;padding-top:15px;padding-right:20px;padding-left:20px">
+               <td align="left" style="Margin:0;padding-bottom:10px;padding-top:15px;padding-right:20px;padding-left:20px">
                <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                  <tr>
                   <td align="left" style="padding:0;Margin:0;width:560px">
@@ -223,6 +229,47 @@ a[x-apple-data-detectors],
                    </table></td>
                  </tr>
                </table></td>
+             </tr>
+             <tr>
+             <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px">
+              <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                <tr>
+                 <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
+                  <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                    <tr>
+                     <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Datos de envío&nbsp;</p></td>
+                    </tr>
+
+                  </table></td>
+                </tr>
+              </table></td>
+            </tr>
+            <tr>
+                <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px"><!--[if mso]><table style="width:560px" cellpadding="0" cellspacing="0"><tr><td style="width:280px" valign="top"><![endif]-->
+                  <table cellpadding="0" cellspacing="0" align="left" class="es-left" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
+                    <tr>
+                      <td align="center" class="es-m-p20b" style="padding:0;Margin:0;width:280px">
+                          <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
+                            <tr>
+                              <td align="left" style="padding:0;Margin:0">
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Número de Guía: <span>${trackingNumber}</span>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Página para seguimiento de envío:&nbsp;<strong>${trackUrl}</strong>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                  Etiqueta de envío:&nbsp;
+                                  <strong>#${label}</strong>
+                                  </p>
+                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Pasarela de pago:&nbsp;<strong>MercadoPago</strong></p>
+                              </td>
+                            </tr>
+                          </table>
+                      </td>
+                    </tr>
+                 </table><!--[if mso]></td><td style="width:280px" valign="top"><![endif]-->
+              
              </tr>
            </table></td>
          </tr>

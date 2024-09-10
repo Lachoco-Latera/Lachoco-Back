@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PagosService } from './pagos.service';
+import { ShipmentsService } from 'src/shipments/shipments.service';
 import { PagosController } from './pagos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/order/entities/order.entity';
@@ -11,6 +12,7 @@ import { OrderDetail } from 'src/order/entities/orderDetail.entity';
 import { OrderLabel } from 'src/order/entities/label.entity';
 import { Address } from 'src/order/entities/address.entity';
 import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
+import { User} from "src/user/entities/user.entity";  
 
 @Module({
   imports: [
@@ -23,9 +25,10 @@ import { SuscriptionPro } from 'src/suscription/entity/suscription.entity';
       OrderLabel,
       Address,
       SuscriptionPro,
+      User,
     ]),
   ],
   controllers: [PagosController],
-  providers: [PagosService, EmailService],
+  providers: [PagosService, EmailService,ShipmentsService],
 })
 export class PagosModule {}

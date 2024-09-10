@@ -244,7 +244,7 @@ export class ShipmentsService {
       });
   }
 
-  async createlable(createShipmentDto: UpdateShipmentDto) {
+  async createLabel(createShipmentDto: UpdateShipmentDto) {
     const user = await this.userRepository.findOne({
       where: { email: createShipmentDto.user.email },
     });

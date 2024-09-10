@@ -57,6 +57,14 @@ export class OrderCheckoutProduct {
 
   @IsNumber()
   shippingPrice: number;
+  
+  @IsNotEmpty()
+  @IsString()
+  shippingCarrier: string;
+
+  @IsNotEmpty()
+  @IsString()
+  shippingService: string;
 }
 
 export class checkoutOrder {
