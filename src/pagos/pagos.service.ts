@@ -132,7 +132,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (country === "Colombia") {
+    if (country === "COL") {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
