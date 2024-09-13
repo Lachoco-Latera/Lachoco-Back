@@ -186,6 +186,7 @@ export class PagosService {
             notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
           },
         });
+        console.log("res", res);
        
         if (order && Object.keys(order).length > 0) {
           const addAddress = new Address();
@@ -201,7 +202,6 @@ export class PagosService {
           await this.addressRepository.save(addAddress);
         }
 
-        console.log("res", res);
         return res.init_point;
       } catch (error) {
         console.log(error);
