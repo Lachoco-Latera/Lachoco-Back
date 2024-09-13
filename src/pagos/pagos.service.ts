@@ -183,7 +183,7 @@ export class PagosService {
                 
               },
             ],
-            notification_url: "https://b1c3-167-0-186-78.ngrok-free.app/pagos/webhook",
+            notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
           },
         });
        
