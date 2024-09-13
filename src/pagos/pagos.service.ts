@@ -132,7 +132,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (country === "COL") {
+    if (country === "Colombia") {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
@@ -186,7 +186,7 @@ export class PagosService {
             notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
           },
         });
-        console.log("res", res);
+
        
         if (order && Object.keys(order).length > 0) {
           const addAddress = new Address();
