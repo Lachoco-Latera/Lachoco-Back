@@ -200,6 +200,8 @@ export class PagosService {
 
           await this.addressRepository.save(addAddress);
         }
+
+        console.log("res", res);
         return res.init_point;
       } catch (error) {
         console.log(error);
