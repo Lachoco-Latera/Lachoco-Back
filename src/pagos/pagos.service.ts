@@ -25,7 +25,6 @@ import { category } from "src/category/entity/category.entity";
 import {
   frecuency,
   SuscriptionPro,
-
 } from "src/suscription/entity/suscription.entity";
 import { OrderDetailProduct } from "src/order/entities/orderDetailsProdusct.entity";
 import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
@@ -60,7 +59,9 @@ export class PagosService {
   ) {}
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
-    const { order, orderId, country} = checkoutOrder;
+    const { order, orderId, country } = checkoutOrder;
+    console.log("Price:", order);
+    // console.log("checkoutOrder", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
       where: { id: orderId },
@@ -182,10 +183,10 @@ export class PagosService {
                 
               },
             ],
-            notification_url: "https://f1b1-167-0-186-78.ngrok-free.app/pagos/webhook",
+            notification_url: "https://b1c3-167-0-186-78.ngrok-free.app/pagos/webhook",
           },
         });
-
+       
         if (order && Object.keys(order).length > 0) {
           const addAddress = new Address();
           addAddress.city = order.city;
@@ -337,7 +338,7 @@ export class PagosService {
             orderDetail: {
               orderDetailProducts: {
                 product: { category: true },
-                orderDetailFlavors: true,
+                orderDetailFlavors: { flavor: true },
               },
               orderDetailGiftCards: {
                 giftCard: true,
@@ -349,7 +350,8 @@ export class PagosService {
           },
         });
 
-        console.log("ordenwebhook:");
+        console.log("ordenwebhook:", orderById.orderDetail.orderDetailProducts);
+
         if (orderById.status === status.FINISHED)
           throw new BadRequestException("Order Finished");
         if (!orderById) throw new NotFoundException("Order not found");

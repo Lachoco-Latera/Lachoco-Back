@@ -30,7 +30,7 @@ export class CategoryController {
   @Post()
  
   addCategory(@Body() nameCategory: CategoryName) {
-    return this.categoryService.createCategory(nameCategory);
+    return this.categoryService.createCategory(nameCategory.name);
   }
 
   @Put(':id')

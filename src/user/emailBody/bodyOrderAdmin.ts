@@ -6,6 +6,20 @@ export const bodyOrderAdmin = (
   order: Order,
   currentDate: any,
 ) => {
+  console.log('order', order.orderDetail.orderDetailProducts);
+
+  const countFlavors = (arr) => {
+    const counts = {};
+    arr.forEach((item) => {
+      counts[item] = (counts[item] || 0) + 1;
+    });
+    return Object.entries(counts).map(([flavor, count]) => ({ flavor, count }));
+  };
+  
+ 
+
+  // order.orderDetail.orderDetailProducts.map((product) => {product.pickedFlavors = countFlavors(product.pickedFlavors)});
+
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
   dir="ltr"
@@ -401,6 +415,7 @@ export const bodyOrderAdmin = (
       <th>Presentacion</th>
       <th>Cantidad</th>
       <th>Precio</th>
+      <th>Sabores</th>
     </tr>
   </thead>
   <tbody>
@@ -412,6 +427,7 @@ export const bodyOrderAdmin = (
         <td>${p.product.presentacion}</td>
         <td>${p.cantidad}</td>
         <td>${p.product.price}</td>
+        <td>${p.pickedFlavors}</td>
       </tr>`,
       )
       .join('')}

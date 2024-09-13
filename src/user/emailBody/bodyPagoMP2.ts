@@ -260,7 +260,7 @@ a[x-apple-data-detectors],
                                   </p>
                                   <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
                                   Etiqueta de envío:&nbsp;
-                                  <strong>#${label}</strong>
+                                  <strong>${label}</strong>
                                   </p>
                                   <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Pasarela de pago:&nbsp;<strong>MercadoPago</strong></p>
                               </td>
