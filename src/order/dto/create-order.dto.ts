@@ -17,11 +17,11 @@ import {
 import { PickedFlavorsConditional } from 'src/decorators/requireFlavor.decorator';
 
 export class FlavorOrderDTO {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'Flavor ID, has to be UUID',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'Flavor ID, has to be String',
+    example: 'Sal marina',
   })
   flavorId: string;
 

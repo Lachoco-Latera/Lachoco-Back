@@ -42,5 +42,5 @@ export class UpdateProductDto {
   flavors?: { id: string; name: string; stock: number }[];
 
   @IsArray()
-  images?: string[];
+  images?: { id: string; img: string }[];
 }
