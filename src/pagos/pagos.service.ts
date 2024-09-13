@@ -163,8 +163,8 @@ export class PagosService {
               //  trackingNumber: order.trackingNumber,
               // priceShipment: order.totalPrice,
               frecuency: order?.frecuency || "",
-              shippingCarrier: order?.shippingCarrier,
-              shippingService: order?.shippingService,
+              // shippingCarrier: order?.shippingCarrier,
+              // shippingService: order?.shippingService,
             },
             back_urls: {
               success: `${MP_URL}/success`,
@@ -322,7 +322,7 @@ export class PagosService {
     const payment = query;
     const searchPayment = new Payment(client);
     const searchMercharOrder = new MerchantOrder(client);
-    let carrier: string;
+    // let carrier: string;
     let shippingService: string;
     try {
       if (payment.type === "payment") {
@@ -332,7 +332,7 @@ export class PagosService {
         });
 
         const payments = mercharOrderBody.payments;
-        carrier=data.metadata.shippingCarrier;
+        // carrier=data.metadata.shippingCarrier;
         shippingService=data.metadata.shippingService;
         const orderById = await this.orderRepository.findOne({
           where: { id: data.metadata.order.id },
@@ -500,13 +500,13 @@ export class PagosService {
             carrier: "coordinadora", //`${carrier}`,
           };
 
-          try {
-            console.log("DATOS CREAR LABEL pagos services 500:", labelData);
-            responseLabel = await this.shipmentsService.createLabel(labelData);
-            console.log("Etiqueta creada pagos services 501:", responseLabel);
-          } catch (error) {
-            console.log("Error al crear la etiqueta:", error);
-          }
+          // try {
+          //   // console.log("DATOS CREAR LABEL pagos services 500:", labelData);
+          //   // responseLabel = await this.shipmentsService.createLabel(labelData);
+          //   // console.log("Etiqueta creada pagos services 501:", responseLabel);
+          // } catch (error) {
+          //   console.log("Error al crear la etiqueta:", error);
+          // }
         }
 
         const trackUrl= responseLabel?.data[0]?.trackUrl;
