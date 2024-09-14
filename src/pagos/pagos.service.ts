@@ -177,8 +177,8 @@ export class PagosService {
                 title: "Productos",
                 quantity: 1,
                 unit_price:
-                  Number(orderById.orderDetail.price) +
-                  Number(order.shippingPrice)- discount,
+                  Number(orderById.orderDetail.price) +1500,
+                  // Number(order.shippingPrice)- discount,
                 
               },
             ],
