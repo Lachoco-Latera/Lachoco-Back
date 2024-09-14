@@ -55,8 +55,8 @@ export class OrderCheckoutProduct {
   @IsString()
   shipmentCountry: string;
 
-  // @IsNumber()
-  // shippingPrice: number;
+  @IsNumber()
+  shippingPrice: number;
   
   // @IsNotEmpty()
   // @IsString()
