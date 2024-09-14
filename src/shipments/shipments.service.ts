@@ -183,9 +183,9 @@ export class ShipmentsService {
           weightUnit: 'LB',
           lengthUnit: 'IN',
           dimensions: {
-            length: 10,
+            length: 20,
             width: 10,
-            height: 3,
+            height: 6,
           },
         },
       ],
