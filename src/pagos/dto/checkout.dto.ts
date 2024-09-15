@@ -21,7 +21,7 @@ export class OrderCheckoutProduct {
   @IsOptional()
   frecuency?: string;
 
-  @ApiProperty({ example: '1234567890', description: 'Phone number' })
+  @ApiProperty({ example: '123456789', description: 'Phone number' })
   @IsString()
   @Length(1, 15)
   phone: string;
