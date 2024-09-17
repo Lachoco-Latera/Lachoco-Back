@@ -34,7 +34,7 @@ import { ShipmentsService } from "src/shipments/shipments.service";
 import { bodyGiftCard } from 'src/user/emailBody/bodyGiftCard';
 
 const MP_URL = process.env.MP_URL;
-
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 @Injectable()
@@ -180,8 +180,7 @@ export class PagosService {
                   Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,  
               },
             ],
-            // notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
-            notification_url: "https://eed5-167-0-186-78.ngrok-free.app/pagos/webhook",
+            notification_url: `${WEBHOOK_URL}/pagos/webhook`,
           },
         });
 
