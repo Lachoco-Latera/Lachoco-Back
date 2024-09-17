@@ -13,7 +13,7 @@ export class PagosController {
       if (error) {
         console.log('Error: ', error);
       } else {
-        console.log('Server is ready to take our messages');
+        //console.log('Server is ready to take our messages');
       }
     });
     const info = await transporter.sendMail({
@@ -23,12 +23,12 @@ export class PagosController {
       text: 'Hello world?', // plain text body
       html: '<b>Hello world?</b>', // html body
     });
-    console.log('Message sent: %s', info.messageId);
+    //console.log('Message sent: %s', info.messageId);
   }
 
   @Post('create-checkout-session')
   checkoutSession(@Body() order: checkoutOrder) {
-    console.log('Body checkout',order);
+    //console.log('Body checkout',order);
     return this.pagosService.checkoutSession(order);
   }
 

@@ -60,7 +60,7 @@ export class PagosService {
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
     const { order, orderId, country } = checkoutOrder;
-    console.log("Price:", order);
+    //console.log("Price:", order);
     // console.log("checkoutOrder", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
@@ -180,8 +180,8 @@ export class PagosService {
                   Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,  
               },
             ],
-            notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
-            // notification_url: "https://e697-167-0-186-78.ngrok-free.app/pagos/webhook",
+            // notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
+            notification_url: "https://eed5-167-0-186-78.ngrok-free.app/pagos/webhook",
           },
         });
 
@@ -316,7 +316,7 @@ export class PagosService {
 
   //*mp webhook
   async receiveWebhook(query: any) {
-    console.log(query);
+    //console.log(query);
     const payment = query;
     const searchPayment = new Payment(client);
     const searchMercharOrder = new MerchantOrder(client);
@@ -350,7 +350,7 @@ export class PagosService {
           },
         });
 
-        console.log("ordenwebhook:", orderById.orderDetail.orderDetailProducts);
+        //console.log("ordenwebhook:", orderById.orderDetail.orderDetailProducts);
 
         if (orderById.status === status.FINISHED)
           throw new BadRequestException("Order Finished");
@@ -538,7 +538,7 @@ export class PagosService {
         );
 
         const info = await transporter.sendMail({
-          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+          from: '"Lachoco-latera" <ventas@lachoco-latera.com>', // sender address
           to: orderById.user.email, // list of receivers
           subject: "Compra Exitosa", // Subject line
           text: "Gracias por su Compra", // plain text body
@@ -572,7 +572,7 @@ export class PagosService {
         }
 
         const template2 = bodyOrderAdmin(
-          "ventas_lachoco_latera@hotmail.com",
+          "ventas@lachoco-latera.com",
           "Orden de envio",
           orderById,
           orderById.date,
@@ -581,8 +581,8 @@ export class PagosService {
 
         //no lee postal code
         const info2 = await transporter.sendMail({
-          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
-          to: "ventas_lachoco_latera@hotmail.com", // list of receivers
+          from: '"Lachoco-latera" <ventas@lachoco-latera.com>', // sender address
+          to: "ventas@lachoco-latera.com", // list of receivers
           subject: "Orden de envio", // Subject line
           text: "Nueva Orden de envio", // plain text body
           html: template2, // html body
