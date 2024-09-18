@@ -6,7 +6,7 @@ export class PaginationQuery {
   @IsPositive()
   @IsOptional()
   @Transform(({ value }) => Number(value))
-  limit?: number = 15;
+  limit?: number = 150;
 
   @IsNumber()
   @IsPositive()
