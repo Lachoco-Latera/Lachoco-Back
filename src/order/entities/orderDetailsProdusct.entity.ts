@@ -38,4 +38,5 @@ export class OrderDetailProduct {
 
   @Column({ type: 'text', array: true, default: '{}', nullable: true })
   pickedFlavors?: string[];
+  // sabor: string;
 }
