@@ -14,7 +14,7 @@ export class GuardToken implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log(request.body);
+    //console.log(request.body);
     const token = request.headers['authorization']?.split(' ')[1] ?? '';
 
     if (!token) throw new UnauthorizedException('bearer token is required');
@@ -26,7 +26,7 @@ export class GuardToken implements CanActivate {
       payload.iat = new Date(payload.iat * 1000);
       payload.exp = new Date(payload.exp * 1000);
       request.user = payload;
-      console.log(payload, 'prueba');
+      //console.log(payload, 'prueba');
 
       return true;
     } catch (error) {
