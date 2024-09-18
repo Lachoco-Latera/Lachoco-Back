@@ -29,7 +29,7 @@ export class ShipmentsService {
 
     try {
       const response = await axios(config);
-      console.log('CARRIER', response.data.data);
+      //console.log('CARRIER', response.data.data);
       return [
         ...new Set(response.data.data.map((carrier) => carrier.carrier_name)),
       ];
@@ -113,9 +113,9 @@ export class ShipmentsService {
   }
 
   async quoteShipments(createShipmentDto: CreateShipmentDto) {
-    console.log('Create shipment:', createShipmentDto)
+    //console.log('Create shipment:', createShipmentDto)
     const country = await this.getcountry(createShipmentDto.user.country) || { code: 'CO', name: 'Colombia', phone_code: '57' };
-    console.log('Country:', country);
+    //console.log('Country:', country);
     const state = await this.getStateBytCountry(
       country.code,
       createShipmentDto.user.state,
@@ -125,7 +125,7 @@ export class ShipmentsService {
       (city) =>
         city.cityName=== createShipmentDto.user.city.toUpperCase(),
     );
-    console.log('Ciudad filter:', ciudadfilter);
+    //console.log('Ciudad filter:', ciudadfilter);
 
     const code = ciudadfilter[0].cityCode;
     let cityCode: string;
@@ -210,7 +210,7 @@ export class ShipmentsService {
     };
     return axios(config)
       .then(function (response) {
-        console.log('Shpment 195 envia Respu', response.data);
+        //console.log('Shpment 195 envia Respu', response.data);
         if (response.data.meta === 'rate') {
           const filteredCarriers = response.data.data.map(
             ({
@@ -244,7 +244,7 @@ export class ShipmentsService {
       })
 
       .catch(function (error) {
-        console.log(error);
+        //console.log(error);
       });
   }
 
@@ -253,22 +253,22 @@ export class ShipmentsService {
       where: { email: createShipmentDto.user.email },
     });
     if (!user) throw new NotFoundException('User not found');
-  console.log('user creeate label 256:', user)
+  //console.log('user creeate label 256:', user)
     const country = await this.getcountry(createShipmentDto.user.country);
-     console.log('Estado 258', createShipmentDto.user);
-     console.log('Estado 259', country);
+     //console.log('Estado 258', createShipmentDto.user);
+     //console.log('Estado 259', country);
     const state = await this.getStateBytCountry(
       country.code,
       createShipmentDto.user.state,
     );
     
-    console.log('Estado 264', state);
+    //console.log('Estado 264', state);
 
     const ciudadfilter = cityCodes.filter(
       (city) =>
         city.cityName=== createShipmentDto.user.city.toUpperCase(),
     );
-    console.log('Ciudad filter:', ciudadfilter);
+    //console.log('Ciudad filter:', ciudadfilter);
 
     const code = ciudadfilter[0].cityCode;
     let cityCode: string;
@@ -340,7 +340,7 @@ export class ShipmentsService {
         currency: `${country.code === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
-    console.log('Label 325', data);
+    //console.log('Label 325', data);
 
     const config = {
       method: 'post',
