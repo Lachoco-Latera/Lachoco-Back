@@ -15,10 +15,17 @@ export const bodyOrderAdmin = (
     });
     return Object.entries(counts).map(([flavor, count]) => ({ flavor, count }));
   };
-  
- 
 
-  // order.orderDetail.orderDetailProducts.map((product) => {product.pickedFlavors = countFlavors(product.pickedFlavors)});
+  // const contadorSabores = order.orderDetail.orderDetailProducts.reduce(
+  //   (contador: { [key: string]: number }, product) => {
+  //     const sabor: string = product.sabor;
+  //     contador[sabor] = (contador[sabor] || 0) + 1;
+  //     return contador;
+  //   },
+  //   {},
+  // );
+
+  // console.log('contadorSabores', contadorSabores);
 
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
@@ -435,14 +442,17 @@ export const bodyOrderAdmin = (
 </table>
 
     <p>Total ${order.giftCard?.discount ? Number(order.orderDetail.price) - Number(order.giftCard?.discount) : order.orderDetail.price}$</p>
-      ${order.orderDetail.orderDetailGiftCards.length > 0 ?
-        order.orderDetail.orderDetailGiftCards.map((giftcard) => {
-          return `<p>Gift Card enviada a : ${giftcard.emailRecipient}</p>`
-        }): ''
+      ${
+        order.orderDetail.orderDetailGiftCards.length > 0
+          ? order.orderDetail.orderDetailGiftCards.map((giftcard) => {
+              return `<p>Gift Card enviada a : ${giftcard.emailRecipient}</p>`;
+            })
+          : ''
       }
 
-      ${order.orderDetail.orderDetailProducts.length > 0 ? 
-        `<p>
+      ${
+        order.orderDetail.orderDetailProducts.length > 0
+          ? `<p>
         Direccion de envio:
         </p>
         <ul>
@@ -453,7 +463,8 @@ export const bodyOrderAdmin = (
         <li>${order.address.state}</li>
         <li>${order.address.country}</li>
         <li>${order.address.phone}</li>
-        </ul>`: ''
+        </ul>`
+          : ''
       }
 
     ${order.giftCard && order.giftCard.code ? `<p> Cupon GiftCard ${order.giftCard.code}</p>` : ''}
