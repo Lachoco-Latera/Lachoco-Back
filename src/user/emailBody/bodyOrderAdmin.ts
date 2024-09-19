@@ -6,7 +6,9 @@ export const bodyOrderAdmin = (
   order: Order,
   currentDate: any,
 ) => {
-  console.log('order', order.orderDetail.orderDetailProducts);
+  // console.log('order', order.orderDetail.orderDetailProducts);
+
+ 
 
   const countFlavors = (arr) => {
     const counts = {};
@@ -16,6 +18,8 @@ export const bodyOrderAdmin = (
     return Object.entries(counts).map(([flavor, count]) => ({ flavor, count }));
   };
 
+  const reducedFlavor=order.orderDetail.orderDetailProducts.map((p)=>countFlavors(p.pickedFlavors))
+  console.log('reducedFlavor',reducedFlavor)
   // const contadorSabores = order.orderDetail.orderDetailProducts.reduce(
   //   (contador: { [key: string]: number }, product) => {
   //     const sabor: string = product.sabor;
@@ -26,7 +30,7 @@ export const bodyOrderAdmin = (
   // );
 
   // console.log('contadorSabores', contadorSabores);
-
+  // <td>${countFlavors(p.pickedFlavors)}</td>
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
   dir="ltr"
@@ -411,14 +415,15 @@ export const bodyOrderAdmin = (
     <h1>
     ${subject}
     </h1>
-    <h2> Orden del usuario: ${order.user.name} ${order.user.lastname}
-    a la fecha ${currentDate}
+    <h2> Orden del usuario: ${order.user.name} ${order.user.lastname}, 
+    email: ${order.user.email},  en la fecha ${currentDate}
     </h2>
   
     <table>
   <thead>
     <tr>
       <th>Categoria</th>
+      <th>Producto</th>
       <th>Presentacion</th>
       <th>Cantidad</th>
       <th>Precio</th>
@@ -428,13 +433,19 @@ export const bodyOrderAdmin = (
   <tbody>
     ${order.orderDetail.orderDetailProducts
       .map(
-        (p) => `
+        (p,index) => `
       <tr>
         <td>${p.product.category.name}</td>
+        <td>${p.product.name}</td>
         <td>${p.product.presentacion}</td>
         <td>${p.cantidad}</td>
         <td>${p.product.price}</td>
-        <td>${p.pickedFlavors}</td>
+        <td> 
+          ${countFlavors(p.pickedFlavors)
+            .map(flavorCount => `sabor: ${flavorCount.flavor} (${flavorCount.count})`)
+            .join(', ')}
+        </td>
+        
       </tr>`,
       )
       .join('')}
