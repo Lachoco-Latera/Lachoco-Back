@@ -41,6 +41,7 @@
     "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.0.9",
+    "ngrok": "^5.0.0-beta.2",
     "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.0",

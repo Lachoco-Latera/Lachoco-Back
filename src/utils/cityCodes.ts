@@ -245,12 +245,12 @@ export const cityCodes = [
   { cityCode: 8849, cityName: "USIACURI", codigo_departamento: 8 },
   {
     cityCode: 11001,
-    cityName: "BOGOTA. D.C.",
+    cityName: "BOGOTA",
     codigo_departamento: 11,
   },
   {
     cityCode: 13001,
-    cityName: "CARTAGENA DE INDIAS",
+    cityName: "CARTAGENA",
     codigo_departamento: 13,
   },
   { cityCode: 13006, cityName: "ACHI", codigo_departamento: 13 },

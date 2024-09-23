@@ -29,7 +29,7 @@ export class ShipmentsService {
 
     try {
       const response = await axios(config);
-      console.log('CARRIER', response.data.data);
+      //console.log('CARRIER', response.data.data);
       return [
         ...new Set(response.data.data.map((carrier) => carrier.carrier_name)),
       ];
@@ -113,9 +113,9 @@ export class ShipmentsService {
   }
 
   async quoteShipments(createShipmentDto: CreateShipmentDto) {
-    console.log('Create shipment:', createShipmentDto)
+    //console.log('Create shipment:', createShipmentDto)
     const country = await this.getcountry(createShipmentDto.user.country) || { code: 'CO', name: 'Colombia', phone_code: '57' };
-    console.log('Country:', country);
+    //console.log('Country:', country);
     const state = await this.getStateBytCountry(
       country.code,
       createShipmentDto.user.state,
@@ -125,7 +125,7 @@ export class ShipmentsService {
       (city) =>
         city.cityName=== createShipmentDto.user.city.toUpperCase(),
     );
-    console.log('Ciudad filter:', ciudadfilter);
+    //console.log('Ciudad filter:', ciudadfilter);
 
     const code = ciudadfilter[0].cityCode;
     let cityCode: string;
@@ -183,9 +183,9 @@ export class ShipmentsService {
           weightUnit: 'LB',
           lengthUnit: 'IN',
           dimensions: {
-            length: 10,
+            length: 20,
             width: 10,
-            height: 10,
+            height: 6,
           },
         },
       ],
@@ -210,7 +210,7 @@ export class ShipmentsService {
     };
     return axios(config)
       .then(function (response) {
-        console.log('Shpment 195 envia Respu', response.data);
+        //console.log('Shpment 195 envia Respu', response.data);
         if (response.data.meta === 'rate') {
           const filteredCarriers = response.data.data.map(
             ({
@@ -244,7 +244,7 @@ export class ShipmentsService {
       })
 
       .catch(function (error) {
-        console.log(error);
+        //console.log(error);
       });
   }
 
@@ -253,14 +253,30 @@ export class ShipmentsService {
       where: { email: createShipmentDto.user.email },
     });
     if (!user) throw new NotFoundException('User not found');
-
+  //console.log('user creeate label 256:', user)
     const country = await this.getcountry(createShipmentDto.user.country);
-    // console.log('Estado 262', createShipmentDto.user);
+     //console.log('Estado 258', createShipmentDto.user);
+     //console.log('Estado 259', country);
     const state = await this.getStateBytCountry(
       country.code,
       createShipmentDto.user.state,
     );
-    //console.log('Estado 266', state);
+    
+    //console.log('Estado 264', state);
+
+    const ciudadfilter = cityCodes.filter(
+      (city) =>
+        city.cityName=== createShipmentDto.user.city.toUpperCase(),
+    );
+    //console.log('Ciudad filter:', ciudadfilter);
+
+    const code = ciudadfilter[0].cityCode;
+    let cityCode: string;
+    if (code.toString().length === 4) {
+      cityCode= `0${code}000`;
+    } else {
+      cityCode = `${code}000`;
+    }
 
     const data = JSON.stringify({
       origin: {
@@ -268,13 +284,13 @@ export class ShipmentsService {
         company: 'Tiempo de Chocolatear SL',
         email: 'ventas@lachoco-latera.com',
         phone: '+34634089473',
-        street: `${createShipmentDto.country === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
-        number: `${createShipmentDto.country === 'CO' ? '12' : '18'}`,
+        street: `${country.code === 'CO' ? 'carretera 4a' : 'Calle lepanto'}`,
+        number: `${country.code === 'CO' ? '12' : '18'}`,
         district: 'other',
-        city: `${createShipmentDto.country === 'CO' ? '11001000' : 'Castilla y León'}`,
-        state: `${createShipmentDto.country === 'CO' ? 'dc' : 'SG'}`,
-        country: `${createShipmentDto.country === 'CO' ? 'CO' : 'ES'}`,
-        postalCode: `${createShipmentDto.country === 'CO' ? '110311' : '40196'}`,
+        city: `${country.code === 'CO' ? '11001000' : 'Castilla y León'}`,
+        state: `${country.code === 'CO' ? 'DC' : 'SG'}`,
+        country: `${country.code === 'CO' ? 'CO' : 'ES'}`,
+        postalCode: `${country.code === 'CO' ? '110311' : '40196'}`,
         reference: '',
         latitude: '6.246544926420268',
         longitude: '-75.60054402387485',
@@ -287,7 +303,7 @@ export class ShipmentsService {
         street: createShipmentDto.user.street,
         number: createShipmentDto.user.number,
         district: 'other',
-        city: createShipmentDto.user.city,
+        city: cityCode,
         state: state.code_2_digits,
         country: country.code,
         postalCode: createShipmentDto.user.postalCode,
@@ -301,13 +317,13 @@ export class ShipmentsService {
           amount: 1,
           type: 'box',
           dimensions: {
-            length: 2,
-            width: 5,
-            height: 5,
+            length: 20,
+            width: 30,
+            height: 15,
           },
           weight: 1,
           insurance: 0,
-          declaredValue: 400,
+          declaredValue: 10,
           weightUnit: 'KG',
           lengthUnit: 'CM',
         },
@@ -315,16 +331,16 @@ export class ShipmentsService {
       shipment: {
         carrier: createShipmentDto.carrier,
         service: createShipmentDto.carrierService,
-        type: 1,
+        type: 0,
       },
       settings: {
         printFormat: 'PDF',
         printSize: 'STOCK_4X6',
         comments: 'comentarios de el envío',
-        currency: `${createShipmentDto.country === 'CO' ? 'COP' : 'EUR'}`,
+        currency: `${country.code === 'CO' ? 'COP' : 'EUR'}`,
       },
     });
-    console.log('Label 325', data);
+    //console.log('Label 325', data);
 
     const config = {
       method: 'post',
@@ -354,7 +370,7 @@ export class ShipmentsService {
 
     return axios(config)
       .then(function (response) {
-        return JSON.stringify(response.data);
+        return response.data;
       })
       .catch(function (error) {
         return error;

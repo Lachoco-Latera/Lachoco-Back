@@ -203,7 +203,7 @@ export class OrderService {
   }
   async findAll(pagination?: PaginationQuery) {
     const defaultPage = pagination?.page || 1;
-    const defaultLimit = pagination?.limit || 15;
+    const defaultLimit = pagination?.limit || 150;
 
     const startIndex = (defaultPage - 1) * defaultLimit;
     const endIndex = startIndex + defaultLimit;

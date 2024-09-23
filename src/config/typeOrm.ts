@@ -19,19 +19,14 @@ const config = {
   dropSchema: false,
   entities: ['dist/**/*.entity{.ts,.js}'],
   migrations: ['dist/migrations/*{.ts,.js}'],
-  ssl: false,
+  ssl: true,
   cache: true,
   maxQueryExecutionTime: 1000,
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
-  // extra: {
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //   },
-  // },
+  extra: {
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  },
 };
 
 export default registerAs('typeorm', () => config);

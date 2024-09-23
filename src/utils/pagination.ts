@@ -1,6 +1,6 @@
 export function fnPagination(page, limit, arr) {
   const defaultPage = page || 1;
-  const defaultLimit = limit || 15;
+  const defaultLimit = limit || 150;
 
   const startIndex = (defaultPage - 1) * defaultLimit;
   const endIndex = startIndex + defaultLimit;

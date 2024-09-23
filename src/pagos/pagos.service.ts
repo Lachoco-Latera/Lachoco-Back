@@ -25,7 +25,6 @@ import { category } from "src/category/entity/category.entity";
 import {
   frecuency,
   SuscriptionPro,
-
 } from "src/suscription/entity/suscription.entity";
 import { OrderDetailProduct } from "src/order/entities/orderDetailsProdusct.entity";
 import { bodyOrderAdmin } from "src/user/emailBody/bodyOrderAdmin";
@@ -35,7 +34,7 @@ import { ShipmentsService } from "src/shipments/shipments.service";
 import { bodyGiftCard } from 'src/user/emailBody/bodyGiftCard';
 
 const MP_URL = process.env.MP_URL;
-
+const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const stripe = new Stripe(process.env.KEY_STRIPE);
 const client = new MercadoPagoConfig({ accessToken: process.env.KEY_MP });
 @Injectable()
@@ -61,7 +60,7 @@ export class PagosService {
 
   async checkoutSession(checkoutOrder: checkoutOrder) {
     const { order, orderId, country } = checkoutOrder;
-    console.log("Price:", order);
+    //console.log("Price:", order);
     // console.log("checkoutOrder", checkoutOrder);
     let updateOrder;
     let orderById = await this.orderRepository.findOne({
@@ -133,7 +132,7 @@ export class PagosService {
         discount = hasGiftCardCode.discount;
       }
     }
-    if (country === "COL") {
+    if (country === "Colombia") {
       const preference = new Preference(client);
 
       // totalProducts = orderById.orderDetail.orderDetailProducts.map((p) => ({
@@ -164,8 +163,8 @@ export class PagosService {
               //  trackingNumber: order.trackingNumber,
               // priceShipment: order.totalPrice,
               frecuency: order?.frecuency || "",
-              shippingCarrier: order?.shippingCarrier,
-              shippingService: order?.shippingService,
+              // shippingCarrier: order?.shippingCarrier,
+              // shippingService: order?.shippingService,
             },
             back_urls: {
               success: `${MP_URL}/success`,
@@ -178,16 +177,14 @@ export class PagosService {
                 title: "Productos",
                 quantity: 1,
                 unit_price:
-                  Number(orderById.orderDetail.price) +
-                  Number(order.shippingPrice) -
-                  discount,
-                
+                  Number(orderById.orderDetail.price) + Number(order.shippingPrice)- discount,  
               },
             ],
-            notification_url: "https://lachoco-back.vercel.app/pagos/webhook",
+            notification_url: `${WEBHOOK_URL}/pagos/webhook`,
           },
         });
 
+       
         if (order && Object.keys(order).length > 0) {
           const addAddress = new Address();
           addAddress.city = order.city;
@@ -201,6 +198,7 @@ export class PagosService {
 
           await this.addressRepository.save(addAddress);
         }
+
         return res.init_point;
       } catch (error) {
         console.log(error);
@@ -317,11 +315,11 @@ export class PagosService {
 
   //*mp webhook
   async receiveWebhook(query: any) {
-    console.log(query);
+    //console.log(query);
     const payment = query;
     const searchPayment = new Payment(client);
     const searchMercharOrder = new MerchantOrder(client);
-    let carrier: string;
+    // let carrier: string;
     let shippingService: string;
     try {
       if (payment.type === "payment") {
@@ -331,7 +329,7 @@ export class PagosService {
         });
 
         const payments = mercharOrderBody.payments;
-        carrier=data.metadata.shippingCarrier;
+        // carrier=data.metadata.shippingCarrier;
         shippingService=data.metadata.shippingService;
         const orderById = await this.orderRepository.findOne({
           where: { id: data.metadata.order.id },
@@ -339,7 +337,7 @@ export class PagosService {
             orderDetail: {
               orderDetailProducts: {
                 product: { category: true },
-                orderDetailFlavors: true,
+                orderDetailFlavors: { flavor: true },
               },
               orderDetailGiftCards: {
                 giftCard: true,
@@ -348,11 +346,11 @@ export class PagosService {
             user: true,
             address: true,
             giftCard: { product: true },
-            address: true,
           },
         });
 
-        console.log("ordenwebhook:");
+        //console.log("ordenwebhook:", orderById.orderDetail.orderDetailProducts);
+
         if (orderById.status === status.FINISHED)
           throw new BadRequestException("Order Finished");
         if (!orderById) throw new NotFoundException("Order not found");
@@ -498,11 +496,14 @@ export class PagosService {
             country: "COL",
             carrier: "coordinadora", //`${carrier}`,
           };
-          try {
-            responseLabel = await this.shipmentsService.createLabel(labelData);
-          } catch (error) {
-            console.log("Error al crear la etiqueta:", error);
-          }
+
+          // try {
+          //   // console.log("DATOS CREAR LABEL pagos services 500:", labelData);
+          //   // responseLabel = await this.shipmentsService.createLabel(labelData);
+          //   // console.log("Etiqueta creada pagos services 501:", responseLabel);
+          // } catch (error) {
+          //   console.log("Error al crear la etiqueta:", error);
+          // }
         }
 
         const trackUrl= responseLabel?.data[0]?.trackUrl;
@@ -536,13 +537,13 @@ export class PagosService {
         );
 
         const info = await transporter.sendMail({
-          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
+          from: '"Lachoco-latera" <ventas@lachoco-latera.com>', // sender address
           to: orderById.user.email, // list of receivers
           subject: "Compra Exitosa", // Subject line
           text: "Gracias por su Compra", // plain text body
           html: template, // html body
         });
-        console.log("Message sent: %s", info.messageId);
+        console.log("Message sent: %s", info.messageId, orderById.user.email);
         // const mail = {
         //   to: orderById.user.email,
         //   subject: 'Compra Exitosa',
@@ -570,7 +571,7 @@ export class PagosService {
         }
 
         const template2 = bodyOrderAdmin(
-          "ventas_lachoco_latera@hotmail.com",
+          "ventas@lachoco-latera.com",
           "Orden de envio",
           orderById,
           orderById.date,
@@ -579,8 +580,8 @@ export class PagosService {
 
         //no lee postal code
         const info2 = await transporter.sendMail({
-          from: '"Lachoco-latera" <ventas_lachoco_latera@hotmail.com>', // sender address
-          to: "ventas_lachoco_latera@hotmail.com", // list of receivers
+          from: '"Lachoco-latera" <ventas@lachoco-latera.com>', // sender address
+          to: "ventas@lachoco-latera.com", // list of receivers
           subject: "Orden de envio", // Subject line
           text: "Nueva Orden de envio", // plain text body
           html: template2, // html body

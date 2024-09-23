@@ -6,6 +6,31 @@ export const bodyOrderAdmin = (
   order: Order,
   currentDate: any,
 ) => {
+  // console.log('order', order.orderDetail.orderDetailProducts);
+
+ 
+
+  const countFlavors = (arr) => {
+    const counts = {};
+    arr.forEach((item) => {
+      counts[item] = (counts[item] || 0) + 1;
+    });
+    return Object.entries(counts).map(([flavor, count]) => ({ flavor, count }));
+  };
+
+  const reducedFlavor=order.orderDetail.orderDetailProducts.map((p)=>countFlavors(p.pickedFlavors))
+  console.log('reducedFlavor',reducedFlavor)
+  // const contadorSabores = order.orderDetail.orderDetailProducts.reduce(
+  //   (contador: { [key: string]: number }, product) => {
+  //     const sabor: string = product.sabor;
+  //     contador[sabor] = (contador[sabor] || 0) + 1;
+  //     return contador;
+  //   },
+  //   {},
+  // );
+
+  // console.log('contadorSabores', contadorSabores);
+  // <td>${countFlavors(p.pickedFlavors)}</td>
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html
   dir="ltr"
@@ -390,54 +415,66 @@ export const bodyOrderAdmin = (
     <h1>
     ${subject}
     </h1>
-    <h2> Orden del usuario: ${order.user.name} ${order.user.lastname}
-    a la fecha ${currentDate}
+    <h2> Orden del usuario: ${order.user.name} ${order.user.lastname}, 
+    email: ${order.user.email},  en la fecha ${currentDate}
     </h2>
   
     <table>
   <thead>
     <tr>
       <th>Categoria</th>
+      <th>Producto</th>
       <th>Presentacion</th>
       <th>Cantidad</th>
       <th>Precio</th>
+      <th>Sabores</th>
     </tr>
   </thead>
   <tbody>
     ${order.orderDetail.orderDetailProducts
       .map(
-        (p) => `
+        (p,index) => `
       <tr>
         <td>${p.product.category.name}</td>
+        <td>${p.product.name}</td>
         <td>${p.product.presentacion}</td>
         <td>${p.cantidad}</td>
         <td>${p.product.price}</td>
-      </tr>`,
+        <td> 
+          ${countFlavors(p.pickedFlavors)
+            .map(flavorCount => `${flavorCount.flavor} (${flavorCount.count})`)
+            .join(', ')}
+        </td>
+        
+      </tr>`
       )
       .join('')}
   </tbody>
 </table>
 
     <p>Total ${order.giftCard?.discount ? Number(order.orderDetail.price) - Number(order.giftCard?.discount) : order.orderDetail.price}$</p>
-      ${order.orderDetail.orderDetailGiftCards.length > 0 ?
-        order.orderDetail.orderDetailGiftCards.map((giftcard) => {
-          return `<p>Gift Card enviada a : ${giftcard.emailRecipient}</p>`
-        }): ''
+      ${
+        order.orderDetail.orderDetailGiftCards.length > 0
+          ? order.orderDetail.orderDetailGiftCards.map((giftcard) => {
+              return `<p>Gift Card enviada a : ${giftcard.emailRecipient}</p>`;
+            })
+          : ''
       }
 
-      ${order.orderDetail.orderDetailProducts.length > 0 ? 
-        `<p>
+      ${
+        order.orderDetail.orderDetailProducts.length > 0
+          ? `<p>
         Direccion de envio:
         </p>
         <ul>
-        <li>${order.address.postalCode}</li>
-        <li>${order.address.street}</li>
-        <li>${order.address.number}</li>
-        <li>${order.address.city}</li>
-        <li>${order.address.state}</li>
-        <li>${order.address.country}</li>
-        <li>${order.address.phone}</li>
-        </ul>`: ''
+        <li>Dirección: ${order.address.street}</li>
+        <li>Ciudad: ${order.address.city}</li>
+        <li>Departamento: ${order.address.state}</li>
+        <li>País: ${order.address.country}</li>
+        <li>Código postal: ${order.address.postalCode}</li>
+        <li>Número de teléfono: ${order.address.phone}</li>
+        </ul>`
+          : ''
       }
 
     ${order.giftCard && order.giftCard.code ? `<p> Cupon GiftCard ${order.giftCard.code}</p>` : ''}

@@ -230,47 +230,6 @@ a[x-apple-data-detectors],
                  </tr>
                </table></td>
              </tr>
-             <tr>
-             <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px">
-              <table cellpadding="0" cellspacing="0" width="100%" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                <tr>
-                 <td align="center" valign="top" style="padding:0;Margin:0;width:560px">
-                  <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                    <tr>
-                     <td align="center" class="es-m-p0r es-m-p0l" style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px"><p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Datos de envío&nbsp;</p></td>
-                    </tr>
-
-                  </table></td>
-                </tr>
-              </table></td>
-            </tr>
-            <tr>
-                <td align="left" style="Margin:0;padding-bottom:10px;padding-right:20px;padding-left:20px;padding-top:20px"><!--[if mso]><table style="width:560px" cellpadding="0" cellspacing="0"><tr><td style="width:280px" valign="top"><![endif]-->
-                  <table cellpadding="0" cellspacing="0" align="left" class="es-left" role="none" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;float:left">
-                    <tr>
-                      <td align="center" class="es-m-p20b" style="padding:0;Margin:0;width:280px">
-                          <table cellpadding="0" cellspacing="0" width="100%" role="presentation" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
-                            <tr>
-                              <td align="left" style="padding:0;Margin:0">
-                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                  Número de Guía: <span>${trackingNumber}</span>
-                                  </p>
-                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                  Página para seguimiento de envío:&nbsp;<strong>${trackUrl}</strong>
-                                  </p>
-                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                  Etiqueta de envío:&nbsp;
-                                  <strong>#${label}</strong>
-                                  </p>
-                                  <p style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">Pasarela de pago:&nbsp;<strong>MercadoPago</strong></p>
-                              </td>
-                            </tr>
-                          </table>
-                      </td>
-                    </tr>
-                 </table><!--[if mso]></td><td style="width:280px" valign="top"><![endif]-->
-              
-             </tr>
            </table></td>
          </tr>
        </table>
