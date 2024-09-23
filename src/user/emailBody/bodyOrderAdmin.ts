@@ -442,11 +442,11 @@ export const bodyOrderAdmin = (
         <td>${p.product.price}</td>
         <td> 
           ${countFlavors(p.pickedFlavors)
-            .map(flavorCount => `sabor: ${flavorCount.flavor} (${flavorCount.count})`)
+            .map(flavorCount => `${flavorCount.flavor} (${flavorCount.count})`)
             .join(', ')}
         </td>
         
-      </tr>`,
+      </tr>`
       )
       .join('')}
   </tbody>
@@ -467,13 +467,12 @@ export const bodyOrderAdmin = (
         Direccion de envio:
         </p>
         <ul>
-        <li>${order.address.postalCode}</li>
-        <li>${order.address.street}</li>
-        <li>${order.address.number}</li>
-        <li>${order.address.city}</li>
-        <li>${order.address.state}</li>
-        <li>${order.address.country}</li>
-        <li>${order.address.phone}</li>
+        <li>Dirección: ${order.address.street}</li>
+        <li>Ciudad: ${order.address.city}</li>
+        <li>Departamento: ${order.address.state}</li>
+        <li>País: ${order.address.country}</li>
+        <li>Código postal: ${order.address.postalCode}</li>
+        <li>Número de teléfono: ${order.address.phone}</li>
         </ul>`
           : ''
       }
